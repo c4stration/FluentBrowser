@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>Selectați tema aplicației de afișat</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>Tema aplicației</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>Limbă</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>Traducerile nu sunt garantate ca fiind 100% exacte. Textele traduse pentru unele limbi sunt furnizate prin traducere automată sau de către contribuitori din comunitate</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>Setări</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>Întunecat</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>Deschis</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>Utilizați setarea sistemului</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>Căutați pe web sau introduceți o adresă URL</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>Reîmprospătare</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>Duplicare filă</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>Închideți fila</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>Închideți celelalte file</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>Închideți filele din dreapta</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Înapoi (Alt + săgeată stânga)</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Navigați la cea mai recentă pagină web deschisă.</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Înainte (Alt + săgeată dreapta)</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Navigați la pagina de la care ați revenit recent.</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Mai multe opțiuni</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Deschideți opțiuni suplimentare ale browserului.</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>Filă nouă</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>Duplicare filă</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>Mărire</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>Micșorare</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>Resetare zoom</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>Căutare în pagină</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>Imprimare</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>Vizualizare sursă pagină</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>Instrumente pentru dezvoltatori</value>
+  </data>
+  <data name="SettingsMenuItem.Text" xml:space="preserve">
+    <value>Setări</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>Afișează adresa completă a site-ului web</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>Afișează adresa completă a site-ului web în bara de adrese în loc să afișeze doar domeniul</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>Culori</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>Limbă</value>
+  </data>
+  <data name="AppearanceCategory.Content" xml:space="preserve">
+    <value>Aspect</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>Avansat</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Căutați o setare</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>Filele browserului</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>Egal</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>Lungimea titlului</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>Compact</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>Modul lățimii filelor</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>Modul compact va micșora filele nefocalizate la dimensiunea unei pictograme</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>Material de fundal</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>Material de fundal de sistem pentru fundalul ferestrei</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>Bară de adrese</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026. Toate drepturile rezervate.</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>Dependențe</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>Despre</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Activat</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Dezactivat</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>Afișează sugestii de căutare</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>Afișează sugestii de căutare și navigare pe măsură ce tastezi în bara de adrese. Această funcție este încă în versiune beta, așa că așteaptă-te la unele sugestii stupide.</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>Linkuri</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>Traduceți</value>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>Extensii</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>Adaugă extensie</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>Poziția filei noi</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>Specifică unde apar filele nou create în bara de file</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>După ultima filă</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>După fila curentă</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>Întreabă unde să salvezi fiecare descărcare</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>Alege folderul</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>Locația descărcărilor</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>Descărcări</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>Șterge memoria cache</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>Colorarea site-urilor</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>Permite site-urilor să coloreze interfața browserului cu culoarea temei lor</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>Motor de căutare</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>Alegeți motorul de căutare pe care doriți să îl utilizați pentru căutări și sugestii</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>Tema paginii web</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>Selectați tema de utilizat pentru paginile web</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>Urmează tema aplicației</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>Stochează local pictogramele site-urilor web pentru o încărcare mai rapidă ({0})</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>Memorie cache pentru faviconuri</value>
+  </data>
+  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+    <value>N-am reușit să deschid această pagină web!</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>Nu am putut găsi adresa site-ului web pentru „{0}”. Poate există o greșeală de tipar în adresă?</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>„{0}” nu poate fi accesat.</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>Serverul pentru „{0}” nu poate fi accesat.</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>Conexiunea la „{0}” a expirat.</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>Conexiunea la internet s-a pierdut în timpul deschiderii „{0}”.</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>Conexiunea la „{0}” a fost resetată.</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>Conexiunea la „{0}” a fost întreruptă.</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat acum {1}. Acest lucru poate fi cauzat de o configurare incorectă sau de un atacator care interceptează conexiunea. Ceasul computerului este setat în prezent la {2}. Este corect? Dacă nu, ar trebui să corectezi ceasul sistemului și apoi să reîmprospătezi această pagină.
+</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>Certificatul de securitate pentru „{0}” este invalid.</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>A apărut o eroare necunoscută la deschiderea „{0}”.</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>Nu există descărcări în curs</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>Se descarcă</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>Finalizat</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>Întrerupt</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>Anulat</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>Eliminat</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>Nu poate fi descărcat în siguranță</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>Elimină din listă</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>Șterge finalizate</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Elimină descărcările finalizate din listă. Fișierele nu sunt șterse de pe computer.</value>
+  </data>
+</root>

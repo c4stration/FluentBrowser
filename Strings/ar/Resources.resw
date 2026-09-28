@@ -1,0 +1,430 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>اختر سمة التطبيق التي تريد عرضها</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>سمة التطبيق</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>اللغة</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>لا يُضمن أن تكون الترجمات دقيقة بنسبة 100%. تُوفر النصوص المترجمة لبعض اللغات بواسطة الترجمة الآلية أو مساهمي المجتمع</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>الإعدادات</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>داكن</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>فاتح</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>استخدام إعداد النظام</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>ابحث في الويب أو أدخل عنوان URL</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>تكرار علامة التبويب</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>إغلاق علامة التبويب</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>إغلاق علامات التبويب الأخرى</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>إغلاق علامات التبويب إلى اليمين</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>الرجوع للخلف (Alt + السهم الأيسر)</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>الانتقال إلى صفحة الويب التي تم فتحها مؤخرًا.</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>الانتقال للأمام (Alt + السهم الأيمن)</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>الانتقال إلى الصفحة التي عدت منها مؤخرًا.</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>المزيد من الخيارات</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>فتح خيارات متصفح إضافية.</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>علامة تبويب جديدة</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>تكرار علامة التبويب</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>تكبير</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>تصغير</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>إعادة تعيين التكبير</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>البحث في الصفحة</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>طباعة</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>عرض مصدر الصفحة</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>أدوات المطور</value>
+  </data>
+  <data name="SettingsMenuItem.Text" xml:space="preserve">
+    <value>الإعدادات</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>إظهار عنوان موقع الويب بالكامل</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>إظهار عنوان موقع الويب بالكامل في شريط العناوين بدلاً من عرض النطاق فقط</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>الألوان</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>اللغة</value>
+  </data>
+  <data name="AppearanceCategory.Content" xml:space="preserve">
+    <value>المظهر</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>متقدم</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>البحث عن إعداد</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>علامات التبويب</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>متساوٍ</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>طول العنوان</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>مضغوط</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>وضع عرض علامة التبويب</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>سيقوم الوضع المضغوط بتقليص علامات التبويب غير المركّز عليها إلى حجم أيقونة</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>مادة الخلفية</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>مادة الخلفية للنظام لخلفية النافذة</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>شريط العناوين</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026. جميع الحقوق محفوظة.</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>التبعية</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>حول</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>تشغيل</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>إيقاف</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>إظهار اقتراحات البحث</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>اعرض اقتراحات البحث والتصفح أثناء الكتابة في شريط العناوين. لا تزال هذه الميزة في الإصدار التجريبي، لذا توقّع بعض الاقتراحات الغبية.  </value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>الروابط</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>ترجمة</value>
+  </data>
+  <data name="TextDirection.Header" xml:space="preserve">
+    <value>اتجاه النص</value>
+  </data>
+  <data name="TextDirection.Description" xml:space="preserve">
+    <value>إذا لم تكن معتادًا على القراءة من اليمين إلى اليسار، فيمكنك ضبط اتجاه نص التطبيق ليكون من اليسار إلى اليمين</value>
+  </data>
+  <data name="LeftToRight.Content" xml:space="preserve">
+    <value>من اليسار إلى اليمين</value>
+  </data>
+  <data name="RightToLeft.Content" xml:space="preserve">
+    <value>من اليمين إلى اليسار</value>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>الإضافات</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>إضافة امتداد</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>موضع علامة التبويب الجديدة</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>يحدد مكان ظهور علامات التبويب التي تم إنشاؤها حديثًا في صف علامات التبويب</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>بعد آخر علامة تبويب</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>بعد علامة التبويب الحالية</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>السؤال عن مكان حفظ كل تنزيل</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>اختيار مجلد</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>موقع التنزيل</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>التنزيلات</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>مسح ذاكرة التخزين المؤقت</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>تلوين المواقع</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>يتيح للمواقع تلوين واجهة المتصفح بلون السمة الخاص بها</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>محرك البحث</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>اختر محرك البحث الذي تريد استخدامه لعمليات البحث والاقتراحات</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>سمة صفحة الويب</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>اختر السمة التي تريد استخدامها لصفحات الويب</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>اتبع سمة التطبيق</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>يخزّن أيقونات مواقع الويب محليًا لتحميلها بشكل أسرع ({0})</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>ذاكرة التخزين المؤقت لأيقونات المواقع</value>
+  </data>
+  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+    <value>لم أتمكن من فتح صفحة الويب هذه!</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>تعذّر العثور على عنوان موقع الويب لـ «{0}». ربما توجد غلطة إملائية في العنوان؟</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>تعذّر الوصول إلى «{0}».</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>تعذّر الوصول إلى خادم «{0}».</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>انتهت مهلة الاتصال بـ «{0}».</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>انقطع اتصال الإنترنت أثناء فتح «{0}».</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>تمت إعادة تعيين الاتصال بـ «{0}».</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>انقطع الاتصال بـ «{0}».</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>يستخدم "{0}" شهادة منتهية الصلاحية. انتهت صلاحية شهادة الأمان الخاصة به منذ {1}. قد يكون هذا بسبب إعداد غير صحيح أو بسبب مهاجم يعترض اتصالك. تم ضبط ساعة الكمبيوتر حاليًا على {2}. هل يبدو ذلك صحيحًا؟ إذا لم يكن كذلك، فيجب عليك تصحيح ساعة النظام ثم تحديث هذه الصفحة.
+</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>شهادة أمان «{0}» غير صالحة.</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>حدث خطأ غير معروف أثناء فتح «{0}».</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>لا توجد تنزيلات جارية</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>جارٍ التنزيل</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>اكتمل</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>انقطع</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>أُلغي</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>تم تجاهله</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>يتعذّر تنزيله بأمان</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>إزالة من القائمة</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>مسح المكتملة</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>يزيل التنزيلات المكتملة من القائمة. لا يؤدي هذا إلى حذف الملفات من جهاز الكمبيوتر.</value>
+  </data>
+</root>

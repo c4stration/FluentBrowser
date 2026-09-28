@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>选择要显示的应用主题</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>应用主题</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>翻译不保证 100% 准确。某些语言的翻译文本由机器翻译或社区贡献者提供</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>使用系统设置</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>搜索网页或输入网址</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>复制标签页</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>关闭标签页</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>关闭其他标签页</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>关闭右侧标签页</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>返回（Alt + 左箭头）</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>转到最近打开的网页。</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>前进（Alt＋右箭头）</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>转到你最近返回的页面。</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>更多选项</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>打开其他浏览器选项。</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>新建标签页</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>复制标签页</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>放大</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>缩小</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>重置缩放</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>在页面中查找</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>打印</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>查看网页源代码</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>开发者工具</value>
+  </data>
+  <data name="SettingsMenuItem.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>显示完整的网站地址</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>在地址栏中显示完整的网站地址，而不仅仅是显示域名</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>颜色</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="AppearanceCategory.Content" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>查找设置</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>标签页</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>相等</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>标题长度</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>紧凑</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>标签页宽度模式</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>紧凑模式会将未聚焦的标签页缩小至图标大小</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>背景材料</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>用于窗口背景的系统背景材料</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>云母</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>亚克力</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>地址栏</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026。保留所有权利。</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>依赖项</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>显示搜索建议</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>在地址栏中输入时显示搜索和浏览建议。此功能仍处于测试阶段，因此可能会出现一些愚蠢的建议。</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>链接</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>翻译</value>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>扩展程序</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>添加扩展程序</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>新标签页位置</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>指定新创建的标签页在标签栏中的显示位置</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>最后一个标签页之后</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>当前标签页之后</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>每次下载时询问保存位置</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>选择文件夹</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>下载位置</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>清除缓存</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>网站着色</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>允许网站使用其主题色为浏览器界面着色</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>搜索引擎</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>选择用于搜索和建议的搜索引擎</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>网页主题</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>选择网页使用的主题</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>跟随应用主题</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>将网站图标存储在本地，以加快加载速度（{0}）</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>网站图标缓存</value>
+  </data>
+  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+    <value>我打不开这个网页啊！</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>找不到“{0}”的网站地址。地址可能存在拼写错误？</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>无法连接到“{0}”。</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>无法连接到“{0}”的服务器。</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>连接“{0}”时超时。</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>打开“{0}”时互联网连接中断。</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>与“{0}”的连接已重置。</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>与“{0}”的连接已中断。</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>"{0}" 使用了已过期的证书。其安全证书已于 {1} 前过期。这可能是由于配置错误，或攻击者正在拦截您的连接。您的计算机时钟当前设置为 {2}。这看起来正确吗？如果不正确，您应该校正系统时钟，然后刷新此页面。
+</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>“{0}”的安全证书无效。</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>打开“{0}”时发生未知错误。</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>没有正在进行的下载</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>正在下载</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>已中断</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>已丢弃</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>无法安全下载</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>从列表中移除</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>清除已完成</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从列表中移除已完成的下载。此操作不会删除计算机上的文件。</value>
+  </data>
+</root>

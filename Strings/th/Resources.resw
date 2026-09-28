@@ -1,0 +1,437 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>เลือกธีมที่จะแสดงในแอป</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>ธีมแอป</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>ภาษาที่แสดง</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>ไม่รับประกันว่าคำแปลจะถูกต้อง 100% ข้อความที่แปลสำหรับบางภาษาจัดทำโดยการแปลด้วยเครื่องหรือผู้ร่วมพัฒนาจากชุมชน</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>มืด</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>สว่าง</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>ใช้การตั้งค่าของระบบ</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>ค้นหาเว็บหรือป้อน URL</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>รีเฟรช</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>ทำซ้ำแท็บ</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>ปิดแท็บ</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>ปิดแท็บอื่น</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>ปิดแท็บทางขวา</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>ย้อนกลับ (Alt + ลูกศรซ้าย)</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>ไปยังหน้าเว็บที่เปิดล่าสุด</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>ไปข้างหน้า (Alt + ลูกศรขวา)</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>ไปยังหน้าที่คุณเพิ่งย้อนกลับมาจากหน้านั้น</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>ตัวเลือกเพิ่มเติม</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>เปิดตัวเลือกเพิ่มเติมของเบราว์เซอร์</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>แท็บใหม่</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>ทำซ้ำแท็บ</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>ซูมเข้า</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>ซูมออก</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>รีเซ็ตการซูม</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>ค้นหาในหน้า</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>พิมพ์</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>ดูซอร์สของหน้า</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>เครื่องมือสำหรับนักพัฒนา</value>
+  </data>
+  <data name="SettingsMenuItem.Text" xml:space="preserve">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>แสดงที่อยู่เว็บไซต์แบบเต็ม</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>แสดงที่อยู่เว็บไซต์แบบเต็มในแถบที่อยู่แทนการแสดงเฉพาะโดเมน</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>สี</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>ภาษา</value>
+  </data>
+  <data name="AppearanceCategory.Content" xml:space="preserve">
+    <value>ลักษณะที่ปรากฏ</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>ขั้นสูง</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>ค้นหาการตั้งค่า</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>แท็บ</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>เท่ากัน</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>ความยาวชื่อ</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>กะทัดรัด</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>โหมดความกว้างแท็บ</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>โหมดกะทัดรัดจะย่อแท็บที่ไม่ได้โฟกัสให้มีขนาดเท่ากับไอคอน</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>วัสดุพื้นหลัง</value>
+    <comment>วัสดุพื้นหลัง</comment>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>วัสดุพื้นหลังของระบบสำหรับพื้นหลังหน้าต่าง</value>
+    <comment>วัสดุพื้นหลังของระบบสำหรับพื้นหลังหน้าต่าง</comment>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>แถบที่อยู่</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026 สงวนลิขสิทธิ์</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>การพึ่งพา</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>เกี่ยวกับ</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>เปิด</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>ปิด</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>แสดงคำแนะนำการค้นหา</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>แสดงคำแนะนำการค้นหาและการเรียกดูขณะที่คุณพิมพ์ในแถบที่อยู่ ฟีเจอร์นี้ยังอยู่ในรุ่นเบตา ดังนั้นโปรดคาดว่าจะพบคำแนะนำที่ไร้สาระบ้าง</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>ลิงก์</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>แปล</value>
+  </data>
+  <data name="TextDirection.Header" xml:space="preserve">
+    <value>ทิศทางข้อความ</value>
+    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
+  </data>
+  <data name="TextDirection.Description" xml:space="preserve">
+    <value>หากคุณไม่คุ้นเคยกับการอ่านข้อความจากขวาไปซ้ายที่นี่ คุณสามารถตั้งค่าทิศทางข้อความของแอปเป็นจากซ้ายไปขวาได้</value>
+    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
+  </data>
+  <data name="RightToLeft.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>ส่วนขยาย</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>เพิ่มส่วนขยาย</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>ตำแหน่งแท็บใหม่</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>ระบุตำแหน่งที่แท็บที่สร้างใหม่จะปรากฏในแถบแท็บ</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>หลังแท็บสุดท้าย</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>หลังแท็บที่เลือกอยู่</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>ถามตำแหน่งที่จะบันทึกทุกครั้งที่ดาวน์โหลด</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>เลือกโฟลเดอร์</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>ตำแหน่งดาวน์โหลด</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>การดาวน์โหลด</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>ล้างแคช</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>การเปลี่ยนสีตามเว็บไซต์</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>อนุญาตให้เว็บไซต์เปลี่ยนสีส่วนติดต่อของเบราว์เซอร์ตามสีธีมของเว็บไซต์</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>โปรแกรมค้นหาเว็บ</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>เลือกโปรแกรมค้นหาเว็บที่จะใช้สำหรับการค้นหาและคำแนะนำ</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>ธีมของหน้าเว็บ</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>เลือกธีมที่จะใช้สำหรับหน้าเว็บ</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>ใช้ธีมตามแอป</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>จัดเก็บไอคอนเว็บไซต์ไว้ในเครื่องเพื่อให้โหลดได้เร็วขึ้น ({0})</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>แคชไอคอนเว็บไซต์</value>
+  </data>
+  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+    <value>เปิดหน้าเว็บนี้ไม่ได้เลย!</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>ไม่พบที่อยู่เว็บไซต์ของ “{0}” อาจมีการพิมพ์ที่อยู่ผิดหรือไม่?</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>ไม่สามารถเข้าถึง “{0}” ได้</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>ไม่สามารถเข้าถึงเซิร์ฟเวอร์ของ “{0}” ได้</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>การเชื่อมต่อไปยัง “{0}” หมดเวลา</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>การเชื่อมต่ออินเทอร์เน็ตขาดหายขณะเปิด “{0}”</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>การเชื่อมต่อไปยัง “{0}” ถูกรีเซ็ต</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>การเชื่อมต่อไปยัง “{0}” ถูกยกเลิก</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>"{0}" ใช้ใบรับรองที่หมดอายุ ใบรับรองความปลอดภัยหมดอายุเมื่อ {1} ที่แล้ว ซึ่งอาจเกิดจากการกำหนดค่าที่ไม่ถูกต้อง หรือผู้โจมตีกำลังดักจับการเชื่อมต่อของคุณ ขณะนี้นาฬิกาของคอมพิวเตอร์ตั้งไว้ที่ {2} ถูกต้องหรือไม่ หากไม่ถูกต้อง คุณควรแก้ไขนาฬิกาของระบบ แล้วโหลดหน้านี้ใหม่
+</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>ใบรับรองความปลอดภัยของ “{0}” ไม่ถูกต้อง</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุขณะเปิด “{0}”</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>ไม่มีการดาวน์โหลดที่กำลังดำเนินอยู่</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>กำลังดาวน์โหลดอยู่</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>เสร็จสิ้น</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>ถูกขัดจังหวะ</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>ยกเลิกแล้ว</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>ทิ้งแล้ว</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>ไม่สามารถดาวน์โหลดได้อย่างปลอดภัย</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>ลบออกจากรายการ</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>ล้างรายการที่เสร็จแล้ว</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>นำรายการดาวน์โหลดที่เสร็จแล้วออกจากรายการ การดำเนินการนี้จะไม่ลบไฟล์ออกจากคอมพิวเตอร์ของคุณ</value>
+  </data>
+</root>

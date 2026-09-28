@@ -1,0 +1,44 @@
+<Page
+    x:Class="FluentBrowser.Pages.CantOpenPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l="using:WinUI3Localizer"
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock
+                Margin="0,0,0,12"
+                HorizontalAlignment="Center"
+                l:Uids.Uid="CantOpenPageTitle"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{ThemeResource TitleTextBlockStyle}" />
+
+            <TextBlock
+                x:Name="ErrorMessageText"
+                Margin="128,0"
+                HorizontalAlignment="Center"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                HorizontalTextAlignment="Center"
+                TextWrapping="Wrap" />
+
+            <Button
+                x:Name="ContinueButton"
+                Margin="0,32,0,0"
+                HorizontalAlignment="Center"
+                Click="ContinueToPage_Click"
+                Content="Continue to page"
+                Style="{ThemeResource AccentButtonStyle}"
+                Visibility="Collapsed" />
+        </StackPanel>
+
+        <TextBlock
+            x:Name="ErrorStatusText"
+            Margin="0,0,0,6"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+            IsTextSelectionEnabled="True"
+            Style="{ThemeResource CaptionTextBlockStyle}" />
+    </Grid>
+</Page>

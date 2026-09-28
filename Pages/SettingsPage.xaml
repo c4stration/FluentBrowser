@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="FluentBrowser.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:l="using:WinUI3Localizer"
+    xmlns:my="using:FluentBrowser.Controls"
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
+
+    <Grid Grid.Column="1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            x:Name="CategoryName"
+            Grid.Column="1"
+            Margin="36,14,36,0"
+            l:Uids.Uid="SettingsTitle"
+            Style="{StaticResource TitleTextBlockStyle}" />
+
+        <ScrollViewer
+            Grid.Row="1"
+            Grid.Column="1"
+            Padding="36,14,36,0"
+            Visibility="Visible">
+
+            <StackPanel>
+
+                <StackPanel HorizontalAlignment="Stretch" Spacing="3">
+
+                    <!--  App Theme  -->
+
+                    <TextBlock
+                        Margin="0,5,0,8"
+                        l:Uids.Uid="ColorsSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard l:Uids.Uid="AppTheme">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE790;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
+                            <ComboBoxItem l:Uids.Uid="ThemeLight" />
+                            <ComboBoxItem l:Uids.Uid="ThemeDark" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="WebTheme">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <PathIcon Data="{StaticResource WebPaint}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="WebThemeComboBox" SelectionChanged="WebThemeComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
+                            <ComboBoxItem l:Uids.Uid="FollowAppTheme" />
+                            <ComboBoxItem l:Uids.Uid="ThemeLight" />
+                            <ComboBoxItem l:Uids.Uid="ThemeDark" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="BackdropMaterial">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEF1F;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="BackdropMaterialComboBox" SelectionChanged="BackdropMaterialComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="Mica" />
+                            <ComboBoxItem l:Uids.Uid="MicaAlt" />
+                            <ComboBoxItem l:Uids.Uid="Acrylic" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="ThemeColorTint">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEF3C;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ToggleSwitch
+                            x:Name="ThemeColorTintToggleSwitch"
+                            l:Uids.Uid="General_ToggleSwitch"
+                            Toggled="ThemeColorTintToggleSwitch_Toggled" />
+                    </controls:SettingsCard>
+
+                    <!--  Language  -->
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="LanguageSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <InfoBar
+                        x:Name="SystemLanguageUnavailableInfoBar"
+                        Title="Your system language isn’t available!"
+                        IsClosable="True"
+                        IsOpen="False"
+                        Message="We don’t currently have translations for your system language. If you’d like to help translate FluentBrowser, please visit the Crowdin project."
+                        Severity="Warning">
+                        <InfoBar.ActionButton>
+                            <HyperlinkButton Content="Open Crowdin" NavigateUri="https://crowdin.com/project/fluentbrowser" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+
+                    <controls:SettingsCard l:Uids.Uid="DisplayLanguage">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xF2B7;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="LanguageComboBox" SelectionChanged="LanguageComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
+                            <ComboBoxItem l:Uids.Uid="ar" Content="العربية" />
+                            <ComboBoxItem l:Uids.Uid="zh-CN" Content="中文（中华人民共和国）" />
+                            <ComboBoxItem l:Uids.Uid="zh-TW" Content="中文（台灣）" />
+                            <ComboBoxItem l:Uids.Uid="en-US" Content="English (United States)" />
+                            <ComboBoxItem l:Uids.Uid="he" Content="עברית" />
+                            <ComboBoxItem l:Uids.Uid="ja-JP" Content="日本語" />
+                            <ComboBoxItem l:Uids.Uid="ko-KR" Content="한국어" />
+                            <ComboBoxItem l:Uids.Uid="ro-RO" Content="Română" />
+                            <ComboBoxItem l:Uids.Uid="th" Content="ไทย" />
+                            <ComboBoxItem l:Uids.Uid="en-UWU" Content="UwU (Republic of UwU)" />
+                            <ComboBoxItem l:Uids.Uid="en-LOL" Content="LOLCAT (Kingdom of Cats)" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard
+                        x:Name="TextDirectionCard"
+                        l:Uids.Uid="TextDirection"
+                        Visibility="Collapsed">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE8AB;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="TextDirComboBox" SelectionChanged="TextDirComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="LeftToRight" />
+                            <ComboBoxItem l:Uids.Uid="RightToLeft" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <!--  Tabs  -->
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="TabsSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard l:Uids.Uid="TabWidth">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xF57C;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="TabWidthComboBox" SelectionChanged="TabWidthComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="EqualTabWidth" />
+                            <ComboBoxItem l:Uids.Uid="TitleTabWidth" />
+                            <ComboBoxItem l:Uids.Uid="CompactTabWidth" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="NewTabPosition">
+
+                        <ComboBox x:Name="NewTabPositionComboBox" SelectionChanged="NewTabPositionComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="AfterLastTab" />
+                            <ComboBoxItem l:Uids.Uid="AfterCurrentTab" />
+
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="AddressBarSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard l:Uids.Uid="FullWebAddress">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEB41;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ToggleSwitch
+                            x:Name="FullWebAddressToggle"
+                            l:Uids.Uid="General_ToggleSwitch"
+                            Toggled="FullWebAddressToggle_Toggled" />
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="SearchSuggestions">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEA80;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ToggleSwitch
+                            x:Name="SearchSuggestionsToggle"
+                            l:Uids.Uid="General_ToggleSwitch"
+                            Toggled="SearchSuggestionsToggle_Toggled" />
+                    </controls:SettingsCard>
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="DownloadsSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard x:Name="DownloadLocationCard" l:Uids.Uid="DownloadLocation">
+                        <controls:SettingsCard.HeaderIcon>
+                            <PathIcon Data="{StaticResource DownloadsIconData}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <Button
+                            x:Name="ChooseDownloadFolderButton"
+                            l:Uids.Uid="ChooseDownloadFolderButton"
+                            Click="ChooseDownloadFolderButton_Click" />
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard l:Uids.Uid="AskEveryDownload">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE78C;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ToggleSwitch
+                            x:Name="AskEveryDownloadToggle"
+                            l:Uids.Uid="General_ToggleSwitch"
+                            Toggled="AskEveryDownload_Toggled" />
+
+                    </controls:SettingsCard>
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="AdvancedSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard l:Uids.Uid="SearchEngine">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE721;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="SearchEngineComboBox" SelectionChanged="SearchEngineComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Bing" />
+                            <ComboBoxItem Content="Google" />
+                            <ComboBoxItem Content="Yahoo" />
+                            <ComboBoxItem Content="DuckDuckGo" />
+
+                            <!--<my:ComboBoxSeparator />
+
+                            <ComboBoxItem Content="Manage search engines" />-->
+                        </ComboBox>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsCard x:Name="FaviconCacheCard" l:Uids.Uid="FaviconCache">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <PathIcon Data="{StaticResource FaviconCache}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <Button Click="ClearFaviconCacheButton_Click">
+                            <Grid>
+                                <TextBlock x:Name="ClearFaviconCacheText" l:Uids.Uid="ClearCacheText">
+                                    <TextBlock.OpacityTransition>
+                                        <ScalarTransition />
+                                    </TextBlock.OpacityTransition>
+                                </TextBlock>
+
+                                <ProgressRing
+                                    x:Name="ClearFaviconCacheProgressRing"
+                                    Width="16"
+                                    Height="16"
+                                    IsActive="False" />
+                            </Grid>
+                        </Button>
+
+                    </controls:SettingsCard>
+
+                    <controls:SettingsExpander x:Name="ExtensionsExpander" l:Uids.Uid="Extensions">
+
+                        <controls:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xEA86;" />
+                        </controls:SettingsExpander.HeaderIcon>
+
+                        <controls:SettingsExpander.Items />
+
+                        <Button
+                            x:Name="AddExtensionButton"
+                            l:Uids.Uid="AddExtensionButton"
+                            Style="{ThemeResource AccentButtonStyle}" />
+
+                    </controls:SettingsExpander>
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="AboutSection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsExpander
+                        Margin="0,0,0,36"
+                        l:Uids.Uid="AboutExpander"
+                        Header="FluentBrowser"
+                        IsExpanded="False">
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsTextSelectionEnabled="True"
+                            Text="Version 0.14.0" />
+
+                        <controls:SettingsExpander.Items>
+
+                            <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,0,0,5" l:Uids.Uid="LinksText" />
+                                    <HyperlinkButton
+                                        l:Uids.Uid="TranslateHyperlink"
+                                        NavigateUri="https://crowdin.com/project/fluentbrowser"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                </StackPanel>
+
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,0,0,5" l:Uids.Uid="Deps" />
+                                    <HyperlinkButton
+                                        Content="WinUI3Localizer"
+                                        NavigateUri="https://github.com/AndrewKeepCoding/WinUI3Localizer"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                    <HyperlinkButton
+                                        Margin="0,-5,0,0"
+                                        Content="Windows Community Toolkit"
+                                        NavigateUri="https://github.com/CommunityToolkit/Windows"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                    <HyperlinkButton
+                                        Margin="0,-5,0,0"
+                                        Content="Microsoft Edge WebView2"
+                                        NavigateUri="https://learn.microsoft.com/microsoft-edge/webview2/"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                    <HyperlinkButton
+                                        Margin="0,-5,0,0"
+                                        Content="System.IO.Hashing"
+                                        NavigateUri="https://github.com/dotnet/runtime/tree/main/src/libraries/System.IO.Hashing"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                    <HyperlinkButton
+                                        Margin="0,-5,0,0"
+                                        Content="MessagePack"
+                                        NavigateUri="https://github.com/MessagePack-CSharp/MessagePack-CSharp"
+                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                </StackPanel>
+
+                            </controls:SettingsCard>
+
+                        </controls:SettingsExpander.Items>
+                    </controls:SettingsExpander>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

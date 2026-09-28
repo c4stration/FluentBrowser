@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Application
+    x:Class="FluentBrowser.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:FluentBrowser.Converters"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:local="using:FluentBrowser"
+    xmlns:my="using:FluentBrowser.Controls">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!--  Other merged dictionaries here  -->
+            </ResourceDictionary.MergedDictionaries>
+            <!--  Other app resources here  -->
+
+            <!--  Combined path data for the Downloads icon  -->
+            <x:String x:Key="DownloadsIconData">
+                M1.83398 10.5C1.58789 10.5 1.35352 10.4512 1.13086 10.3535C0.908203 10.252 0.712891 10.1191 0.544922 9.95508C0.380859 9.78711 0.248047 9.5918 0.146484 9.36914C0.0488281 9.14648 0 8.91211 0 8.66602V1.83398C0 1.58789 0.0488281 1.35352 0.146484 1.13086C0.248047 0.908203 0.380859 0.714844 0.544922 0.550781C0.712891 0.382812 0.908203 0.25 1.13086 0.152344C1.35352 0.0507812 1.58789 0 1.83398 0H4.125C4.39453 0 4.62695 0.0429688 4.82227 0.128906C5.01758 0.210938 5.19141 0.322266 5.34375 0.462891C5.5 0.603516 5.64453 0.763672 5.77734 0.943359C5.91016 1.12305 6.04688 1.30859 6.1875 1.5H10.166C10.4121 1.5 10.6465 1.55078 10.8691 1.65234C11.0918 1.75 11.2852 1.88281 11.4492 2.05078C11.6172 2.21484 11.75 2.4082 11.8477 2.63086C11.9492 2.85352 12 3.08789 12 3.33398V5.19141C11.8906 5.05469 11.7734 4.92383 11.6484 4.79883C11.5234 4.67383 11.3906 4.55859 11.25 4.45312V3.375C11.25 3.22266 11.2207 3.07812 11.1621 2.94141C11.1035 2.80469 11.0215 2.68555 10.916 2.58398C10.8145 2.47852 10.6953 2.39648 10.5586 2.33789C10.4219 2.2793 10.2773 2.25 10.125 2.25H6.11133C5.97461 2.33984 5.8418 2.42969 5.71289 2.51953C5.58398 2.60938 5.45117 2.68945 5.31445 2.75977C5.18164 2.83008 5.04102 2.88867 4.89258 2.93555C4.74805 2.97852 4.58984 3 4.41797 3H0.75V8.625C0.75 8.77734 0.779297 8.92188 0.837891 9.05859C0.896484 9.19531 0.976562 9.31641 1.07812 9.42188C1.18359 9.52344 1.30469 9.60352 1.44141 9.66211C1.57812 9.7207 1.72266 9.75 1.875 9.75H4.74023C4.80664 9.88281 4.95117 10.1367 4.95117 10.1367C4.95117 10.1367 5.11328 10.3828 5.20312 10.5H1.83398ZM4.41797 2.25C4.52344 2.25 4.62109 2.23633 4.71094 2.20898C4.80078 2.18164 4.88867 2.14648 4.97461 2.10352C5.06055 2.05664 5.14258 2.00586 5.2207 1.95117C5.29883 1.89648 5.37891 1.83984 5.46094 1.78125C5.37109 1.66016 5.2832 1.53906 5.19727 1.41797C5.11133 1.29297 5.01758 1.18164 4.91602 1.08398C4.81445 0.986328 4.69922 0.90625 4.57031 0.84375C4.44531 0.78125 4.29688 0.75 4.125 0.75H1.875C1.72266 0.75 1.57812 0.779297 1.44141 0.837891C1.30469 0.896484 1.18359 0.978516 1.07812 1.08398C0.976562 1.18555 0.896484 1.30469 0.837891 1.44141C0.779297 1.57812 0.75 1.72266 0.75 1.875V2.25H4.41797ZM8.62203 4.5C9.08687 4.49959 9.52445 4.5871 9.93476 4.76252C10.3451 4.94184 10.7027 5.18372 11.0077 5.48814C11.3126 5.79256 11.5532 6.14977 11.7293 6.55977C11.9094 6.96977 11.9996 7.40719 12 7.87203C12.0003 8.18062 11.9595 8.47753 11.8777 8.76276C11.7999 9.05189 11.6868 9.32152 11.5386 9.57166C11.3943 9.82178 11.2187 10.0505 11.0119 10.2577C10.805 10.4649 10.5767 10.6409 10.3268 10.7856C10.0769 10.9343 9.80748 11.0478 9.51849 11.1262C9.2334 11.2085 8.93656 11.2497 8.62797 11.25C8.16313 11.2504 7.72555 11.1609 7.31523 10.9816C6.90492 10.8062 6.54729 10.5663 6.24233 10.2619C5.93738 9.95744 5.69488 9.60024 5.51483 9.19024C5.33869 8.78024 5.25041 8.34281 5.25 7.87797C5.24959 7.40922 5.33709 6.96969 5.51251 6.55938C5.68793 6.14907 5.92785 5.79144 6.23227 5.48648C6.53669 5.18152 6.8939 4.94098 7.3039 4.76483C7.7139 4.58869 8.15328 4.50041 8.62203 4.5ZM6.70313 7.87669C6.70323 7.99388 6.74433 8.09345 6.82644 8.17541L8.32775 9.67409C8.40986 9.75605 8.5095 9.79698 8.62669 9.79687C8.74388 9.79677 8.84345 9.75567 8.92541 9.67356L10.4241 8.17225C10.506 8.09014 10.547 7.9905 10.5469 7.87331C10.5468 7.75612 10.5057 7.65655 10.4236 7.57459C10.3415 7.49263 10.2418 7.4517 10.1246 7.4518C10.0074 7.45191 9.90787 7.49301 9.82591 7.57511L9.00046 8.40201L8.99868 6.37467C8.99859 6.27311 8.9614 6.18525 8.88712 6.1111C8.81284 6.03694 8.72491 5.99991 8.62335 6C8.52179 6.00009 8.43393 6.03728 8.35978 6.11156C8.28562 6.18584 8.24859 6.27377 8.24868 6.37533L8.25046 8.40267L7.42357 7.57723C7.34146 7.49527 7.24182 7.45434 7.12463 7.45445C7.00744 7.45455 6.90787 7.49565 6.82591 7.57776C6.74395 7.65986 6.70302 7.7595 6.70313 7.87669Z
+            </x:String>
+
+            <x:String x:Key="FaviconCache">
+                M5.3252 8.28906L8.22266 11.1689L7.57227 12.2256C7.51221 12.3229 7.41045 12.3879 7.29688 12.4014C7.18335 12.4146 7.0693 12.3755 6.98828 12.2949L4.20703 9.51953C4.1257 9.43839 4.08622 9.32406 4.09961 9.20996C4.11305 9.09603 4.17767 8.99465 4.27539 8.93457L5.3252 8.28906ZM10.6104 5.36035C10.7567 5.21411 10.9942 5.21325 11.1406 5.35938C11.2867 5.50568 11.2866 5.74321 11.1406 5.88965L8.9873 8.04492C9.30093 8.49372 9.38338 9.00065 9.30078 9.4668C9.22406 9.89934 9.00177 10.2959 8.69824 10.585L5.89844 7.80176C6.14583 7.5398 6.49602 7.33251 6.87598 7.23438C7.36849 7.10738 7.94242 7.15452 8.45703 7.51465L10.6104 5.36035ZM8.66602 0C8.91211 0 9.14648 0.0507812 9.36914 0.152344C9.5918 0.25 9.78516 0.382812 9.94922 0.550781C10.1172 0.714844 10.25 0.908203 10.3477 1.13086C10.4492 1.35352 10.5 1.58789 10.5 1.83398V4.36621C10.3372 4.41454 10.1814 4.49429 10.0439 4.60645L9.94434 4.69629L9.75 4.89062V3H0.75V8.625C0.75 8.77734 0.779297 8.92188 0.837891 9.05859C0.896484 9.19531 0.976562 9.31641 1.07812 9.42188C1.18359 9.52344 1.30469 9.60352 1.44141 9.66211C1.57812 9.7207 1.72266 9.75 1.875 9.75H3.25586C3.3211 9.91051 3.41598 10.0598 3.54199 10.1855L3.85742 10.5H1.83398C1.58789 10.5 1.35352 10.4512 1.13086 10.3535C0.908203 10.252 0.712891 10.1191 0.544922 9.95508C0.380859 9.78711 0.248047 9.5918 0.146484 9.36914C0.0488281 9.14648 0 8.91211 0 8.66602V1.83398C0 1.58789 0.0488281 1.35352 0.146484 1.13086C0.248047 0.908203 0.380859 0.714844 0.544922 0.550781C0.712891 0.382812 0.908203 0.25 1.13086 0.152344C1.35352 0.0507812 1.58789 0 1.83398 0H8.66602ZM1.875 0.75C1.72266 0.75 1.57812 0.779297 1.44141 0.837891C1.30469 0.896484 1.18359 0.978516 1.07812 1.08398C0.976562 1.18555 0.896484 1.30469 0.837891 1.44141C0.779297 1.57812 0.75 1.72266 0.75 1.875V2.25H9.75V1.875C9.75 1.72266 9.7207 1.57812 9.66211 1.44141C9.60352 1.30469 9.52148 1.18555 9.41602 1.08398C9.31445 0.978516 9.19531 0.896484 9.05859 0.837891C8.92188 0.779297 8.77734 0.75 8.625 0.75H1.875Z
+            </x:String>
+
+            <x:String x:Key="WebPaint">
+                M11.25 5.6709C11.3554 5.6709 11.4532 5.69049 11.543 5.72949C11.6328 5.76853 11.711 5.8233 11.7773 5.89355C11.8476 5.95994 11.9023 6.04008 11.9414 6.13379C11.9805 6.22363 12 6.31934 12 6.4209C12 6.51855 11.9805 6.61426 11.9414 6.70801C11.9063 6.79782 11.8535 6.87795 11.7832 6.94824L9.62109 9.11035C9.66406 9.21971 9.69531 9.33302 9.71484 9.4502C9.73828 9.56348 9.75 9.67871 9.75 9.7959C9.75 10.1396 9.66797 10.4482 9.50391 10.7217C9.33985 10.9951 9.12692 11.2276 8.86523 11.4189C8.60746 11.6064 8.31829 11.751 7.99805 11.8525C7.68172 11.9541 7.36907 12.0049 7.06055 12.0049C6.82235 12.0049 6.58586 11.9775 6.35156 11.9229C6.11727 11.8682 5.89251 11.7881 5.67773 11.6826C5.46296 11.5772 5.26166 11.4482 5.07422 11.2959C4.88678 11.1436 4.72262 10.9716 4.58203 10.7803C4.5274 10.7061 4.5 10.6279 4.5 10.5459C4.5 10.4561 4.5235 10.3818 4.57031 10.3232C4.62105 10.2608 4.6876 10.2158 4.76953 10.1885C4.87493 10.1533 4.9825 10.1162 5.0918 10.0771C5.20501 10.0381 5.31451 9.99312 5.41992 9.94238C5.52533 9.88773 5.62309 9.82515 5.71289 9.75488C5.8027 9.68069 5.87696 9.59273 5.93555 9.49121C5.9785 9.42093 6.01563 9.3486 6.04688 9.27441C6.07811 9.20023 6.11134 9.12595 6.14648 9.05176C6.22849 8.87993 6.32817 8.72556 6.44531 8.58887C6.56636 8.4483 6.69928 8.32908 6.84375 8.23145C6.99212 8.12993 7.15243 8.05371 7.32422 8.00293C7.49993 7.94827 7.68368 7.92092 7.875 7.9209C7.99211 7.9209 8.1075 7.93265 8.2207 7.95605C8.33782 7.97557 8.45124 8.00688 8.56055 8.0498L10.7168 5.89355C10.8652 5.74518 11.0431 5.67096 11.25 5.6709ZM7.875 8.6709C7.72665 8.67093 7.58195 8.70023 7.44141 8.75879C7.30477 8.81347 7.18354 8.89361 7.07812 8.99902C7.01568 9.06149 6.96286 9.12993 6.91992 9.2041C6.87698 9.27438 6.83592 9.34867 6.79688 9.42676C6.76173 9.50095 6.72655 9.57718 6.69141 9.65527C6.65626 9.73337 6.61717 9.8096 6.57422 9.88379C6.45704 10.083 6.30856 10.2471 6.12891 10.376C5.95317 10.5048 5.7597 10.6143 5.54883 10.7041C5.75971 10.8798 5.99422 11.0166 6.25195 11.1143C6.5136 11.208 6.78329 11.2549 7.06055 11.2549C7.36125 11.2549 7.65045 11.1982 7.92773 11.085C8.20893 10.9717 8.4551 10.8076 8.66602 10.5928H8.67188C8.77732 10.4873 8.85742 10.3662 8.91211 10.2295C8.9707 10.0889 9 9.94434 9 9.7959C9 9.63965 8.9707 9.49316 8.91211 9.35645C8.85352 9.21976 8.77342 9.10056 8.67188 8.99902C8.57034 8.89752 8.45112 8.81736 8.31445 8.75879C8.17779 8.70025 8.03117 8.6709 7.875 8.6709ZM5.25098 0L5.42383 0.00976562C5.51137 0.0199494 5.59612 0.0399134 5.67871 0.0644531C7.67635 0.225994 9.35763 1.50494 10.0967 3.27637H10.1172V3.32422C10.3185 3.82054 10.4441 4.35481 10.4844 4.91309C10.3759 4.96865 10.2727 5.03587 10.1768 5.11523L10.0518 5.22852L9.74121 5.53809C9.74551 5.45786 9.75 5.3772 9.75 5.2959C9.75 4.85496 9.68561 4.42906 9.56738 4.02637H7.85645C7.90803 4.42982 7.9375 4.83895 7.9375 5.24121C7.9375 5.68015 7.9054 6.12723 7.84668 6.56641H8.71289L8.2666 7.0127C8.13695 6.99333 8.0064 6.98047 7.875 6.98047C7.5945 6.98049 7.31793 7.02066 7.0498 7.10352C6.87274 7.15644 6.70402 7.22863 6.54297 7.31641H3.55078C3.64787 7.73339 3.77242 8.12574 3.9209 8.47266C4.06707 8.81412 4.23229 9.10073 4.40723 9.32227C4.25279 9.38229 4.10627 9.46835 3.97852 9.58496L3.84082 9.73047L3.83594 9.73633C3.70074 9.90549 3.62556 10.0914 3.58887 10.2725C2.14859 9.79217 0.985234 8.70794 0.404297 7.31641H0.382812V7.26562C0.168486 6.73655 0.0372263 6.16478 0.00683594 5.56641L0 5.2959C0 4.59926 0.136413 3.93445 0.382812 3.32617V3.27637H0.402344C1.14126 1.50476 2.82354 0.226053 4.82129 0.0644531C4.95774 0.02387 5.10127 2.58958e-05 5.25098 0ZM1.22949 7.31641C1.72505 8.30048 2.57086 9.07695 3.60352 9.4834C3.4649 9.26481 3.34091 9.02329 3.23145 8.76758C3.04428 8.33026 2.89503 7.83614 2.78418 7.31641H1.22949ZM0.932617 4.02637C0.814405 4.42904 0.75 4.85498 0.75 5.2959C0.750016 5.73715 0.814215 6.16345 0.932617 6.56641H2.65332C2.59463 6.12724 2.56348 5.68014 2.56348 5.24121C2.56348 4.83895 2.59201 4.4298 2.64355 4.02637H0.932617ZM3.39941 4.02637C3.34385 4.42666 3.31348 4.83682 3.31348 5.24121C3.31348 5.68267 3.34722 6.13093 3.41016 6.56641H7.08984C7.15281 6.13092 7.1875 5.68267 7.1875 5.24121C7.1875 4.83681 7.15618 4.42666 7.10059 4.02637H3.39941ZM3.58594 1.11426C2.56065 1.52271 1.72122 2.29717 1.22852 3.27637H2.76953C2.8817 2.74206 3.0365 2.23378 3.23242 1.78613C3.33707 1.54709 3.45471 1.32053 3.58594 1.11426ZM4.96973 0.804688C4.8379 0.856054 4.70392 0.945038 4.56836 1.07715C4.33274 1.30696 4.11068 1.6512 3.91992 2.08691C3.76442 2.44222 3.63597 2.84665 3.53711 3.27637H6.96289C6.86403 2.8467 6.73645 2.4422 6.58105 2.08691C6.39048 1.65131 6.16897 1.30698 5.93359 1.07715C5.7977 0.944581 5.6625 0.855991 5.53027 0.804688C5.43765 0.798997 5.34405 0.795901 5.25 0.795898C5.15595 0.795904 5.06235 0.798995 4.96973 0.804688ZM6.91406 1.11426C7.04536 1.32058 7.16393 1.54699 7.26855 1.78613C7.46433 2.23374 7.61828 2.7421 7.73047 3.27637H9.27148C8.77873 2.29717 7.9394 1.52268 6.91406 1.11426Z
+            </x:String>
+
+            <x:String x:Key="SmallDown">
+                M3.99794 0C4.27403 6.00349e-05 4.49794 0.223895 4.49794 0.5V6.81348C4.77498 6.53699 5.09485 6.21849 5.41297 5.89844C5.84724 5.46153 6.28007 5.0241 6.60438 4.69629C6.76637 4.53255 6.90158 4.39633 6.99598 4.30078C7.04316 4.25303 7.08009 4.21504 7.10536 4.18945C7.11781 4.17684 7.12717 4.16675 7.13368 4.16016L7.14344 4.15039C7.33743 3.95391 7.65493 3.95155 7.85145 4.14551C8.04776 4.33949 8.04921 4.65607 7.85536 4.85254L7.8534 4.85547C7.85176 4.85713 7.84876 4.85911 7.84559 4.8623C7.83912 4.86886 7.82972 4.879 7.81727 4.8916C7.79195 4.91724 7.75418 4.9551 7.70692 5.00293C7.6124 5.09859 7.4775 5.23548 7.31532 5.39941C6.99069 5.72755 6.557 6.16583 6.12196 6.60352C5.68715 7.04097 5.24967 7.47937 4.91786 7.80859C4.75236 7.9728 4.61121 8.11093 4.50965 8.20898C4.45953 8.25738 4.41653 8.29899 4.38368 8.3291C4.36804 8.34343 4.34922 8.35963 4.33192 8.37402C4.3243 8.38036 4.30892 8.3939 4.28993 8.40723C4.28111 8.4134 4.26107 8.42661 4.23524 8.44043C4.22211 8.44744 4.19877 8.45888 4.16883 8.46973C4.14451 8.47853 4.08145 8.49998 3.99794 8.5C3.90941 8.49997 3.84331 8.47557 3.8202 8.4668C3.79014 8.45537 3.76634 8.44347 3.7538 8.43652C3.72882 8.42266 3.71016 8.40915 3.70204 8.40332C3.68409 8.39043 3.6693 8.37822 3.662 8.37207C3.64543 8.3581 3.6276 8.34234 3.61219 8.32812C3.57991 8.29833 3.53713 8.25736 3.48719 8.20898C3.38613 8.11106 3.24533 7.97194 3.07997 7.80762C2.74887 7.4786 2.31218 7.04075 1.87782 6.60352C1.44304 6.16587 1.00903 5.72755 0.684459 5.39941C0.522294 5.23547 0.387381 5.09861 0.292858 5.00293C0.245606 4.9551 0.207835 4.91725 0.182506 4.8916C0.170066 4.879 0.160664 4.86887 0.154186 4.8623C0.15103 4.85911 0.148034 4.85713 0.146373 4.85547L0.14442 4.85352C-0.0495091 4.65703 -0.0480546 4.3395 0.148326 4.14551C0.34484 3.95161 0.661389 3.95395 0.855358 4.15039L0.8661 4.16016C0.872616 4.16676 0.88197 4.17684 0.89442 4.18945C0.919694 4.21505 0.956618 4.25303 1.0038 4.30078C1.0982 4.39634 1.23343 4.53255 1.3954 4.69629C1.71968 5.02413 2.15271 5.46148 2.5868 5.89844C2.90359 6.21731 3.22188 6.53472 3.49794 6.81055V0.5C3.49794 0.223912 3.72187 8.79846e-05 3.99794 0Z
+            </x:String>
+
+            <x:String x:Key="DownloadFullEllipse">
+                M9 0C13.9704 0 17.9998 4.02961 18 9C18 13.9706 13.9706 18 9 18C4.02949 17.9999 0 13.9705 0 9C0.000197905 4.02965 4.02962 6.59688e-05 9 0ZM8.99805 4.625C8.65316 4.6252 8.37324 4.90511 8.37305 5.25V11.2588C8.15261 11.038 7.91342 10.7998 7.67578 10.5605C7.24189 10.1238 6.80855 9.68613 6.48438 9.3584C6.32254 9.19479 6.18711 9.05838 6.09277 8.96289C6.04574 8.91528 6.00861 8.8771 5.9834 8.85156C5.97108 8.83908 5.96153 8.82881 5.95508 8.82227L5.94434 8.8125C5.70188 8.56734 5.30608 8.56448 5.06055 8.80664C4.81522 9.04904 4.81355 9.4458 5.05566 9.69141L5.05762 9.69336C5.05924 9.69497 5.06241 9.69719 5.06543 9.7002C5.07187 9.70673 5.08143 9.71701 5.09375 9.72949C5.11904 9.7551 5.15699 9.79313 5.2041 9.84082C5.29858 9.93645 5.43369 10.0735 5.5957 10.2373C5.92024 10.5654 6.3543 11.0038 6.78906 11.4414C7.2235 11.8787 7.66076 12.3171 7.99219 12.6465C8.15748 12.8107 8.29877 12.9504 8.40039 13.0488C8.45026 13.0971 8.494 13.1391 8.52734 13.1699C8.54299 13.1844 8.56248 13.2021 8.58105 13.2178C8.58915 13.2246 8.60731 13.2393 8.62891 13.2549C8.63877 13.262 8.66244 13.2787 8.69336 13.2959C8.7089 13.3045 8.73806 13.3198 8.77539 13.334C8.80388 13.3448 8.88707 13.3749 8.99805 13.375C9.10253 13.375 9.18168 13.3488 9.21191 13.3379C9.24958 13.3242 9.27868 13.3095 9.29492 13.3008C9.32732 13.2834 9.35178 13.2662 9.3623 13.2588C9.38515 13.2427 9.40358 13.2278 9.41211 13.2207C9.43167 13.2044 9.45175 13.1866 9.46777 13.1719C9.50189 13.1406 9.54622 13.0975 9.59668 13.0488C9.69882 12.9502 9.84043 12.8116 10.0059 12.6475C10.338 12.3179 10.7761 11.8789 11.2109 11.4414C11.646 11.0037 12.0797 10.5654 12.4043 10.2373C12.5664 10.0734 12.7014 9.93648 12.7959 9.84082C12.8431 9.79302 12.8809 9.75512 12.9062 9.72949C12.9187 9.7169 12.9281 9.70675 12.9346 9.7002C12.9377 9.69707 12.9407 9.69502 12.9424 9.69336L12.9443 9.69043C13.1865 9.44486 13.1847 9.04909 12.9395 8.80664C12.6939 8.56456 12.2971 8.56726 12.0547 8.8125L12.0449 8.82227C12.0384 8.82883 12.029 8.83897 12.0166 8.85156C11.9914 8.87712 11.9544 8.91518 11.9072 8.96289C11.8129 9.0584 11.6776 9.1947 11.5156 9.3584C11.1914 9.68616 10.7584 10.1237 10.3242 10.5605C10.0852 10.801 9.84461 11.04 9.62305 11.2617V5.25C9.62285 4.90505 9.34303 4.62509 8.99805 4.625Z
+            </x:String>
+
+            <x:String x:Key="DownloadEllipse">
+                M8.99805 4.75C9.27414 4.75006 9.49805 4.97389 9.49805 5.25V11.5635C9.77508 11.287 10.095 10.9685 10.4131 10.6484C10.8474 10.2115 11.2802 9.7741 11.6045 9.44629C11.7665 9.28256 11.9017 9.14633 11.9961 9.05078C12.0433 9.00303 12.0802 8.96504 12.1055 8.93945C12.1179 8.92684 12.1273 8.91675 12.1338 8.91016L12.1436 8.90039C12.3375 8.70391 12.655 8.70155 12.8516 8.89551C13.0479 9.08949 13.0493 9.40607 12.8555 9.60254L12.8535 9.60547C12.8519 9.60713 12.8489 9.60911 12.8457 9.6123C12.8392 9.61886 12.8298 9.629 12.8174 9.6416C12.7921 9.66724 12.7543 9.7051 12.707 9.75293C12.6125 9.84859 12.4776 9.98548 12.3154 10.1494C11.9908 10.4775 11.5571 10.9158 11.1221 11.3535C10.6873 11.791 10.2498 12.2294 9.91797 12.5586C9.75247 12.7228 9.61132 12.8609 9.50977 12.959C9.45965 13.0074 9.41664 13.049 9.38379 13.0791C9.36816 13.0934 9.34933 13.1096 9.33203 13.124C9.32441 13.1304 9.30902 13.1439 9.29004 13.1572C9.28122 13.1634 9.26117 13.1766 9.23535 13.1904C9.22222 13.1974 9.19887 13.2089 9.16895 13.2197C9.14462 13.2285 9.08155 13.25 8.99805 13.25C8.90952 13.25 8.84342 13.2256 8.82031 13.2168C8.79025 13.2054 8.76645 13.1935 8.75391 13.1865C8.72893 13.1727 8.71027 13.1592 8.70215 13.1533C8.68421 13.1404 8.66941 13.1282 8.66211 13.1221C8.64554 13.1081 8.62771 13.0923 8.6123 13.0781C8.58002 13.0483 8.53723 13.0074 8.4873 12.959C8.38624 12.8611 8.24544 12.7219 8.08008 12.5576C7.74898 12.2286 7.31229 11.7907 6.87793 11.3535C6.44315 10.9159 6.00914 10.4775 5.68457 10.1494C5.52241 9.98547 5.38749 9.84861 5.29297 9.75293C5.24572 9.7051 5.20795 9.66725 5.18262 9.6416C5.17018 9.62901 5.16077 9.61887 5.1543 9.6123C5.15114 9.60911 5.14814 9.60713 5.14648 9.60547L5.14453 9.60352C4.95061 9.40703 4.95206 9.0895 5.14844 8.89551C5.34495 8.70161 5.6615 8.70396 5.85547 8.90039L5.86621 8.91016C5.87273 8.91676 5.88208 8.92685 5.89453 8.93945C5.9198 8.96505 5.95673 9.00303 6.00391 9.05078C6.09831 9.14634 6.23355 9.28255 6.39551 9.44629C6.71979 9.77413 7.15283 10.2115 7.58691 10.6484C7.90369 10.9673 8.22199 11.2847 8.49805 11.5605V5.25C8.49805 4.97392 8.72198 4.75009 8.99805 4.75ZM9 0C13.9706 0 18 4.02944 18 9C18 13.9706 13.9706 18 9 18C4.02944 18 0 13.9706 0 9C0 4.02944 4.02944 0 9 0ZM9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1Z
+            </x:String>
+
+            <x:String x:Key="LongDown">
+                M3.99794 0C4.27403 6.01637e-05 4.49794 0.223895 4.49794 0.5V8.81348C4.77497 8.53699 5.09485 8.21849 5.41297 7.89844C5.84724 7.46153 6.28007 7.0241 6.60438 6.69629C6.76637 6.53255 6.90158 6.39633 6.99598 6.30078C7.04316 6.25303 7.08009 6.21504 7.10536 6.18945C7.11781 6.17684 7.12717 6.16675 7.13368 6.16016L7.14344 6.15039C7.33743 5.95391 7.65493 5.95155 7.85145 6.14551C8.04776 6.33949 8.04921 6.65607 7.85536 6.85254L7.8534 6.85547C7.85176 6.85713 7.84876 6.85911 7.84559 6.8623C7.83912 6.86886 7.82972 6.879 7.81727 6.8916C7.79195 6.91724 7.75418 6.9551 7.70692 7.00293C7.6124 7.09859 7.4775 7.23548 7.31532 7.39941C6.99069 7.72755 6.557 8.16583 6.12196 8.60352C5.68715 9.04096 5.24967 9.47937 4.91786 9.80859C4.75236 9.9728 4.6112 10.1109 4.50965 10.209C4.45953 10.2574 4.41653 10.299 4.38368 10.3291C4.36804 10.3434 4.34922 10.3596 4.33192 10.374C4.3243 10.3804 4.30892 10.3939 4.28993 10.4072C4.28111 10.4134 4.26107 10.4266 4.23524 10.4404C4.22211 10.4474 4.19877 10.4589 4.16883 10.4697C4.14451 10.4785 4.08145 10.5 3.99794 10.5C3.90941 10.5 3.84331 10.4756 3.8202 10.4668C3.79014 10.4554 3.76634 10.4435 3.75379 10.4365C3.72882 10.4227 3.71016 10.4092 3.70204 10.4033C3.68409 10.3904 3.6693 10.3782 3.662 10.3721C3.64543 10.3581 3.6276 10.3423 3.61219 10.3281C3.57991 10.2983 3.53713 10.2574 3.48719 10.209C3.38613 10.1111 3.24533 9.97194 3.07997 9.80762C2.74887 9.4786 2.31218 9.04075 1.87782 8.60352C1.44304 8.16587 1.00903 7.72755 0.684459 7.39941C0.522294 7.23547 0.387381 7.09861 0.292857 7.00293C0.245606 6.9551 0.207835 6.91725 0.182506 6.8916C0.170066 6.879 0.160664 6.86887 0.154186 6.8623C0.15103 6.85911 0.148034 6.85713 0.146373 6.85547L0.14442 6.85352C-0.0495091 6.65703 -0.0480545 6.3395 0.148326 6.14551C0.34484 5.95161 0.661389 5.95395 0.855357 6.15039L0.8661 6.16016C0.872616 6.16676 0.88197 6.17684 0.89442 6.18945C0.919693 6.21505 0.956618 6.25303 1.00379 6.30078C1.0982 6.39634 1.23343 6.53255 1.3954 6.69629C1.71968 7.02413 2.15271 7.46148 2.5868 7.89844C2.90359 8.21731 3.22188 8.53472 3.49794 8.81055V0.5C3.49794 0.223912 3.72187 8.79846e-05 3.99794 0Z
+            </x:String>
+
+            <Style x:Key="AppBarButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+
+                            <Grid>
+                                <Border
+                                    x:Name="BackgroundElement"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
+
+                                    <Border.BackgroundTransition>
+                                        <BrushTransition Duration="0:0:0.1" />
+                                    </Border.BackgroundTransition>
+
+                                    <ContentPresenter
+                                        x:Name="ContentPresenter"
+                                        Padding="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        controls:AnimatedIcon.State="Normal"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        ContentTransitions="{TemplateBinding ContentTransitions}" />
+                                </Border>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackground}" />
+                                                <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="Normal" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState x:Name="PointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackgroundPointerOver}" />
+                                                <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="PointerOver" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackgroundPressed}" />
+                                                <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="Pressed" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Disabled">
+                                            <VisualState.Setters>
+                                                <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackgroundDisabled}" />
+                                                <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="Normal" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource AppBarButtonForegroundDisabled}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="AddressBarButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="32" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid
+                                x:Name="ButtonLayoutGrid"
+                                Margin="{ThemeResource TextBoxInnerButtonMargin}"
+                                Background="{ThemeResource TextControlButtonBackground}"
+                                BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                                BorderBrush="{ThemeResource TextControlButtonBorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}">
+                                <!--  Normal glyph  -->
+                                <TextBlock
+                                    x:Name="GlyphElement"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                    FontSize="{ThemeResource TextBoxIconFontSize}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Text="{TemplateBinding Content}" />
+
+                                <!--  Loading / cancel glyph  -->
+                                <TextBlock
+                                    x:Name="LoadingGlyphElement"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                    FontSize="{ThemeResource TextBoxIconFontSize}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Text="&#xE711;"
+                                    Visibility="Collapsed" />
+
+                                <VisualStateManager.VisualStateGroups>
+
+                                    <VisualStateGroup x:Name="CommonStates">
+
+                                        <VisualState x:Name="Normal" />
+
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBackgroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBorderBrushPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonForegroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LoadingGlyphElement" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonForegroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBackgroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBorderBrushPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonForegroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LoadingGlyphElement" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonForegroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Disabled">
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="ButtonLayoutGrid"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0"
+                                                    Duration="0" />
+                                            </Storyboard>
+                                        </VisualState>
+
+                                    </VisualStateGroup>
+
+                                    <VisualStateGroup x:Name="LoadingStates">
+
+                                        <VisualState x:Name="NotLoading">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LoadingGlyphElement" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Loading">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LoadingGlyphElement" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                    </VisualStateGroup>
+
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="TabButtonStyle" TargetType="Button">
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
+                <Setter Property="FontSize" Value="{ThemeResource TabViewItemHeaderCloseFontSize}" />
+                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
+                <Setter Property="Width" Value="{ThemeResource TabViewItemHeaderCloseButtonWidth}" />
+                <Setter Property="Height" Value="{ThemeResource TabViewItemHeaderCloseButtonHeight}" />
+                <Setter Property="Background" Value="{ThemeResource TabViewItemHeaderCloseButtonBackground}" />
+                <Setter Property="Foreground" Value="{ThemeResource TabViewItemHeaderCloseButtonForeground}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource TabViewItemHeaderCloseButtonBorderBrush}" />
+                <Setter Property="BorderThickness" Value="{ThemeResource TabViewItemHeaderCloseButtonBorderThickness}" />
+                <Setter Property="FocusVisualMargin" Value="-3" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter
+                                x:Name="ContentPresenter"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                AutomationProperties.AccessibilityView="Raw"
+                                Background="{TemplateBinding Background}"
+                                BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                FontFamily="{TemplateBinding FontFamily}"
+                                FontSize="{TemplateBinding FontSize}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TabViewItemHeaderCloseButtonBackgroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TabViewItemHeaderCloseButtonBorderBrushPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TabViewItemHeaderCloseButtonBackgroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TabViewItemHeaderCloseButtonBorderBrushPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </ContentPresenter>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LoadingProgressBarStyle" TargetType="controls:ProgressBar">
+                <Setter Property="Foreground" Value="{ThemeResource ProgressBarForeground}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="{ThemeResource ProgressBarBorderThemeThickness}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ProgressBarBorderBrush}" />
+                <Setter Property="MinHeight" Value="{StaticResource ProgressBarMinHeight}" />
+                <Setter Property="Maximum" Value="100" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="CornerRadius" Value="{StaticResource ProgressBarCornerRadius}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="controls:ProgressBar">
+                            <Grid x:Name="LayoutRoot">
+                                <Border
+                                    x:Name="ProgressBarRoot"
+                                    Padding="{TemplateBinding Padding}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
+                                    <Border Clip="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ClipRect}">
+                                        <Grid Height="{TemplateBinding MinHeight}">
+                                            <Rectangle
+                                                x:Name="ProgressBarTrack"
+                                                Width="{TemplateBinding Width}"
+                                                Height="{ThemeResource ProgressBarTrackHeight}"
+                                                VerticalAlignment="Center"
+                                                Fill="{TemplateBinding Background}"
+                                                RadiusX="{Binding Source={StaticResource ProgressBarTrackCornerRadius}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}"
+                                                RadiusY="{Binding Source={StaticResource ProgressBarTrackCornerRadius}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}">
+                                                <Rectangle.RenderTransform>
+                                                    <CompositeTransform />
+                                                </Rectangle.RenderTransform>
+                                            </Rectangle>
+                                            <Rectangle
+                                                x:Name="DeterminateProgressBarIndicator"
+                                                HorizontalAlignment="Left"
+                                                Fill="{TemplateBinding Foreground}"
+                                                RadiusX="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}"
+                                                RadiusY="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}" />
+                                            <Rectangle
+                                                x:Name="IndeterminateProgressBarIndicator"
+                                                HorizontalAlignment="Left"
+                                                Fill="{TemplateBinding Foreground}"
+                                                Opacity="0"
+                                                RadiusX="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}"
+                                                RadiusY="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}">
+                                                <Rectangle.RenderTransform>
+                                                    <CompositeTransform />
+                                                </Rectangle.RenderTransform>
+                                            </Rectangle>
+                                            <Rectangle
+                                                x:Name="IndeterminateProgressBarIndicator2"
+                                                HorizontalAlignment="Left"
+                                                Fill="{TemplateBinding Foreground}"
+                                                Opacity="0"
+                                                RadiusX="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusDoubleValueConverter}}"
+                                                RadiusY="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BottomRightCornerRadiusDoubleValueConverter}}">
+                                                <Rectangle.RenderTransform>
+                                                    <CompositeTransform />
+                                                </Rectangle.RenderTransform>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualStateGroup.Transitions>
+                                            <VisualTransition From="Updating" To="Determinate">
+                                                <Storyboard>
+                                                    <RepositionThemeAnimation FromHorizontalOffset="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.IndicatorLengthDelta}" TargetName="DeterminateProgressBarIndicator" />
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="UpdatingError" To="Error">
+                                                <Storyboard>
+                                                    <RepositionThemeAnimation FromHorizontalOffset="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.IndicatorLengthDelta}" TargetName="DeterminateProgressBarIndicator" />
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="Paused" To="Determinate">
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetName="DeterminateProgressBarIndicator"
+                                                        Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                        To="{TemplateBinding Foreground}"
+                                                        Duration="0:0:0.167" />
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="Error" To="Determinate">
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetName="DeterminateProgressBarIndicator"
+                                                        Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                        To="{TemplateBinding Foreground}"
+                                                        Duration="0:0:0.167" />
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="Indeterminate" To="Determinate">
+                                                <Storyboard>
+                                                    <FadeInThemeAnimation TargetName="IndeterminateProgressBarIndicator" />
+                                                    <FadeInThemeAnimation TargetName="IndeterminateProgressBarIndicator2" />
+                                                    <FadeInThemeAnimation TargetName="ProgressBarTrack" />
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="IndeterminatePaused" To="Indeterminate">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator" Storyboard.TargetProperty="Opacity">
+                                                        <DiscreteDoubleKeyFrame KeyTime="0" Value="0" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator2" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0.333"
+                                                            Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProgressBarTrack" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0"
+                                                            Value="0" />
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0.5"
+                                                            Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualTransition>
+                                            <VisualTransition From="IndeterminateError" To="Indeterminate">
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator" Storyboard.TargetProperty="Opacity">
+                                                        <DiscreteDoubleKeyFrame KeyTime="0" Value="0" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator2" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0.333"
+                                                            Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProgressBarTrack" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0"
+                                                            Value="0" />
+                                                        <SplineDoubleKeyFrame
+                                                            KeySpline="1.0, 0.0, 1.0, 1.0"
+                                                            KeyTime="0:0:0.5"
+                                                            Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualTransition>
+                                        </VisualStateGroup.Transitions>
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Determinate" />
+                                        <VisualState x:Name="Updating" />
+                                        <VisualState x:Name="UpdatingError">
+                                            <VisualState.Setters>
+                                                <Setter Target="DeterminateProgressBarIndicator.(Shape.Fill).(SolidColorBrush.Color)" Value="{ThemeResource ProgressBarErrorForegroundColor}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Error">
+                                            <Storyboard>
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="DeterminateProgressBarIndicator"
+                                                    Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                    To="{ThemeResource ProgressBarErrorForegroundColor}"
+                                                    Duration="0:0:0.167" />
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Paused">
+                                            <Storyboard>
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="DeterminateProgressBarIndicator"
+                                                    Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                    To="{ThemeResource ProgressBarPausedForegroundColor}"
+                                                    Duration="0:0:0.167" />
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Indeterminate">
+                                            <VisualState.Setters>
+                                                <Setter Target="IndeterminateProgressBarIndicator.Opacity" Value="1" />
+                                                <Setter Target="IndeterminateProgressBarIndicator2.Opacity" Value="1" />
+                                                <Setter Target="ProgressBarTrack.Opacity" Value="0" />
+                                            </VisualState.Setters>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <DiscreteDoubleKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.4, 0.0, 0.6, 1.0"
+                                                        KeyTime="0:0:1.5"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                    <DiscreteDoubleKeyFrame KeyTime="0:0:2" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationEndPosition}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator2" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <DiscreteDoubleKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <DiscreteDoubleKeyFrame KeyTime="0:0:0.75" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.4, 0.0, 0.6, 1.0"
+                                                        KeyTime="0:0:2"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationEndPosition}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="IndeterminateError">
+                                            <VisualState.Setters>
+                                                <Setter Target="IndeterminateProgressBarIndicator.Opacity" Value="0" />
+                                                <Setter Target="DeterminateProgressBarIndicator.Opacity" Value="0" />
+                                                <Setter Target="IndeterminateProgressBarIndicator2.Opacity" Value="1" />
+                                                <Setter Target="ProgressBarTrack.Opacity" Value="0" />
+                                            </VisualState.Setters>
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator2" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="1.0, 1.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.167"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationEndPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="1.0, 1.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.167"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.75"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationMidPosition}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="IndeterminateProgressBarIndicator2"
+                                                    Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                    To="{ThemeResource ProgressBarErrorForegroundColor}"
+                                                    Duration="0:0:0.167" />
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProgressBarTrack" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.75"
+                                                        Value="0" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="IndeterminatePaused">
+                                            <VisualState.Setters>
+                                                <Setter Target="IndeterminateProgressBarIndicator.Opacity" Value="0" />
+                                                <Setter Target="DeterminateProgressBarIndicator.Opacity" Value="0" />
+                                                <Setter Target="IndeterminateProgressBarIndicator2.Opacity" Value="1" />
+                                                <Setter Target="ProgressBarTrack.Opacity" Value="0" />
+                                            </VisualState.Setters>
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndeterminateProgressBarIndicator2" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="1.0, 1.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.167"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationEndPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="1.0, 1.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.167"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.75"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.ContainerAnimationMidPosition}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="IndeterminateProgressBarIndicator2"
+                                                    Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                    To="{ThemeResource ProgressBarPausedForegroundColor}"
+                                                    Duration="0:0:0.167" />
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProgressBarTrack" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0"
+                                                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.Container2AnimationStartPosition}" />
+                                                    <SplineDoubleKeyFrame
+                                                        KeySpline="0.0, 0.0, 0.0, 1.0"
+                                                        KeyTime="0:0:0.75"
+                                                        Value="0" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="my:ContentMenuFlyoutItem">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{ThemeResource MenuFlyoutItemForeground}" />
+                <Setter Property="Padding" Value="{ThemeResource MenuFlyoutItemThemePadding}" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="my:ContentMenuFlyoutItem">
+                            <Grid
+                                x:Name="LayoutRoot"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}">
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <!--  put the MenuFlyoutItem visual states here  -->
+                                </VisualStateManager.VisualStateGroups>
+
+                                <ContentPresenter
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Content="{TemplateBinding Content}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style
+                x:Key="SmallButtonStyle"
+                BasedOn="{StaticResource DefaultButtonStyle}"
+                TargetType="Button">
+                <Setter Property="Padding" Value="8,3" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="ContentTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{Binding}" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!--  Converters  -->
+            <c:ValueToVisibilityConverter x:Key="ValueToVisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

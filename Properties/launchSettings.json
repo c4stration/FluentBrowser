@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FluentBrowser (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "FluentBrowser (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

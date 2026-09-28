@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>表示するアプリのテーマを選択します</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>アプリのテーマ</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>翻訳の正確性は100％保証されません。一部の言語の翻訳テキストは、機械翻訳またはコミュニティの貢献者によって提供されています</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>システム設定を使用</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>検索 ／ Webサイト名入力</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>タブを複製</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>タブを閉じる</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>他のタブを閉じる</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>右側のタブを閉じる</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>戻る（Alt + 左矢印）</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>最近開いたウェブページに戻ります。</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>進む（Alt + 右矢印）</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>最近戻ったページに進みます。</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>その他のオプション</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>その他のブラウザーオプションを開きます。</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>新しいタブ</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>タブを複製</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>縮小</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>ズームをリセット</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>ページ内を検索</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>印刷</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>ページのソースを表示</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>開発者ツール</value>
+  </data>
+  <data name="SettingsMenuItem.Text" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>ウェブサイトのアドレス全体を表示</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>ドメイン名のみを表示するのではなく、アドレスバーにウェブサイトのアドレス全体を表示します</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>色</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="AppearanceCategory.Content" xml:space="preserve">
+    <value>外観</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>詳細設定</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>設定を検索</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>タブ</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>均等</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>タイトルの長さ</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>コンパクト</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>タブの幅</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>コンパクト モードでは、フォーカスされていないタブをアイコンのサイズまで縮小します</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>背景素材</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>ウィンドウの背景に使用するシステム背景素材</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>マイカ</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>マイカ オルト</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>アクリル</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>アドレスバー</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026. 全著作権所有。</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>依存関係</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>このアプリについて</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>オン</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>検索候補を表示</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>アドレスバーに入力すると、検索候補や閲覧候補を表示します。この機能はまだベータ版のため、ちょっとおバカな候補が表示されることがあります</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>リンク</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>翻訳</value>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>拡張機能</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>拡張機能を追加</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>新しいタブの位置</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>新しく作成されたタブをタブ列のどこに表示するかを指定します</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>最後のタブの後</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>現在のタブの後</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>ダウンロードごとに保存先を確認</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>フォルダーを選択</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>ダウンロード場所</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>キャッシュをクリア</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>ウェブサイトの色合い</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>ウェブサイトのテーマカラーでブラウザーの外観を変更できるようにします</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>検索エンジン</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>検索や候補に使用する検索エンジンを選択してください</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>ウェブページのテーマ</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>ウェブページで使用するテーマを選択します</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>アプリのテーマに従う</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>ウェブサイトのアイコンをローカルに保存して、読み込みを高速化します（{0}）</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>ファビコンキャッシュ</value>
+  </data>
+  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+    <value>このウェブページを開けませんでしたよ！</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>「{0}」のウェブサイトのアドレスが見つかりませんでした。アドレスに誤字がある可能性があります。</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>「{0}」に接続できませんでした。</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>「{0}」のサーバーに接続できませんでした。</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>「{0}」への接続がタイムアウトしました。</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>「{0}」を開いている途中でインターネット接続が失われました。</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>「{0}」への接続がリセットされました。</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>「{0}」への接続が中断されました。</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>「{0}」は有効期限が切れた証明書を使用しています。このセキュリティ証明書の有効期限は {1} 前に切れています。設定の誤りや、攻撃者による接続の傍受が原因である可能性があります。現在、コンピューターの時計は {2} に設定されています。これは正しいですか？正しくない場合は、システムの時計を修正してから、このページを更新してください。
+</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>「{0}」のセキュリティ証明書が無効です。</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>「{0}」を開く際に不明なエラーが発生しました。</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>進行中のダウンロードはありません</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>ダウンロード中</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>中断</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>キャンセル済み</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>破棄済み</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>安全にダウンロードできません</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>リストから削除</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>完了済みをクリア</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>完了したダウンロードを一覧から削除します。コンピューターからファイルが削除されることはありません。</value>
+  </data>
+</root>
