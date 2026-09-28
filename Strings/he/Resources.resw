@@ -303,7 +303,6 @@
   </data>
   <data name="LeftToRight.Content" xml:space="preserve">
     <value>משמאל לימין</value>
-    <comment>מוצג רק עבור שפות RTL, לכן אין צורך במחרוזות עבור שפות LTR</comment>
   </data>
   <data name="RightToLeft.Content" xml:space="preserve">
     <value>מימין לשמאל</value>
@@ -433,5 +432,26 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>מסיר הורדות שהושלמו מהרשימה. פעולה זו אינה מוחקת את הקבצים מהמחשב שלך.
 </value>
+  </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>קיצורי מקלדת</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>הגדרת קיצורי מקלדת לפעולות בדפדפן</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>פתיחת כרטיסייה חדשה</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>סגירת הכרטיסייה הנוכחית</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>פתיחת כרטיסייה שנסגרה מחדש</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>מיקוד בשורת הכתובת</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>טעינת הכרטיסייה הנוכחית מחדש</value>
   </data>
 </root>

@@ -415,4 +415,25 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>완료된 다운로드를 목록에서 제거합니다. 컴퓨터에서 파일이 삭제되지는 않습니다.</value>
   </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>키보드 바로 가기</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>브라우저 작업을 위한 키보드 바로 가기를 설정합니다</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>새 탭 열기</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>현재 탭 닫기</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>닫은 탭 다시 열기</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>주소 표시줄에 포커스</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>현재 탭 새로 고침</value>
+  </data>
 </root>

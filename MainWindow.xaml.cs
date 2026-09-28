@@ -1,5 +1,5 @@
-using FluentBrowser;
 using FluentBrowser.Pages;
+using FluentBrowser.Shared;
 using FluentBrowser.Utilities;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -50,6 +50,9 @@ public sealed partial class MainWindow : Window
 
         ApplyTabWidth(
             _settings.Values["TabWidth"] as string ?? "Equal");
+
+        RegisterKeyboardAccelerators();
+        InitializeKeyboardHandling();
 
         var themeRoot =
             Content as FrameworkElement

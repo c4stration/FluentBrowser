@@ -1,9 +1,8 @@
 ﻿using CommunityToolkit.WinUI.Controls;
-using Microsoft.UI.Text;
+using FluentBrowser.Controls;
+using FluentBrowser.Shared;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Documents;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Windows.Globalization;
 using System;
@@ -18,9 +17,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.System;
 using WinRT.Interop;
 using WinUI3Localizer;
-using FluentBrowser.Shared;
 
 namespace FluentBrowser.Pages;
 
@@ -94,6 +93,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadThemeColorTint();
         LoadDownloadLocation();
         LoadAskEveryDownload();
+        LoadAllShortcuts();
 
         _loadingSettings = false;
 
@@ -1300,4 +1300,119 @@ public sealed partial class SettingsPage : Page, IDisposable
     {
         UpdateFaviconCacheDescription();
     }
+
+    private void LoadAllShortcuts()
+    {
+        NewTabShortcutControl.HotkeySettings =
+            LoadHotkeySettings("NewTabShortcut", DefaultNewTabShortcut());
+        CloseTabShortcutControl.HotkeySettings =
+            LoadHotkeySettings("CloseTabShortcut", DefaultCloseTabShortcut());
+        ReopenTabShortcutControl.HotkeySettings =
+            LoadHotkeySettings("ReopenTabShortcut", DefaultReopenTabShortcut());
+        FocusAddressBarShortcutControl.HotkeySettings =
+            LoadHotkeySettings("FocusAddressBarShortcut", DefaultFocusAddressBarShortcut());
+        ReloadShortcutControl.HotkeySettings =
+            LoadHotkeySettings("ReloadShortcut", DefaultReloadShortcut());
+    }
+
+    private void NewTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "NewTabShortcut", w => w.ApplyShortcut(BrowserShortcut.NewTab, ((ShortcutControl)sender).HotkeySettings!));
+
+    private void CloseTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "CloseTabShortcut", w => w.ApplyShortcut(BrowserShortcut.CloseTab, ((ShortcutControl)sender).HotkeySettings!));
+
+    private void ReopenTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "ReopenTabShortcut", w => w.ApplyShortcut(BrowserShortcut.ReopenTab, ((ShortcutControl)sender).HotkeySettings!));
+
+    private void FocusAddressBarShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", w => w.ApplyShortcut(BrowserShortcut.FocusAddressBar, ((ShortcutControl)sender).HotkeySettings!));
+
+    private void ReloadShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "ReloadShortcut", w => w.ApplyShortcut(BrowserShortcut.Reload, ((ShortcutControl)sender).HotkeySettings!));
+
+    private void ApplyShortcutFromControl(
+        object sender,
+        string settingsKey,
+        Action<MainWindow> apply)
+    {
+        if (sender is not ShortcutControl control ||
+            control.HotkeySettings is null)
+        {
+            return;
+        }
+
+        SaveHotkeySettings(settingsKey, control.HotkeySettings);
+
+        if (App.MainWindow is MainWindow window)
+            apply(window);
+    }
+
+    private static HotkeySettings DefaultNewTabShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.T] };
+
+    private static HotkeySettings DefaultCloseTabShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.W] };
+
+    private static HotkeySettings DefaultReopenTabShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.T] };
+
+    private static HotkeySettings DefaultFocusAddressBarShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.L] };
+
+    private static HotkeySettings DefaultReloadShortcut() =>
+        new() { Keys = [VirtualKey.F5] };
+
+    private HotkeySettings LoadHotkeySettings(
+        string key,
+        HotkeySettings fallback)
+    {
+        // Missing key => first run, use default.
+        // Empty string => user explicitly disabled the shortcut.
+        if (!_settings.Values.ContainsKey(key))
+            return CloneHotkeySettings(fallback);
+
+        if (_settings.Values[key] is not string stored)
+            return CloneHotkeySettings(fallback);
+
+        if (string.IsNullOrWhiteSpace(stored))
+            return new HotkeySettings();
+
+        try
+        {
+            var keys = new List<VirtualKey>();
+
+            foreach (string part in stored.Split(
+                         ',',
+                         StringSplitOptions.RemoveEmptyEntries |
+                         StringSplitOptions.TrimEntries))
+            {
+                if (int.TryParse(part, out int value) &&
+                    Enum.IsDefined(typeof(VirtualKey), value))
+                {
+                    keys.Add((VirtualKey)value);
+                }
+            }
+
+            return new HotkeySettings { Keys = keys };
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load hotkey '{key}': {ex}");
+            return CloneHotkeySettings(fallback);
+        }
+    }
+
+    private void SaveHotkeySettings(string key, HotkeySettings settings)
+    {
+        _settings.Values[key] = settings.Keys.Count == 0
+            ? string.Empty
+            : string.Join(',', settings.Keys.Select(k => (int)k));
+    }
+
+    private static HotkeySettings CloneHotkeySettings(
+        HotkeySettings settings) =>
+        new()
+        {
+            Keys = [.. settings.Keys]
+        };
 }

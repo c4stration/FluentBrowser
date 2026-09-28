@@ -84,7 +84,7 @@ public sealed partial class MainWindow
         }
 
         Debug.WriteLine(
-            $"Closing host tab {browserTab.ExtensionTabId}; " +
+            $"closing host tab {browserTab.ExtensionTabId}; " +
             $"has web view: {browserTab.WebView is not null}.");
 
         browserTab.IsClosed = true;
@@ -102,6 +102,7 @@ public sealed partial class MainWindow
             _loadingWebViews.Remove(webView);
             RemoveLoadProgressTracking(webView);
             _zoomFactors.Remove(webView);
+            _webViewShortcutTokens.Remove(webView);
 
             if (ReferenceEquals(CurrentTabContent.Content, browserTab.Content) ||
                 ReferenceEquals(CurrentTabContent.Content, browserTab.ErrorPage))

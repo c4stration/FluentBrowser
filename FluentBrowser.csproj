@@ -69,13 +69,22 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Content Remove="Assets\Icons\DownloadLocation.svg" />
+    <None Remove="Controls\ShortcutControl\ShortcutDialogContentControl.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\CantOpenPage.xaml">
       <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Controls\ShortcutControl\ShortcutControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <Page Update="Controls\ShortcutControl\ShortcutDialogContentControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
 </Project>

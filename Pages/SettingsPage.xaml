@@ -299,6 +299,51 @@
 
                     </controls:SettingsCard>
 
+                    <controls:SettingsExpander l:Uids.Uid="KeyboardShortcuts">
+
+                        <controls:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xEDA7;" />
+                        </controls:SettingsExpander.HeaderIcon>
+
+                        <controls:SettingsExpander.Items>
+                            <controls:SettingsCard l:Uids.Uid="ShortcutNewTab">
+                                <my:ShortcutControl
+                                    x:Name="NewTabShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="NewTabShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutCloseTab">
+                                <my:ShortcutControl
+                                    x:Name="CloseTabShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="CloseTabShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutReopenTab">
+                                <my:ShortcutControl
+                                    x:Name="ReopenTabShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="ReopenTabShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutFocusAddressBar">
+                                <my:ShortcutControl
+                                    x:Name="FocusAddressBarShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="FocusAddressBarShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutReload">
+                                <my:ShortcutControl
+                                    x:Name="ReloadShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="ReloadShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander.Items>
+
+                    </controls:SettingsExpander>
+
                     <controls:SettingsExpander x:Name="ExtensionsExpander" l:Uids.Uid="Extensions">
 
                         <controls:SettingsExpander.HeaderIcon>

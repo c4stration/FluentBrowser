@@ -427,4 +427,25 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>يزيل التنزيلات المكتملة من القائمة. لا يؤدي هذا إلى حذف الملفات من جهاز الكمبيوتر.</value>
   </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>اختصارات لوحة المفاتيح</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>تكوين اختصارات لوحة المفاتيح لإجراءات المتصفح</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>فتح علامة تبويب جديدة</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>إغلاق علامة التبويب الحالية</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>إعادة فتح علامة التبويب المغلقة</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>التركيز على شريط العناوين</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>إعادة تحميل علامة التبويب الحالية</value>
+  </data>
 </root>

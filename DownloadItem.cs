@@ -1,4 +1,3 @@
-using FluentBrowser.Shared;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Web.WebView2.Core;

@@ -415,4 +415,25 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>從列表中移除已完成的下載。此操作不會刪除電腦上的檔案。</value>
   </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>鍵盤快速鍵</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>設定瀏覽器操作的鍵盤快速鍵</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>開啟新分頁</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>關閉目前分頁</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>重新開啟已關閉的分頁</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>聚焦網址列</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>重新載入目前分頁</value>
+  </data>
 </root>

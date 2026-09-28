@@ -304,7 +304,6 @@
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
-    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
   </data>
   <data name="RightToLeft.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
@@ -433,5 +432,26 @@
   </data>
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>นำรายการดาวน์โหลดที่เสร็จแล้วออกจากรายการ การดำเนินการนี้จะไม่ลบไฟล์ออกจากคอมพิวเตอร์ของคุณ</value>
+  </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>แป้นพิมพ์ลัด</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>กำหนดค่าแป้นพิมพ์ลัดสำหรับการดำเนินการของเบราว์เซอร์</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>เปิดแท็บใหม่</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>ปิดแท็บปัจจุบัน</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>เปิดแท็บที่ปิดไปอีกครั้ง</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>โฟกัสแถบที่อยู่</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>โหลดแท็บปัจจุบันใหม่</value>
   </data>
 </root>

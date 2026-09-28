@@ -415,4 +415,25 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>Elimină descărcările finalizate din listă. Fișierele nu sunt șterse de pe computer.</value>
   </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>Comenzi rapide de la tastatură</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>Configurați comenzile rapide de la tastatură pentru acțiunile din browser</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>Deschide o filă nouă</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>Închide fila curentă</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>Redeschide fila închisă</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>Focalizează bara de adrese</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>Reîncarcă fila curentă</value>
+  </data>
 </root>

@@ -437,4 +437,25 @@
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>Removes completed downloads from the list. This does not delete the files from your computer.</value>
   </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>Configure keyboard shortcuts for browser actions</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>Open a new tab</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>Close current tab</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>Reopen closed tab</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>Focus on address bar</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>Reload current tab</value>
+  </data>
 </root>

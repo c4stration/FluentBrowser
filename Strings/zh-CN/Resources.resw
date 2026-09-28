@@ -291,6 +291,10 @@
   <data name="TranslateHyperlink.Content" xml:space="preserve">
     <value>翻译</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="Extensions.Header" xml:space="preserve">
     <value>扩展程序</value>
   </data>
@@ -414,5 +418,26 @@
   </data>
   <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
     <value>从列表中移除已完成的下载。此操作不会删除计算机上的文件。</value>
+  </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>键盘快捷键</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>配置浏览器操作的键盘快捷键</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>打开新标签页</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>关闭当前标签页</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>重新打开已关闭的标签页</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>聚焦地址栏</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>重新加载当前标签页</value>
   </data>
 </root>
