@@ -2,10 +2,13 @@
 I haven't thought of a name for this one yet, so "FluentBrowser" is just a placeholder for now...
 
 ROADMAP:
+
 (the items don't need to be sequential)
+
 ✅ Add MenuFlyout context menus
 
 🚧 Add every option to the new context menu
+
 ✅ Make it unfocus after pressing Enter on the address bar
 ✅ Add every navigation option
 ✅ Add extension support (unsure if possible on WinUI 3)
