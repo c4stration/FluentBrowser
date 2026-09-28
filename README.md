@@ -19,7 +19,7 @@ ROADMAP:
 ❌ Add toolbar managing  
 🚧 Add zoom controls (works, but unpolished)  
 ❌ Add a native "Find" feature  
-❌ Add keyboard shortcuts  
+🚧 Add keyboard shortcuts  
 ✅ Add a context menu for tabs  
 ✅ Reopen closed tab  
 ✅ Duplicate tab  
