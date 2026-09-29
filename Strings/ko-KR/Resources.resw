@@ -436,4 +436,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>현재 탭 새로 고침</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>오른쪽 탭으로 이동</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>왼쪽 탭으로 이동</value>
+  </data>
 </root>

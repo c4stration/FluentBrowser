@@ -23,8 +23,8 @@ public sealed class DownloadHistoryEntry
         "DownloadStatusInterrupted";
 }
 
-// Used only to read download-history files created before
-// the format was changed to indexed MessagePack arrays.
+// used only to read download history files created before
+// the format was changed to indexed MessagePack arrays
 internal sealed class LegacyDownloadHistoryEntry
 {
     public string FilePath { get; set; } = string.Empty;

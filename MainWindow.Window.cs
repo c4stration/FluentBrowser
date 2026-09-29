@@ -28,7 +28,7 @@ public sealed partial class MainWindow
     public void ApplyBackdropMaterial(string material)
     {
         // The window backdrop is visible behind pages such as Settings, while
-        // the chrome element needs its own backdrop instance for the toolbar.
+        // the chrome element needs its own backdrop instance for the toolbar
         SystemBackdrop = CreateSystemBackdrop(material);
         BrowserChromeMica.SystemBackdrop = CreateSystemBackdrop(material);
     }
@@ -381,7 +381,7 @@ public sealed partial class MainWindow
 
         // The fullscreen animation translates BrowserChrome (and DragRegion)
         // off-screen. Register the title bar only after that transform has
-        // returned to zero, otherwise Windows retains an off-screen drag area.
+        // returned to zero, otherwise Windows retains an off-screen drag area
         SetTitleBar(DragRegion);
     }
 

@@ -11,9 +11,8 @@ namespace FluentBrowser;
 
 public sealed partial class MainWindow
 {
-    // A navigation that turns into a download completes with ConnectionAborted.
-    // Keep the navigation identity so that result is not presented as a broken
-    // page when DownloadStarting arrives immediately before or after it.
+    // A navigation that turns into a download completes with ConnectionAborted
+    // Keep the navigation identity so that result is not presented as a broken page when DownloadStarting arrives immediately before or after it!
     private readonly Dictionary<WebView2, DownloadNavigation>
         _downloadNavigations = [];
 
@@ -187,14 +186,9 @@ public sealed partial class MainWindow
                 }
                 else if (isPotentialDownload)
                 {
-                    // WebView2 can raise NavigationCompleted before
-                    // DownloadStarting. Give that handoff a short time to
-                    // arrive before declaring the navigation to be broken.
+                    // WebView2 can raise NavigationCompleted before DownloadStarting. Give that handoff a short time to arrive before declaring the navigation to be broken
                     await Task.Delay(500);
 
-                    // A newer navigation supersedes this one while the
-                    // handoff is pending, so it must not replace the newer
-                    // page with an error page.
                     if (!IsTrackedNavigation(webView, args.NavigationId))
                     {
                         return;

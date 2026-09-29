@@ -284,14 +284,12 @@ public sealed partial class MainWindow
             "reopen-tab" => TryInvokeConfigurable(BrowserShortcut.ReopenTab),
             "focus-address" => TryInvokeConfigurable(BrowserShortcut.FocusAddressBar),
             "reload" => TryInvokeConfigurable(BrowserShortcut.Reload),
+            "next-tab" => TryInvokeConfigurable(BrowserShortcut.NextTab),
+            "previous-tab" => TryInvokeConfigurable(BrowserShortcut.PreviousTab),
             "hard-reload" => TryHandleShortcut(
                 VirtualKey.R, ctrl: true, shift: true, alt: false),
             "reload-f5" => TryHandleShortcut(
                 VirtualKey.F5, ctrl: false, shift: false, alt: false),
-            "next-tab" => TryHandleShortcut(
-                VirtualKey.Tab, ctrl: true, shift: false, alt: false),
-            "previous-tab" => TryHandleShortcut(
-                VirtualKey.Tab, ctrl: true, shift: true, alt: false),
             "zoom-in" => TryHandleShortcut(
                 (VirtualKey)187, ctrl: true, shift: false, alt: false),
             "zoom-out" => TryHandleShortcut(
@@ -354,6 +352,8 @@ public sealed partial class MainWindow
         string reopenTab = BuildJsMatchCondition(BrowserShortcut.ReopenTab);
         string focusAddress = BuildJsMatchCondition(BrowserShortcut.FocusAddressBar);
         string reload = BuildJsMatchCondition(BrowserShortcut.Reload);
+        string nextTab = BuildJsMatchCondition(BrowserShortcut.NextTab);
+        string previousTab = BuildJsMatchCondition(BrowserShortcut.PreviousTab);
 
         return $$"""
             (() => {
@@ -380,6 +380,10 @@ public sealed partial class MainWindow
                         shortcut = "focus-address";
                     } else if ({{reload}}) {
                         shortcut = "reload";
+                    } else if ({{nextTab}}) {
+                        shortcut = "next-tab";
+                    } else if ({{previousTab}}) {
+                        shortcut = "previous-tab";
                     } else if (!ctrl && !shift && !alt) {
                         shortcut = code === "F5" ? "reload-f5"
                             : code === "F11" ? "fullscreen"
@@ -391,7 +395,6 @@ public sealed partial class MainWindow
                             : null;
                     } else if (ctrl && !alt) {
                         shortcut = code === "KeyR" && shift ? "hard-reload"
-                            : code === "Tab" ? (shift ? "previous-tab" : "next-tab")
                             : (code === "Equal" || code === "NumpadAdd") ? "zoom-in"
                             : (code === "Minus" || code === "NumpadSubtract") && !shift ? "zoom-out"
                             : code === "Digit0" && !shift ? "zoom-reset"

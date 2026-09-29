@@ -436,4 +436,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>Reîncarcă fila curentă</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>Mergi la fila din dreapta</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>Mergi la fila din stânga</value>
+  </data>
 </root>

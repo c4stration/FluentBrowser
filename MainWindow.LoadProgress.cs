@@ -123,8 +123,6 @@ public sealed partial class MainWindow
         if (ReferenceEquals(SelectedWebView, webView))
             ShowLoadingProgress(webView);
 
-        // A failed navigation stays visible until the next navigation starts,
-        // which also covers the user pressing Refresh.
         if (hasError)
             return;
 
@@ -232,9 +230,6 @@ public sealed partial class MainWindow
                 return;
             }
 
-            // The first document request belongs to the top-level navigation.
-            // Its loader id lets us ignore requests left over from an older page
-            // and requests belonging to nested frames.
             if (_mainFrameLoaderId is null)
             {
                 if (!string.Equals(resourceType, "Document",
@@ -297,8 +292,6 @@ public sealed partial class MainWindow
             {
                 request.ReceivedBytes = Math.Max(request.ReceivedBytes, bytes);
 
-                // Chunked responses have no Content-Length. Once one completes,
-                // its observed byte count is an exact total for this navigation.
                 request.TotalBytes ??= request.ReceivedBytes;
             }
 

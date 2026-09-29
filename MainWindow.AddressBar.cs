@@ -173,7 +173,7 @@ public sealed partial class MainWindow
                     }
                     catch
                     {
-                        // History is optional.
+                        // Nothing!
                     }
                 }
                 else
@@ -208,7 +208,7 @@ public sealed partial class MainWindow
                     }
                     catch
                     {
-                        // Search suggestions are optional.
+                        // Nothing again!
                     }
                 }
             }
@@ -385,8 +385,7 @@ public sealed partial class MainWindow
             _ => Array.Empty<string>()
         };
 
-        // Fall back to Google when the selected provider has
-        // no usable autocomplete endpoint or it becomes unavailable.
+        // fallback to google
         if (suggestions.Count > 0)
             return suggestions;
 

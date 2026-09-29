@@ -454,4 +454,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>โหลดแท็บปัจจุบันใหม่</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>ไปที่แท็บทางขวา</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>ไปที่แท็บทางซ้าย</value>
+  </data>
 </root>

@@ -18,7 +18,9 @@ public enum BrowserShortcut
     CloseTab,
     ReopenTab,
     FocusAddressBar,
-    Reload
+    Reload,
+    NextTab,
+    PreviousTab
 }
 
 public sealed partial class MainWindow
@@ -29,7 +31,9 @@ public sealed partial class MainWindow
         [BrowserShortcut.CloseTab] = new() { Keys = [VirtualKey.Control, VirtualKey.W] },
         [BrowserShortcut.ReopenTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.T] },
         [BrowserShortcut.FocusAddressBar] = new() { Keys = [VirtualKey.Control, VirtualKey.L] },
-        [BrowserShortcut.Reload] = new() { Keys = [VirtualKey.Control, VirtualKey.R] }
+        [BrowserShortcut.Reload] = new() { Keys = [VirtualKey.Control, VirtualKey.R] },
+        [BrowserShortcut.NextTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
+        [BrowserShortcut.PreviousTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] }
     };
 
     private readonly Dictionary<BrowserShortcut, KeyboardAccelerator?> _shortcutAccelerators = new()
@@ -38,7 +42,9 @@ public sealed partial class MainWindow
         [BrowserShortcut.CloseTab] = null,
         [BrowserShortcut.ReopenTab] = null,
         [BrowserShortcut.FocusAddressBar] = null,
-        [BrowserShortcut.Reload] = null
+        [BrowserShortcut.Reload] = null,
+        [BrowserShortcut.NextTab] = null,
+        [BrowserShortcut.PreviousTab] = null
     };
 
     private static string SettingsKeyFor(BrowserShortcut action) => action switch
@@ -48,20 +54,19 @@ public sealed partial class MainWindow
         BrowserShortcut.ReopenTab => "ReopenTabShortcut",
         BrowserShortcut.FocusAddressBar => "FocusAddressBarShortcut",
         BrowserShortcut.Reload => "ReloadShortcut",
+        BrowserShortcut.NextTab => "RightTabShortcut",
+        BrowserShortcut.PreviousTab => "LeftTabShortcut",
         _ => action.ToString()
     };
 
     private void RegisterKeyboardAccelerators()
     {
-        // These accelerators are app-wide commands, not hints for the element
-        // under the pointer. Showing them on RootGrid creates a stray tooltip.
         RootGrid.KeyboardAcceleratorPlacementMode =
             KeyboardAcceleratorPlacementMode.Hidden;
 
         LoadAllShortcutsFromSettings();
         RegisterAllShortcutAccelerators();
 
-        // Hard-reload stays fixed for now
         AddXamlAccelerator(
             VirtualKey.R,
             VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift,
@@ -78,14 +83,6 @@ public sealed partial class MainWindow
 
         AddXamlAccelerator(VirtualKey.F11, VirtualKeyModifiers.None, () =>
             ToggleBrowserFullscreen());
-
-        AddXamlAccelerator(VirtualKey.Tab, VirtualKeyModifiers.Control, () =>
-            CycleTab(1));
-
-        AddXamlAccelerator(
-            VirtualKey.Tab,
-            VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift,
-            () => CycleTab(-1));
 
         AddXamlAccelerator(VirtualKey.Add, VirtualKeyModifiers.Control, () =>
         {
@@ -170,7 +167,6 @@ public sealed partial class MainWindow
             SelectedWebView?.CoreWebView2?.ShowPrintUI(
                 CoreWebView2PrintDialogKind.Browser));
 
-        // Secondary focus-address binding (Ctrl+E), not user-configurable for now
         AddXamlAccelerator(VirtualKey.E, VirtualKeyModifiers.Control, () =>
             AddressBar.Focus(FocusState.Programmatic));
     }
@@ -230,6 +226,10 @@ public sealed partial class MainWindow
                 new() { Keys = [VirtualKey.Control, VirtualKey.L] },
             BrowserShortcut.Reload =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.R] },
+            BrowserShortcut.NextTab =>
+                new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
+            BrowserShortcut.PreviousTab =>
+                new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] },
             _ => new()
         };
 
@@ -347,6 +347,12 @@ public sealed partial class MainWindow
                 break;
             case BrowserShortcut.Reload:
                 SelectedWebView?.Reload();
+                break;
+            case BrowserShortcut.NextTab:
+                CycleTab(1);
+                break;
+            case BrowserShortcut.PreviousTab:
+                CycleTab(-1);
                 break;
         }
     }
@@ -477,7 +483,6 @@ public sealed partial class MainWindow
             }
         }
 
-        // ctrl + shift + R -> hard reload (fixed)
         if (ctrl && shift && !alt && key == VirtualKey.R)
         {
             _ = SelectedWebView?.CoreWebView2?
@@ -487,17 +492,9 @@ public sealed partial class MainWindow
             return true;
         }
 
-        // F5 -> reload (fixed secondary)
         if (!ctrl && !shift && !alt && key == VirtualKey.F5)
         {
             SelectedWebView?.Reload();
-            return true;
-        }
-
-        // ctrl + Tab / ctrl + shift + Tab
-        if (ctrl && !alt && key == VirtualKey.Tab)
-        {
-            CycleTab(shift ? -1 : 1);
             return true;
         }
 
@@ -524,7 +521,6 @@ public sealed partial class MainWindow
                 return true;
             }
 
-            // Secondary focus-address: Ctrl+E
             if (key == VirtualKey.E)
             {
                 AddressBar.Focus(FocusState.Programmatic);

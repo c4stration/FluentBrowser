@@ -340,6 +340,20 @@
                                     AllowDisable="True"
                                     ShortcutChanged="ReloadShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutRightTab">
+                                <my:ShortcutControl
+                                    x:Name="RightTabShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="RightTabShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutLeftTab">
+                                <my:ShortcutControl
+                                    x:Name="LeftTabShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="LeftTabShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
 
                     </controls:SettingsExpander>

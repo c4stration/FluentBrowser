@@ -458,4 +458,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>Reload current tab</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>Move to right tab</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>Move to left tab</value>
+  </data>
 </root>

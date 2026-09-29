@@ -440,4 +440,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>重新加载当前标签页</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>移动到右侧标签页</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>移动到左侧标签页</value>
+  </data>
 </root>

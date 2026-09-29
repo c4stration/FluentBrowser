@@ -454,4 +454,10 @@
   <data name="ShortcutReload.Header" xml:space="preserve">
     <value>טעינת הכרטיסייה הנוכחית מחדש</value>
   </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>מעבר ללשונית הימנית</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>מעבר ללשונית השמאלית</value>
+  </data>
 </root>

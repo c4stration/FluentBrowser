@@ -222,7 +222,7 @@ public sealed partial class MainWindow
         }
         catch
         {
-            // Disk caching is optional.
+            // All the things she said, all the things she said, running through my head, running through my head, running through my head
         }
     }
 
@@ -254,14 +254,14 @@ public sealed partial class MainWindow
                     }
                     catch
                     {
-                        // Ignore files that cannot be deleted.
+                        // Why would you ever want to delete a file? It's not like it takes up space or anything.
                     }
                 }
             }
         }
         catch
         {
-            // Disk cache clearing is optional.
+            // Nothing Ever Happens
         }
 
         FaviconCacheChanged?.Invoke(this, EventArgs.Empty);

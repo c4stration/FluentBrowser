@@ -1313,27 +1313,37 @@ public sealed partial class SettingsPage : Page, IDisposable
             LoadHotkeySettings("FocusAddressBarShortcut", DefaultFocusAddressBarShortcut());
         ReloadShortcutControl.HotkeySettings =
             LoadHotkeySettings("ReloadShortcut", DefaultReloadShortcut());
+        RightTabShortcutControl.HotkeySettings =
+            LoadHotkeySettings("RightTabShortcut", DefaultNextTabShortcut());
+        LeftTabShortcutControl.HotkeySettings =
+            LoadHotkeySettings("LeftTabShortcut", DefaultPreviousTabShortcut());
     }
 
     private void NewTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "NewTabShortcut", w => w.ApplyShortcut(BrowserShortcut.NewTab, ((ShortcutControl)sender).HotkeySettings!));
+        ApplyShortcutFromControl(sender, "NewTabShortcut", BrowserShortcut.NewTab);
 
     private void CloseTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "CloseTabShortcut", w => w.ApplyShortcut(BrowserShortcut.CloseTab, ((ShortcutControl)sender).HotkeySettings!));
+        ApplyShortcutFromControl(sender, "CloseTabShortcut", BrowserShortcut.CloseTab);
 
     private void ReopenTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "ReopenTabShortcut", w => w.ApplyShortcut(BrowserShortcut.ReopenTab, ((ShortcutControl)sender).HotkeySettings!));
+        ApplyShortcutFromControl(sender, "ReopenTabShortcut", BrowserShortcut.ReopenTab);
 
     private void FocusAddressBarShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", w => w.ApplyShortcut(BrowserShortcut.FocusAddressBar, ((ShortcutControl)sender).HotkeySettings!));
+        ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", BrowserShortcut.FocusAddressBar);
 
     private void ReloadShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "ReloadShortcut", w => w.ApplyShortcut(BrowserShortcut.Reload, ((ShortcutControl)sender).HotkeySettings!));
+        ApplyShortcutFromControl(sender, "ReloadShortcut", BrowserShortcut.Reload);
+
+    private void RightTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "RightTabShortcut", BrowserShortcut.NextTab);
+
+    private void LeftTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "LeftTabShortcut", BrowserShortcut.PreviousTab);
 
     private void ApplyShortcutFromControl(
         object sender,
         string settingsKey,
-        Action<MainWindow> apply)
+        BrowserShortcut action)
     {
         if (sender is not ShortcutControl control ||
             control.HotkeySettings is null)
@@ -1344,7 +1354,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         SaveHotkeySettings(settingsKey, control.HotkeySettings);
 
         if (App.MainWindow is MainWindow window)
-            apply(window);
+            window.ApplyShortcut(action, control.HotkeySettings);
     }
 
     private static HotkeySettings DefaultNewTabShortcut() =>
@@ -1360,14 +1370,18 @@ public sealed partial class SettingsPage : Page, IDisposable
         new() { Keys = [VirtualKey.Control, VirtualKey.L] };
 
     private static HotkeySettings DefaultReloadShortcut() =>
-        new() { Keys = [VirtualKey.F5] };
+        new() { Keys = [VirtualKey.Control, VirtualKey.R] };
+
+    private static HotkeySettings DefaultNextTabShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.Tab] };
+
+    private static HotkeySettings DefaultPreviousTabShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] };
 
     private HotkeySettings LoadHotkeySettings(
         string key,
         HotkeySettings fallback)
     {
-        // Missing key => first run, use default.
-        // Empty string => user explicitly disabled the shortcut.
         if (!_settings.Values.ContainsKey(key))
             return CloneHotkeySettings(fallback);
 

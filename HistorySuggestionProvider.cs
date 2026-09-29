@@ -511,7 +511,6 @@ internal sealed class HistorySuggestionProvider
 
         double score = 0;
 
-        // Match relevance dominates personalization.
         if (searchExact)
             score += 5000;
 
@@ -542,15 +541,12 @@ internal sealed class HistorySuggestionProvider
         if (searchContains)
             score += 350;
 
-        // Recent visit frequency.
         score += typedFrecency * 140;
         score += frecency * 45;
 
-        // Small long-term signal.
         score += Math.Min(typedCount, 100) * 4;
         score += Math.Min(visitCount, 500) * 0.5;
 
-        // Small recency bonus.
         double ageDays =
             Math.Max(
                 0,

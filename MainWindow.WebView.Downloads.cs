@@ -41,7 +41,7 @@ public sealed partial class MainWindow
         // This event is raised by WebView2 while its dangerous-file-extension
         // policy is being evaluated. Because FluentBrowser owns the download
         // UI, provide the required decision here instead of leaving the
-        // runtime's hidden dialog waiting at 100%.
+        // runtime's hidden dialog waiting at 100%
         core.SaveFileSecurityCheckStarting += async (_, args) =>
         {
             var deferral = args.GetDeferral();
@@ -76,7 +76,7 @@ public sealed partial class MainWindow
                     PrimaryButtonText = "Keep",
                     CloseButtonText = "Discard",
 
-                    DefaultButton = ContentDialogButton.Primary,   // ← changed
+                    DefaultButton = ContentDialogButton.Primary,
 
                     XamlRoot = webView.XamlRoot,
 
@@ -101,7 +101,7 @@ public sealed partial class MainWindow
                 if (result == ContentDialogResult.Primary)
                 {
                     // The user has explicitly accepted this file, so replace
-                    // WebView2's hidden default warning with this decision.
+                    // WebView2's hidden default warning with this decision
                     args.SuppressDefaultPolicy = true;
                     args.CancelSave = false;
                 }

@@ -55,7 +55,7 @@ public sealed partial class CantOpenPage : Page
     {
         ContinueRequested?.Invoke(this, EventArgs.Empty);
 
-        // Disable the button to prevent multiple clicks
+        // Prevents multiple clicks
         ContinueButton.IsEnabled = false;
     }
 
