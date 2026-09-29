@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>Instrumente pentru dezvoltatori</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>Setări</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>Afișează adresa completă a site-ului web</value>
   </data>
@@ -441,5 +438,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>Mergi la fila din stânga</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>Caută</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>Potrivește majuscule/minuscule</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>Potrivește cuvântul întreg</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>Găsește în pagină</value>
   </data>
 </root>

@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>เครื่องมือสำหรับนักพัฒนา</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>การตั้งค่า</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>แสดงที่อยู่เว็บไซต์แบบเต็ม</value>
   </data>
@@ -459,5 +456,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>ไปที่แท็บทางซ้าย</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>ค้นหา</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>ตรงตามตัวพิมพ์ใหญ่-เล็ก</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>ตรงกับทั้งคำ</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>ค้นหาในหน้า</value>
   </data>
 </root>

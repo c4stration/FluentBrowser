@@ -30,7 +30,7 @@ public sealed partial class MainWindow
     // invoke browser commands through WebMessageReceived.
     private readonly Dictionary<WebView2, string>
         _webViewShortcutTokens = [];
-
+    
     private bool _middleClickPending;
     private InputKeyboardSource? _keyboardSource;
 
@@ -286,6 +286,7 @@ public sealed partial class MainWindow
             "reload" => TryInvokeConfigurable(BrowserShortcut.Reload),
             "next-tab" => TryInvokeConfigurable(BrowserShortcut.NextTab),
             "previous-tab" => TryInvokeConfigurable(BrowserShortcut.PreviousTab),
+            "find-on-page" => TryInvokeConfigurable(BrowserShortcut.FindOnPage),
             "hard-reload" => TryHandleShortcut(
                 VirtualKey.R, ctrl: true, shift: true, alt: false),
             "reload-f5" => TryHandleShortcut(
@@ -354,70 +355,73 @@ public sealed partial class MainWindow
         string reload = BuildJsMatchCondition(BrowserShortcut.Reload);
         string nextTab = BuildJsMatchCondition(BrowserShortcut.NextTab);
         string previousTab = BuildJsMatchCondition(BrowserShortcut.PreviousTab);
+        string findOnPage = BuildJsMatchCondition(BrowserShortcut.FindOnPage);
 
         return $$"""
-            (() => {
-                const token = "{{token}}";
-                const postMessage = chrome.webview.postMessage.bind(chrome.webview);
-                const handlerFlag = "__fluentBrowserShortcutHandler";
+        (() => {
+            const token = "{{token}}";
+            const postMessage = chrome.webview.postMessage.bind(chrome.webview);
+            const handlerFlag = "__fluentBrowserShortcutHandler";
 
-                if (window[handlerFlag]) {
-                    window.removeEventListener("keydown", window[handlerFlag], true);
-                    document.removeEventListener("keydown", window[handlerFlag], true);
+            if (window[handlerFlag]) {
+                window.removeEventListener("keydown", window[handlerFlag], true);
+                document.removeEventListener("keydown", window[handlerFlag], true);
+            }
+
+            const handler = event => {
+                const { altKey: alt, code, ctrlKey: ctrl, shiftKey: shift, metaKey: meta } = event;
+                let shortcut = null;
+
+                if ({{newTab}}) {
+                    shortcut = "new-tab";
+                } else if ({{closeTab}}) {
+                    shortcut = "close-tab";
+                } else if ({{reopenTab}}) {
+                    shortcut = "reopen-tab";
+                } else if ({{focusAddress}}) {
+                    shortcut = "focus-address";
+                } else if ({{reload}}) {
+                    shortcut = "reload";
+                } else if ({{nextTab}}) {
+                    shortcut = "next-tab";
+                } else if ({{previousTab}}) {
+                    shortcut = "previous-tab";
+                } else if ({{findOnPage}}) {
+                    shortcut = "find-on-page";
+                } else if (!ctrl && !shift && !alt) {
+                    shortcut = code === "F5" ? "reload-f5"
+                        : code === "F11" ? "fullscreen"
+                        : code === "F12" ? "dev-tools"
+                        : null;
+                } else if (alt && !ctrl && !shift) {
+                    shortcut = code === "ArrowLeft" ? "back"
+                        : code === "ArrowRight" ? "forward"
+                        : null;
+                } else if (ctrl && !alt) {
+                    shortcut = code === "KeyR" && shift ? "hard-reload"
+                        : (code === "Equal" || code === "NumpadAdd") ? "zoom-in"
+                        : (code === "Minus" || code === "NumpadSubtract") && !shift ? "zoom-out"
+                        : code === "Digit0" && !shift ? "zoom-reset"
+                        : code === "KeyD" && shift ? "duplicate-tab"
+                        : code === "KeyI" && shift ? "dev-tools-inspect"
+                        : code === "KeyU" && !shift ? "view-source"
+                        : code === "KeyP" && !shift ? "print"
+                        : code === "KeyE" && !shift ? "focus-address"
+                        : null;
                 }
 
-                const handler = event => {
-                    const { altKey: alt, code, ctrlKey: ctrl, shiftKey: shift, metaKey: meta } = event;
-                    let shortcut = null;
+                if (shortcut === null)
+                    return;
 
-                    if ({{newTab}}) {
-                        shortcut = "new-tab";
-                    } else if ({{closeTab}}) {
-                        shortcut = "close-tab";
-                    } else if ({{reopenTab}}) {
-                        shortcut = "reopen-tab";
-                    } else if ({{focusAddress}}) {
-                        shortcut = "focus-address";
-                    } else if ({{reload}}) {
-                        shortcut = "reload";
-                    } else if ({{nextTab}}) {
-                        shortcut = "next-tab";
-                    } else if ({{previousTab}}) {
-                        shortcut = "previous-tab";
-                    } else if (!ctrl && !shift && !alt) {
-                        shortcut = code === "F5" ? "reload-f5"
-                            : code === "F11" ? "fullscreen"
-                            : code === "F12" ? "dev-tools"
-                            : null;
-                    } else if (alt && !ctrl && !shift) {
-                        shortcut = code === "ArrowLeft" ? "back"
-                            : code === "ArrowRight" ? "forward"
-                            : null;
-                    } else if (ctrl && !alt) {
-                        shortcut = code === "KeyR" && shift ? "hard-reload"
-                            : (code === "Equal" || code === "NumpadAdd") ? "zoom-in"
-                            : (code === "Minus" || code === "NumpadSubtract") && !shift ? "zoom-out"
-                            : code === "Digit0" && !shift ? "zoom-reset"
-                            : code === "KeyD" && shift ? "duplicate-tab"
-                            : code === "KeyI" && shift ? "dev-tools-inspect"
-                            : code === "KeyU" && !shift ? "view-source"
-                            : code === "KeyP" && !shift ? "print"
-                            : code === "KeyE" && !shift ? "focus-address"
-                            : null;
-                    }
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                postMessage(`fluentbrowser-shortcut:${token}:${shortcut}`);
+            };
 
-                    if (shortcut === null)
-                        return;
-
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    postMessage(`fluentbrowser-shortcut:${token}:${shortcut}`);
-                };
-
-                window[handlerFlag] = handler;
-                window.addEventListener("keydown", handler, true);
-            })();
-            """;
+            window[handlerFlag] = handler;
+            window.addEventListener("keydown", handler, true);
+        })();
+        """;
     }
 
     private string BuildJsMatchCondition(BrowserShortcut action)

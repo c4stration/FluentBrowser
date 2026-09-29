@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>أدوات المطور</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>الإعدادات</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>إظهار عنوان موقع الويب بالكامل</value>
   </data>
@@ -453,5 +450,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>الانتقال إلى علامة التبويب اليسرى</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>مطابقة حالة الأحرف</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>مطابقة الكلمة بالكامل</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>البحث في الصفحة</value>
   </data>
 </root>

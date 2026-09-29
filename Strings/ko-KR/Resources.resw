@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>개발자 도구</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>설정</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>전체 웹사이트 주소 표시</value>
   </data>
@@ -441,5 +438,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>왼쪽 탭으로 이동</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>찾기</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>대/소문자 구분</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>단어 단위로 일치</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>페이지에서 찾기</value>
   </data>
 </root>

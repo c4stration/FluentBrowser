@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>כלי פיתוח</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>הגדרות</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>הצגת כתובת האתר המלאה</value>
   </data>
@@ -459,5 +456,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>מעבר ללשונית השמאלית</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>חיפוש</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>התאמת רישיות</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>התאמת מילה שלמה</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>חיפוש בדף</value>
   </data>
 </root>

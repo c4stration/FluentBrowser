@@ -20,7 +20,8 @@ public enum BrowserShortcut
     FocusAddressBar,
     Reload,
     NextTab,
-    PreviousTab
+    PreviousTab,
+    FindOnPage
 }
 
 public sealed partial class MainWindow
@@ -33,7 +34,8 @@ public sealed partial class MainWindow
         [BrowserShortcut.FocusAddressBar] = new() { Keys = [VirtualKey.Control, VirtualKey.L] },
         [BrowserShortcut.Reload] = new() { Keys = [VirtualKey.Control, VirtualKey.R] },
         [BrowserShortcut.NextTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
-        [BrowserShortcut.PreviousTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] }
+        [BrowserShortcut.PreviousTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] },
+        [BrowserShortcut.FindOnPage] = new() { Keys = [VirtualKey.Control, VirtualKey.F] }
     };
 
     private readonly Dictionary<BrowserShortcut, KeyboardAccelerator?> _shortcutAccelerators = new()
@@ -44,7 +46,8 @@ public sealed partial class MainWindow
         [BrowserShortcut.FocusAddressBar] = null,
         [BrowserShortcut.Reload] = null,
         [BrowserShortcut.NextTab] = null,
-        [BrowserShortcut.PreviousTab] = null
+        [BrowserShortcut.PreviousTab] = null,
+        [BrowserShortcut.FindOnPage] = null
     };
 
     private static string SettingsKeyFor(BrowserShortcut action) => action switch
@@ -56,6 +59,7 @@ public sealed partial class MainWindow
         BrowserShortcut.Reload => "ReloadShortcut",
         BrowserShortcut.NextTab => "RightTabShortcut",
         BrowserShortcut.PreviousTab => "LeftTabShortcut",
+        BrowserShortcut.FindOnPage => "FindOnPageShortcut",
         _ => action.ToString()
     };
 
@@ -353,6 +357,9 @@ public sealed partial class MainWindow
                 break;
             case BrowserShortcut.PreviousTab:
                 CycleTab(-1);
+                break;
+            case BrowserShortcut.FindOnPage:
+                ShowFindOnPage();
                 break;
         }
     }

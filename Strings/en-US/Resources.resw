@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>Developer tools</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>Settings</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>Show full website address</value>
   </data>
@@ -463,5 +460,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>Move to left tab</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>Find</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>Match case</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>Match whole word</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>Find on page</value>
   </data>
 </root>

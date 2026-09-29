@@ -639,7 +639,7 @@
 
                                 <MenuFlyoutItem
                                     x:Name="SettingsMenuItem"
-                                    l:Uids.Uid="SettingsMenuItem"
+                                    l:Uids.Uid="SettingsTitle"
                                     Click="SettingsButton_Click">
                                     <MenuFlyoutItem.Icon>
                                         <FontIcon Glyph="&#xE713;" />
@@ -679,6 +679,112 @@
 
         <!--  CURRENT TAB CONTENT  -->
         <ContentPresenter x:Name="CurrentTabContent" Grid.Row="1" />
+
+        <TeachingTip
+            x:Name="FindOnPageTeachingTip"
+            Closed="FindOnPageTeachingTip_Closed"
+            IsLightDismissEnabled="True"
+            PlacementMargin="69"
+            PreferredPlacement="Top">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Margin="0,0,4,0" Orientation="Horizontal">
+                    <Button
+                        x:Name="FindPreviousButton"
+                        Padding="6,7"
+                        BorderThickness="1,1,0,1"
+                        Click="FindPreviousButton_Click"
+                        CornerRadius="4,0,0,4"
+                        IsEnabled="False">
+                        <FontIcon FontSize="16" Glyph="&#xE70E;" />
+                    </Button>
+
+                    <Rectangle Width="1" Fill="{ThemeResource ControlElevationBorderBrush}" />
+
+                    <Button
+                        x:Name="FindNextButton"
+                        Margin="0,-1"
+                        Padding="6,7"
+                        BorderThickness="0,1,1,1"
+                        Click="FindNextButton_Click"
+                        CornerRadius="0,4,4,0"
+                        IsEnabled="False">
+                        <FontIcon FontSize="16" Glyph="&#xE70D;" />
+                    </Button>
+                </StackPanel>
+
+                <AutoSuggestBox
+                    x:Name="FindOnPageBox"
+                    Grid.Column="1"
+                    Margin="0,0,8,0"
+                    l:Uids.Uid="FindOnPageBox"
+                    GotFocus="FindOnPageBox_GotFocus"
+                    KeyDown="FindOnPageBox_KeyDown"
+                    LostFocus="FindOnPageBox_LostFocus"
+                    QueryIcon="Find"
+                    QuerySubmitted="FindOnPageBox_QuerySubmitted"
+                    TextChanged="FindOnPageBox_TextChanged">
+
+                    <AutoSuggestBox.TextBoxStyle>
+                        <Style BasedOn="{StaticResource AutoSuggestBoxTextBoxStyle}" TargetType="TextBox">
+                            <Setter Property="Padding" Value="10,5,48,0" />
+                        </Style>
+                    </AutoSuggestBox.TextBoxStyle>
+                </AutoSuggestBox>
+
+                <TextBlock
+                    x:Name="FindCountTextBlock"
+                    Grid.Column="1"
+                    Margin="0,0,84,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    IsHitTestVisible="False"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Visibility="Collapsed" />
+
+                <StackPanel
+                    Grid.Column="2"
+                    Orientation="Horizontal"
+                    Spacing="6">
+                    <Button
+                        Padding="8"
+                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                        Style="{ThemeResource AppBarButtonStyle}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <ToggleMenuFlyoutItem
+                                    x:Name="FindMatchCaseItem"
+                                    l:Uids.Uid="MatchCase"
+                                    Click="FindMatchCase_Click"
+                                    IsChecked="False" />
+                                <ToggleMenuFlyoutItem
+                                    x:Name="FindMatchWordItem"
+                                    l:Uids.Uid="MatchWord"
+                                    Click="FindMatchWord_Click"
+                                    IsChecked="False" />
+                            </MenuFlyout>
+                        </Button.Flyout>
+
+                        <FontIcon FontSize="14" Glyph="&#xE71C;" />
+                    </Button>
+
+                    <Button
+                        Padding="8"
+                        Click="CloseFindTeachingTip_Click"
+                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                        Style="{ThemeResource AppBarButtonStyle}">
+                        <FontIcon FontSize="14" Glyph="&#xE711;" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </TeachingTip>
 
         <Border
             x:Name="StatusBarBorder"

@@ -4,6 +4,7 @@ using FluentBrowser.Utilities;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
@@ -82,6 +83,15 @@ public sealed partial class MainWindow : Window
         AudioToggleButton.PointerReleased += AudioToggleButton_PointerReleased;
         AudioToggleButton.PointerCanceled += AudioToggleButton_PointerCanceled;
         AudioToggleButton.PointerCaptureLost += AudioToggleButton_PointerCaptureLost;
+
+        FindOnPageBox.RegisterPropertyChangedCallback(
+            AutoSuggestBox.TextProperty,
+            FindOnPageBox_TextPropertyChanged);
+
+        FindOnPageBox.AddHandler(
+            UIElement.KeyDownEvent,
+            new KeyEventHandler(FindOnPageBox_KeyDownHandled),
+            true);
 
         Directory.CreateDirectory(_faviconCacheDirectory);
 

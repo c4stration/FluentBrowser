@@ -1317,6 +1317,8 @@ public sealed partial class SettingsPage : Page, IDisposable
             LoadHotkeySettings("RightTabShortcut", DefaultNextTabShortcut());
         LeftTabShortcutControl.HotkeySettings =
             LoadHotkeySettings("LeftTabShortcut", DefaultPreviousTabShortcut());
+        FindOnPageShortcutControl.HotkeySettings =
+            LoadHotkeySettings("FindOnPageShortcut", DefaultFindOnPageShortcut());
     }
 
     private void NewTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
@@ -1339,6 +1341,9 @@ public sealed partial class SettingsPage : Page, IDisposable
 
     private void LeftTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "LeftTabShortcut", BrowserShortcut.PreviousTab);
+
+    private void FindOnPageShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+        ApplyShortcutFromControl(sender, "FindOnPageShortcut", BrowserShortcut.FindOnPage);
 
     private void ApplyShortcutFromControl(
         object sender,
@@ -1377,6 +1382,9 @@ public sealed partial class SettingsPage : Page, IDisposable
 
     private static HotkeySettings DefaultPreviousTabShortcut() =>
         new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] };
+
+    private static HotkeySettings DefaultFindOnPageShortcut() =>
+        new() { Keys = [VirtualKey.Control, VirtualKey.F] };
 
     private HotkeySettings LoadHotkeySettings(
         string key,

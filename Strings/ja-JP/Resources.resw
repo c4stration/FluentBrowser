@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>開発者ツール</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>設定</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>ウェブサイトのアドレス全体を表示</value>
   </data>
@@ -445,5 +442,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>左のタブに移動</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>大文字と小文字を区別</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>単語単位で検索</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>ページ内検索</value>
   </data>
 </root>

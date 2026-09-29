@@ -354,6 +354,14 @@
                                     AllowDisable="True"
                                     ShortcutChanged="LeftTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
+
+
+                            <controls:SettingsCard l:Uids.Uid="ShortcutFindOnPage">
+                                <my:ShortcutControl
+                                    x:Name="FindOnPageShortcutControl"
+                                    AllowDisable="True"
+                                    ShortcutChanged="FindOnPageShortcutControl_ShortcutChanged" />
+                            </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
 
                     </controls:SettingsExpander>

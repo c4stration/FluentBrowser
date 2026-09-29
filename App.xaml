@@ -53,6 +53,8 @@
                 M6.41667,14 H0 V7.58333 H6.41667 Z M14,14 H7.58333 V7.58333 H14 Z M6.41667,6.41667 H0 V0 H6.41667 Z M14,6.41667 H7.58333 V0 H14 Z
             </x:String>
 
+            <x:Double x:Key="TeachingTipMinWidth">550</x:Double>
+
             <Style x:Key="AppBarButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />

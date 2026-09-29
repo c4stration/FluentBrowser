@@ -204,9 +204,6 @@
   <data name="DevToolsMenuItem.Text" xml:space="preserve">
     <value>開發人員工具</value>
   </data>
-  <data name="SettingsMenuItem.Text" xml:space="preserve">
-    <value>設定</value>
-  </data>
   <data name="FullWebAddress.Header" xml:space="preserve">
     <value>顯示完整的網站地址</value>
   </data>
@@ -441,5 +438,17 @@
   </data>
   <data name="ShortcutLeftTab.Header" xml:space="preserve">
     <value>移動到左側分頁</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>尋找</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>區分大小寫</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>符合整個單字</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>在頁面中尋找</value>
   </data>
 </root>

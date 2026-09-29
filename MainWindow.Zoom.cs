@@ -78,11 +78,6 @@ public sealed partial class MainWindow
             await SetZoomFactorAsync(webView, 1.0);
     }
 
-    private void FindMenuItem_Click(
-        object sender,
-        RoutedEventArgs e) =>
-        SelectedWebView?.Focus(FocusState.Programmatic);
-
     private void PrintMenuItem_Click(
         object sender,
         RoutedEventArgs e) =>
