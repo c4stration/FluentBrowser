@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 using Windows.System;
 
+using FluentBrowser.Shared;
+
 namespace FluentBrowser;
 
 public sealed partial class MainWindow
@@ -221,7 +223,7 @@ public sealed partial class MainWindow
         if (currentPlaying)
         {
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Mute This Tab",
                     "\uE74F",
                     (_, _) =>
@@ -231,7 +233,7 @@ public sealed partial class MainWindow
                     }));
 
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Mute Other Tabs",
                     "\uE74F",
                     (_, _) =>
@@ -243,7 +245,7 @@ public sealed partial class MainWindow
         else if (playingTabs.Count > 0)
         {
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Mute All Tabs",
                     "\uE74F",
                     (_, _) =>

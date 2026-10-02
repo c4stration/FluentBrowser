@@ -5,6 +5,8 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using FluentBrowser.Shared;
+
 namespace FluentBrowser;
 
 public sealed partial class MainWindow
@@ -23,7 +25,7 @@ public sealed partial class MainWindow
             target.IsEditable)
         {
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Cut",
                     "\uE8C6",
                     async (_, _) =>
@@ -34,7 +36,7 @@ public sealed partial class MainWindow
         if (target.Kind == CoreWebView2ContextMenuTargetKind.SelectedText)
         {
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Copy",
                     "\uE8C8",
                     async (_, _) =>
@@ -45,7 +47,7 @@ public sealed partial class MainWindow
         if (target.IsEditable)
         {
             menu.Items.Add(
-                CreateContextMenuItem(
+                Helpers.CreateContextMenuItem(
                     "Paste",
                     "\uE77F",
                     async (_, _) =>
@@ -74,14 +76,14 @@ public sealed partial class MainWindow
         WebView2 webView)
     {
         menu.Items.Add(
-            CreateMenuItem(
+            Helpers.CreateMenuItem(
                 "Back",
                 "\uE72B",
                 (_, _) => webView.GoBack(),
                 webView.CanGoBack));
 
         menu.Items.Add(
-            CreateMenuItem(
+            Helpers.CreateMenuItem(
                 "Refresh",
                 "\uE72C",
                 (_, _) => webView.Reload()));
@@ -89,7 +91,7 @@ public sealed partial class MainWindow
         menu.Items.Add(new MenuFlyoutSeparator());
 
         menu.Items.Add(
-            CreateMenuItem(
+            Helpers.CreateMenuItem(
                 "View page source",
                 string.Empty,
                 (_, _) =>

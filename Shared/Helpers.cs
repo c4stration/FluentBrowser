@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Globalization;
@@ -25,7 +26,9 @@ public static class Helpers
     public static string FormatFileSize(ulong bytes) =>
         FormatFileSize((long)bytes);
 
-    public static T? FindVisualChild<T>(DependencyObject parent)
+    public static T? FindDescendant<T>(
+        DependencyObject parent,
+        Func<T, bool>? predicate = null)
         where T : DependencyObject
     {
         int count = VisualTreeHelper.GetChildrenCount(parent);
@@ -34,32 +37,15 @@ public static class Helpers
         {
             DependencyObject child = VisualTreeHelper.GetChild(parent, i);
 
-            if (child is T result)
+            if (child is T result && (predicate == null || predicate(result)))
                 return result;
 
-            T? descendant = FindVisualChild<T>(child);
+            T? descendant = FindDescendant(child, predicate);
 
             if (descendant != null)
                 return descendant;
         }
 
-        return null;
-    }
-
-    public static T? FindDescendant<T>(DependencyObject parent, Func<T, bool>? predicate = null)
-        where T : DependencyObject
-    {
-        int count = VisualTreeHelper.GetChildrenCount(parent);
-        for (int i = 0; i < count; i++)
-        {
-            var child = VisualTreeHelper.GetChild(parent, i);
-            if (child is T t && (predicate == null || predicate(t)))
-                return t;
-
-            var result = FindDescendant(child, predicate);
-            if (result != null)
-                return result;
-        }
         return null;
     }
 
@@ -102,5 +88,38 @@ public static class Helpers
         return string.Format(
             localizer.GetLocalizedString("DaysAgo"),
             days.ToString("N0", GetCurrentCulture()));
+    }
+
+    public static MenuFlyoutItem CreateContextMenuItem(
+        string text,
+        string glyph,
+        RoutedEventHandler click)
+    {
+        var item = new MenuFlyoutItem
+        {
+            Text = text
+        };
+
+        if (!string.IsNullOrEmpty(glyph))
+        {
+            item.Icon = new FontIcon
+            {
+                Glyph = glyph
+            };
+        }
+
+        item.Click += click;
+        return item;
+    }
+
+    public static MenuFlyoutItem CreateMenuItem(
+        string text,
+        string glyph,
+        RoutedEventHandler click,
+        bool isEnabled = true)
+    {
+        var item = CreateContextMenuItem(text, glyph, click);
+        item.IsEnabled = isEnabled;
+        return item;
     }
 }

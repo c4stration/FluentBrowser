@@ -31,7 +31,7 @@ public sealed partial class MainWindow
         {
             FindOnPageBox.Focus(FocusState.Programmatic);
 
-            if (Helpers.FindVisualChild<TextBox>(FindOnPageBox) is TextBox textBox)
+            if (Helpers.FindDescendant<TextBox>(FindOnPageBox) is TextBox textBox)
             {
                 textBox.Focus(FocusState.Programmatic);
                 textBox.SelectAll();
@@ -184,12 +184,6 @@ public sealed partial class MainWindow
     {
         _findTerm = args.QueryText ?? sender.Text ?? string.Empty;
         await StartOrUpdateFindAsync();
-
-        if (SelectedWebView?.CoreWebView2 is { } core &&
-            !string.IsNullOrEmpty(_findTerm))
-        {
-            core.Find.FindNext();
-        }
     }
 
     private void FindOnPageBox_GotFocus(object sender, RoutedEventArgs e)
