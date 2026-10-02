@@ -27,7 +27,7 @@
                 Margin="0,32,0,0"
                 HorizontalAlignment="Center"
                 Click="ContinueToPage_Click"
-                Content="Continue to page"
+                l:Uids.Uid="ContinueToPageButton"
                 Style="{ThemeResource AccentButtonStyle}"
                 Visibility="Collapsed" />
         </StackPanel>

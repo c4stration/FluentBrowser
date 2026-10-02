@@ -377,8 +377,7 @@
     <value>与“{0}”的连接已中断。</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}" 使用了已过期的证书。其安全证书已于 {1} 前过期。这可能是由于配置错误，或攻击者正在拦截您的连接。您的计算机时钟当前设置为 {2}。这看起来正确吗？如果不正确，您应该校正系统时钟，然后刷新此页面。
-</value>
+    <value>"{0}" 使用了已过期的证书。其安全证书已于{1}过期。这可能是由于配置错误，或攻击者正在拦截您的连接。您的计算机时钟当前设置为{2}。这看起来正确吗？如果不正确，您应该校正系统时钟，然后刷新此页面。</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>“{0}”的安全证书无效。</value>
@@ -454,5 +453,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>在页面中查找</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0}天前</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>1天前</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>继续访问页面</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>启动行为</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>选择浏览器启动时的操作</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>继续上次的内容</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>打开新标签页</value>
   </data>
 </root>

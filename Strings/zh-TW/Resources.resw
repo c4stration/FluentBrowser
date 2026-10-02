@@ -373,8 +373,7 @@
     <value>與「{0}」的連線已中止。</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>「{0}」使用了已過期的憑證。其安全憑證已於 {1} 前過期。這可能是設定錯誤，或攻擊者正在攔截您的連線所致。您的電腦時鐘目前設定為 {2}。這看起來正確嗎？如果不正確，您應該校正系統時鐘，然後重新整理此頁面。
-</value>
+    <value>「{0}」使用了已過期的憑證。其安全憑證已於{1}過期。這可能是設定錯誤，或攻擊者正在攔截您的連線所致。您的電腦時鐘目前設定為{2}。這看起來正確嗎？如果不正確，您應該校正系統時鐘，然後重新整理此頁面。</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>「{0}」的安全性憑證無效。</value>
@@ -450,5 +449,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>在頁面中尋找</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0}天前</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>1天前</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>繼續前往頁面</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>啟動行為</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>選擇瀏覽器啟動時的操作</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>繼續上次的內容</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>開啟新分頁</value>
   </data>
 </root>

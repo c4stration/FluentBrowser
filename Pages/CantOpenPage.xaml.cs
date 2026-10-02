@@ -1,8 +1,8 @@
-﻿using Microsoft.UI.Xaml;
+﻿using FluentBrowser.Shared;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
-using System.Globalization;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Pages;
@@ -87,14 +87,20 @@ public sealed partial class CantOpenPage : Page
                 .LocalDateTime;
 
             int daysExpired =
-                Math.Max(0, (DateTime.Now.Date - expirationDate.Date).Days);
+                Math.Max(
+                    0,
+                    (DateTime.Now.Date - expirationDate.Date).Days);
 
             expiredTime =
-                $"{daysExpired:N0} {(daysExpired == 1 ? "day" : "days")}";
+                Helpers.FormatDaysAgo(daysExpired);
         }
 
+        string language = localizer.GetCurrentLanguage();
+
         string currentDate =
-            DateTime.Now.ToString("D", CultureInfo.CurrentCulture);
+             DateTime.Now.ToString(
+                 "D",
+                 Helpers.GetCurrentCulture());
 
         ErrorMessageText.Text =
             string.Format(

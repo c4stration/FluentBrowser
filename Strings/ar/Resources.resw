@@ -385,8 +385,7 @@
     <value>انقطع الاتصال بـ «{0}».</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>يستخدم "{0}" شهادة منتهية الصلاحية. انتهت صلاحية شهادة الأمان الخاصة به منذ {1}. قد يكون هذا بسبب إعداد غير صحيح أو بسبب مهاجم يعترض اتصالك. تم ضبط ساعة الكمبيوتر حاليًا على {2}. هل يبدو ذلك صحيحًا؟ إذا لم يكن كذلك، فيجب عليك تصحيح ساعة النظام ثم تحديث هذه الصفحة.
-</value>
+    <value>يستخدم "{0}" شهادة منتهية الصلاحية. انتهت صلاحية شهادة الأمان الخاصة به {1}. قد يكون هذا بسبب إعداد غير صحيح أو بسبب مهاجم يعترض اتصالك. تم ضبط ساعة الكمبيوتر حاليًا على {2}. هل يبدو ذلك صحيحًا؟ إذا لم يكن كذلك، فيجب عليك تصحيح ساعة النظام ثم تحديث هذه الصفحة.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>شهادة أمان «{0}» غير صالحة.</value>
@@ -462,5 +461,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>البحث في الصفحة</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>منذ {0} يومًا</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>منذ يوم</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>المتابعة إلى الصفحة</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>سلوك بدء التشغيل</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>اختر ما يحدث عند بدء تشغيل المتصفح</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>متابعة من حيث توقفت</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>فتح علامة تبويب جديدة</value>
   </data>
 </root>

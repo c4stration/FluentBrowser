@@ -377,8 +377,7 @@
     <value>「{0}」への接続が中断されました。</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>「{0}」は有効期限が切れた証明書を使用しています。このセキュリティ証明書の有効期限は {1} 前に切れています。設定の誤りや、攻撃者による接続の傍受が原因である可能性があります。現在、コンピューターの時計は {2} に設定されています。これは正しいですか？正しくない場合は、システムの時計を修正してから、このページを更新してください。
-</value>
+    <value>「{0}」は有効期限が切れた証明書を使用しています。このセキュリティ証明書の有効期限は{1}に切れています。設定の誤りや、攻撃者による接続の傍受が原因である可能性があります。現在、コンピューターの時計は{2}に設定されています。これは正しいですか？正しくない場合は、システムの時計を修正してから、このページを更新してください。</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>「{0}」のセキュリティ証明書が無効です。</value>
@@ -454,5 +453,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>ページ内検索</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0}日前</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>1日前</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>ページに進む</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>起動時の動作</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>ブラウザーの起動時に行う動作を選択</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>前回の続きから再開</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>新しいタブを開く</value>
   </data>
 </root>

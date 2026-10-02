@@ -88,6 +88,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadTabWidth();
         LoadNewTabPosition();
         LoadFullWebAddress();
+        LoadStartupBehavior();
         LoadSearchSuggestions();
         LoadSearchEngine();
         LoadThemeColorTint();
@@ -1437,4 +1438,40 @@ public sealed partial class SettingsPage : Page, IDisposable
         {
             Keys = [.. settings.Keys]
         };
+
+    private void StartupBehaviorComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings ||
+            StartupBehaviorComboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        string behavior =
+            StartupBehaviorComboBox.SelectedIndex switch
+            {
+                0 => "ContinueSession",
+                1 => "NewTab",
+                _ => "ContinueSession"
+            };
+
+        _settings.Values["StartupBehavior"] = behavior;
+    }
+
+    private void LoadStartupBehavior()
+    {
+        string behavior =
+            _settings.Values["StartupBehavior"] as string
+            ?? "ContinueSession";
+
+        StartupBehaviorComboBox.SelectedIndex =
+            behavior switch
+            {
+                "ContinueSession" => 0,
+                "NewTab" => 1,
+                _ => 0
+            };
+    }
 }

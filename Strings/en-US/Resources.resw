@@ -393,7 +393,7 @@
     <value>The connection to "{0}" was interrupted.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}" uses an expired certificate. Its security certificate expired {1} ago. This may be caused by a misconfiguration or an attacker intercepting your connection. Your computer's clock is currently set to {2}. Does that look right? If not, you should correct your system's clock and then refresh this page.</value>
+    <value>"{0}" uses an expired certificate. Its security certificate expired {1}. This may be caused by a misconfiguration or an attacker intercepting your connection. Your computer's clock is currently set to {2}. Does that look right? If not, you should correct your system's clock and then refresh this page.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>"{0}" uses an invalid security certificate.</value>
@@ -472,5 +472,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Find on page</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>a day ago</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>Continue to page</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>Startup behavior</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>Choose what happens when the browser starts</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>Continue where you left off</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>Open a new tab</value>
   </data>
 </root>

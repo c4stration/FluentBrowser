@@ -391,8 +391,7 @@
     <value>การเชื่อมต่อไปยัง “{0}” ถูกยกเลิก</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}" ใช้ใบรับรองที่หมดอายุ ใบรับรองความปลอดภัยหมดอายุเมื่อ {1} ที่แล้ว ซึ่งอาจเกิดจากการกำหนดค่าที่ไม่ถูกต้อง หรือผู้โจมตีกำลังดักจับการเชื่อมต่อของคุณ ขณะนี้นาฬิกาของคอมพิวเตอร์ตั้งไว้ที่ {2} ถูกต้องหรือไม่ หากไม่ถูกต้อง คุณควรแก้ไขนาฬิกาของระบบ แล้วโหลดหน้านี้ใหม่
-</value>
+    <value>"{0}" ใช้ใบรับรองที่หมดอายุ ใบรับรองความปลอดภัยหมดอายุเมื่อ {1} ซึ่งอาจเกิดจากการกำหนดค่าที่ไม่ถูกต้อง หรือผู้โจมตีกำลังดักจับการเชื่อมต่อของคุณ ขณะนี้นาฬิกาของคอมพิวเตอร์ตั้งไว้ที่ {2} ถูกต้องหรือไม่ หากไม่ถูกต้อง คุณควรแก้ไขนาฬิกาของระบบ แล้วโหลดหน้านี้ใหม่</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>ใบรับรองความปลอดภัยของ “{0}” ไม่ถูกต้อง</value>
@@ -468,5 +467,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>ค้นหาในหน้า</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0} วันที่แล้ว</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>1 วันที่แล้ว</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>ไปยังหน้าเว็บต่อ</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>ลักษณะการเริ่มต้น</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>เลือกสิ่งที่จะเกิดขึ้นเมื่อเบราว์เซอร์เริ่มทำงาน</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>ดำเนินการต่อจากจุดที่ค้างไว้</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>เปิดแท็บใหม่</value>
   </data>
 </root>

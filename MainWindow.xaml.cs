@@ -104,8 +104,9 @@ public sealed partial class MainWindow : Window
         _appWindow = AppWindow.GetFromWindowId(windowId);
         InitializeFullscreenPointerTracking();
 
-        MainTabView.TabItems.Add(
-            CreateNewTab(CreateSearchEngineHomeUri().AbsoluteUri));
+        Closed += MainWindow_Closed;
+
+        InitializeStartup();
     }
 
     public nint GetWindowHandle()

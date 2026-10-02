@@ -390,8 +390,7 @@
     <value>החיבור אל «{0}» הופסק.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}" משתמש באישור שפג תוקפו. תוקף אישור האבטחה שלו פג לפני {1}. ייתכן שהדבר נגרם עקב הגדרה שגויה או עקב תוקף שמיירט את החיבור שלך. השעון במחשב שלך מוגדר כעת ל־{2}. האם זה נראה נכון? אם לא, עליך לתקן את שעון המערכת ולאחר מכן לרענן את הדף.
-</value>
+    <value>"{0}" משתמש באישור שפג תוקפו. תוקף אישור האבטחה שלו פג {1}. ייתכן שהדבר נגרם עקב הגדרה שגויה או עקב תוקף שמיירט את החיבור שלך. השעון במחשב שלך מוגדר כעת ל־{2}. האם זה נראה נכון? אם לא, עליך לתקן את שעון המערכת ולאחר מכן לרענן את הדף.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>אישור האבטחה של «{0}» אינו תקף.</value>
@@ -468,5 +467,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>חיפוש בדף</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>לפני {0} ימים</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>לפני יום</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>המשך לדף</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>אופן ההפעלה</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>בחר מה יקרה כשהדפדפן יופעל</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>המשך מהמקום שבו הפסקת</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>פתיחת כרטיסייה חדשה</value>
   </data>
 </root>

@@ -373,8 +373,7 @@
     <value>Conexiunea la „{0}” a fost întreruptă.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat acum {1}. Acest lucru poate fi cauzat de o configurare incorectă sau de un atacator care interceptează conexiunea. Ceasul computerului este setat în prezent la {2}. Este corect? Dacă nu, ar trebui să corectezi ceasul sistemului și apoi să reîmprospătezi această pagină.
-</value>
+    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat {1}. Acest lucru poate fi cauzat de o configurare incorectă sau de un atacator care interceptează conexiunea. Ceasul computerului este setat în prezent la {2}. Este corect? Dacă nu, ar trebui să corectezi ceasul sistemului și apoi să reîmprospătezi această pagină.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>Certificatul de securitate pentru „{0}” este invalid.</value>
@@ -450,5 +449,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Găsește în pagină</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>acum {0} zile</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>acum o zi</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>Continuă la pagină</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>Comportamentul la pornire</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>Alege ce se întâmplă la pornirea browserului</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>Continuă de unde ai rămas</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>Deschide o filă nouă</value>
   </data>
 </root>

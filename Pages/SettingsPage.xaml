@@ -194,6 +194,21 @@
 
                     </controls:SettingsCard>
 
+                    <controls:SettingsCard l:Uids.Uid="StartupBehavior">
+
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE7E8;" />
+                        </controls:SettingsCard.HeaderIcon>
+
+                        <ComboBox x:Name="StartupBehaviorComboBox" SelectionChanged="StartupBehaviorComboBox_SelectionChanged">
+
+                            <ComboBoxItem l:Uids.Uid="ContinueSession" />
+                            <ComboBoxItem l:Uids.Uid="OpenNewTab" />
+
+                        </ComboBox>
+                        
+                    </controls:SettingsCard>
+
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="AddressBarSection"

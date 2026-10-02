@@ -373,8 +373,7 @@
     <value>"{0}"에 대한 연결이 중단되었습니다.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}"에서 만료된 인증서를 사용하고 있습니다. 보안 인증서가 {1} 전에 만료되었습니다. 잘못된 구성이나 공격자가 연결을 가로채고 있기 때문에 발생할 수 있습니다. 현재 컴퓨터의 시계는 {2}(으)로 설정되어 있습니다. 올바르게 설정되어 있나요? 그렇지 않다면 시스템 시계를 수정한 다음 이 페이지를 새로 고침하세요.
-</value>
+    <value>"{0}"에서 만료된 인증서를 사용하고 있습니다. 보안 인증서가 {1} 만료되었습니다. 잘못된 구성이나 공격자가 연결을 가로채고 있기 때문에 발생할 수 있습니다. 현재 컴퓨터의 시계는 {2}(으)로 설정되어 있습니다. 올바르게 설정되어 있나요? 그렇지 않다면 시스템 시계를 수정한 다음 이 페이지를 새로 고침하세요.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>"{0}"의 보안 인증서가 유효하지 않습니다.</value>
@@ -450,5 +449,26 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>페이지에서 찾기</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0}일 전</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>1일 전</value>
+  </data>
+  <data name="ContinueToPageButton.Content" xml:space="preserve">
+    <value>페이지로 계속</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>시작 동작</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>브라우저가 시작될 때 수행할 동작 선택</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>이전에 사용하던 상태로 계속</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>새 탭 열기</value>
   </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using System.Globalization;
+using WinUI3Localizer;
 
 namespace FluentBrowser.Shared;
 
@@ -41,5 +43,46 @@ public static class Helpers
         }
 
         return null;
+    }
+
+    public static bool UsesWordSpacing(string language)
+    {
+        return language switch
+        {
+            "ja-JP" => false,
+            "zh-CN" => false,
+            "zh-TW" => false,
+            "ko-KR" => false,
+            _ => true
+        };
+    }
+
+    public static CultureInfo GetCurrentCulture()
+    {
+        return Localizer.Get().GetCurrentLanguage() switch
+        {
+            "ar" => CultureInfo.GetCultureInfo("ar"),
+            "en-US" => CultureInfo.GetCultureInfo("en-US"),
+            "he" => CultureInfo.GetCultureInfo("he-IL"),
+            "ja-JP" => CultureInfo.GetCultureInfo("ja-JP"),
+            "ko-KR" => CultureInfo.GetCultureInfo("ko-KR"),
+            "ro-RO" => CultureInfo.GetCultureInfo("ro-RO"),
+            "th" => CultureInfo.GetCultureInfo("th-TH"),
+            "zh-CN" => CultureInfo.GetCultureInfo("zh-CN"),
+            "zh-TW" => CultureInfo.GetCultureInfo("zh-TW"),
+            _ => CultureInfo.GetCultureInfo("en-US")
+        };
+    }
+
+    public static string FormatDaysAgo(int days)
+    {
+        ILocalizer localizer = Localizer.Get();
+
+        if (days == 1)
+            return localizer.GetLocalizedString("DayAgo");
+
+        return string.Format(
+            localizer.GetLocalizedString("DaysAgo"),
+            days.ToString("N0", GetCurrentCulture()));
     }
 }
