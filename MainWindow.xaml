@@ -682,8 +682,9 @@
 
         <TeachingTip
             x:Name="FindOnPageTeachingTip"
+            Style="{StaticResource TeachingTipStyleWithoutCloseButton}"
             Closed="FindOnPageTeachingTip_Closed"
-            IsLightDismissEnabled="True"
+            IsLightDismissEnabled="False"
             PlacementMargin="69"
             PreferredPlacement="Top">
 
@@ -694,7 +695,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Margin="0,0,4,0" Orientation="Horizontal">
+                <StackPanel Margin="0,0,8,0" Orientation="Horizontal">
                     <Button
                         x:Name="FindPreviousButton"
                         Padding="6,7"

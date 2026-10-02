@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using System;
 using System.Globalization;
 using WinUI3Localizer;
 
@@ -42,6 +43,23 @@ public static class Helpers
                 return descendant;
         }
 
+        return null;
+    }
+
+    public static T? FindDescendant<T>(DependencyObject parent, Func<T, bool>? predicate = null)
+        where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T t && (predicate == null || predicate(t)))
+                return t;
+
+            var result = FindDescendant(child, predicate);
+            if (result != null)
+                return result;
+        }
         return null;
     }
 

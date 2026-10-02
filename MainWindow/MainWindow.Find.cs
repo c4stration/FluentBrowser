@@ -84,9 +84,11 @@ public sealed partial class MainWindow
 
     private void UpdateFindCount()
     {
-        FindCountTextBlock.Text = string.IsNullOrEmpty(_findTerm)
+        FindCountTextBlock.Text = string.IsNullOrEmpty(_findTerm) ||
+                                  _findMatchCount == 0 ||
+                                  _findActiveIndex < 1
             ? "0/0"
-            : $"{_findActiveIndex + 1}/{_findMatchCount}";
+            : $"{_findActiveIndex}/{_findMatchCount}";
     }
 
     private void UpdateFindNavigationButtons()
