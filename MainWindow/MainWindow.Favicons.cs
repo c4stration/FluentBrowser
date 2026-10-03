@@ -9,6 +9,8 @@ using System.IO;
 using System.IO.Hashing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -18,6 +20,10 @@ public sealed partial class MainWindow
 {
     private readonly Dictionary<string, BitmapImage> _faviconCache =
         new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _faviconUrisByHost =
+        new(StringComparer.OrdinalIgnoreCase);
+    private readonly SemaphoreSlim _faviconIndexLock = new(1, 1);
+    private bool _faviconIndexLoaded;
 
     public event EventHandler? FaviconCacheChanged;
 
@@ -74,6 +80,8 @@ public sealed partial class MainWindow
 
                 return;
             }
+
+            await RememberFaviconForHostAsync(webView.Source, faviconUri);
 
             if (_faviconCache.TryGetValue(faviconUri, out var cached))
             {
@@ -236,9 +244,117 @@ public sealed partial class MainWindow
             $"{Convert.ToHexString(hash)}.png");
     }
 
+    private async Task<BitmapImage?> GetSuggestionFaviconAsync(Uri target)
+    {
+        await EnsureFaviconIndexLoadedAsync();
+
+        if (!_faviconUrisByHost.TryGetValue(
+                GetFaviconHost(target),
+                out string? faviconUri))
+            return null;
+
+        if (_faviconCache.TryGetValue(faviconUri, out BitmapImage? cached))
+            return cached;
+
+        BitmapImage? diskFavicon = await LoadFaviconFromDiskAsync(faviconUri);
+
+        if (diskFavicon is not null)
+            _faviconCache[faviconUri] = diskFavicon;
+
+        return diskFavicon;
+    }
+
+    private async Task RememberFaviconForHostAsync(
+        Uri? pageUri,
+        string faviconUri)
+    {
+        if (pageUri is null || string.IsNullOrWhiteSpace(pageUri.Host))
+            return;
+
+        await EnsureFaviconIndexLoadedAsync();
+
+        string host = GetFaviconHost(pageUri);
+
+        if (_faviconUrisByHost.TryGetValue(host, out string? current) &&
+            string.Equals(current, faviconUri, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _faviconUrisByHost[host] = faviconUri;
+        await SaveFaviconIndexAsync();
+    }
+
+    private async Task EnsureFaviconIndexLoadedAsync()
+    {
+        if (_faviconIndexLoaded)
+            return;
+
+        await _faviconIndexLock.WaitAsync();
+
+        try
+        {
+            if (_faviconIndexLoaded)
+                return;
+
+            string path = GetFaviconIndexPath();
+
+            if (File.Exists(path))
+            {
+                string json = await File.ReadAllTextAsync(path);
+                var entries = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+
+                if (entries is not null)
+                {
+                    foreach ((string host, string faviconUri) in entries)
+                        _faviconUrisByHost[host] = faviconUri;
+                }
+            }
+
+            _faviconIndexLoaded = true;
+        }
+        catch
+        {
+            _faviconIndexLoaded = true;
+        }
+        finally
+        {
+            _faviconIndexLock.Release();
+        }
+    }
+
+    private async Task SaveFaviconIndexAsync()
+    {
+        await _faviconIndexLock.WaitAsync();
+
+        try
+        {
+            await File.WriteAllTextAsync(
+                GetFaviconIndexPath(),
+                JsonSerializer.Serialize(_faviconUrisByHost));
+        }
+        catch
+        {
+        }
+        finally
+        {
+            _faviconIndexLock.Release();
+        }
+    }
+
+    private string GetFaviconIndexPath() =>
+        Path.Combine(_faviconCacheDirectory, "hosts.json");
+
+    private static string GetFaviconHost(Uri uri) =>
+        uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
+            ? uri.Host[4..]
+            : uri.Host;
+
     public void ClearFaviconCache()
     {
         _faviconCache.Clear();
+        _faviconUrisByHost.Clear();
+        _faviconIndexLoaded = true;
 
         try
         {
@@ -246,7 +362,7 @@ public sealed partial class MainWindow
             {
                 foreach (string file in Directory.EnumerateFiles(
                     _faviconCacheDirectory,
-                    "*.png"))
+                    "*"))
                 {
                     try
                     {

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FluentBrowser
+public sealed class SuggestionClick
 {
-    internal class SuggestionClick
-    {
-    }
+    public string GroupId { get; init; } = "";
+    public string CandidateId { get; init; } = "";
+    public DateTimeOffset Timestamp { get; init; }
 }

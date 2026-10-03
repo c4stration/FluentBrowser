@@ -33,12 +33,10 @@ internal sealed class SuggestionRanker
     private static readonly string ModelPath =
         Path.Combine(ApplicationData.Current.LocalFolder.Path, "suggestion-ranker.zip");
 
-    private static readonly string ClickLogPath =
-        Path.Combine(ApplicationData.Current.LocalFolder.Path, "suggestion-clicks.csv");
-
     public SuggestionRanker()
     {
         TryLoadModel();
+        SuggestionModelTrainer.ModelTrained += OnModelTrained;
     }
 
     public IReadOnlyList<RankedSuggestion> Rank(
@@ -110,66 +108,71 @@ internal sealed class SuggestionRanker
             QueryLength = q.Length,
             ExactMatch = display == q ? 1f : 0f,
             PrefixMatch = display.StartsWith(q, StringComparison.Ordinal) ? 1f : 0f,
-            HostPrefix = host.StartsWith(q, StringComparison.Ordinal) ? 1f : 0f,
-            TitleContains = title.Contains(q, StringComparison.Ordinal) ? 1f : 0f
-        };
+            HostPrefix =
+                !string.IsNullOrEmpty(q) &&
+                host.StartsWith(q, StringComparison.Ordinal)
+                    ? 1f
+                    : 0f,
+
+            TitleContains =
+                !string.IsNullOrEmpty(q) &&
+                title.Contains(q, StringComparison.Ordinal)
+                    ? 1f
+                    : 0f,
+                    };
     }
 
-    private static double HeuristicScore(SuggestionCandidate c, bool isOpenTab)
+    private static double HeuristicScore(
+     SuggestionCandidate c,
+     bool isOpenTab)
     {
         double score = c.Score;
+
         if (isOpenTab) score += 800;
         if (c.IsHistory) score += 120;
         if (c.Display.Length < 40) score += 40;
+
         return score;
     }
 
     private void TryLoadModel()
     {
-        try
+        lock (_lock)
         {
-            if (!File.Exists(ModelPath))
-                return;
+            try
+            {
+                if (!File.Exists(ModelPath))
+                {
+                    _model = null;
+                    _engine = null;
+                    return;
+                }
 
-            using var stream = File.OpenRead(ModelPath);
-            _model = _mlContext.Model.Load(stream, out _);
-            _engine = _mlContext.Model.CreatePredictionEngine<SuggestionFeatures, SuggestionPrediction>(_model);
-        }
-        catch
-        {
-            _model = null;
-            _engine = null;
-        }
-    }
+                using FileStream stream =
+                    File.OpenRead(ModelPath);
 
-    /// <summary>
-    /// Call this when the user actually chooses a suggestion.
-    /// </summary>
-    public void LogClick(string query, string chosenDisplay, Uri chosenUri, bool wasHistory, bool wasOpenTab)
-    {
-        try
-        {
-            bool exists = File.Exists(ClickLogPath);
-            using var writer = new StreamWriter(ClickLogPath, append: true);
+                _model = _mlContext.Model.Load(
+                    stream,
+                    out _);
 
-            if (!exists)
-                writer.WriteLine("Query,Display,Uri,IsHistory,IsOpenTab,Timestamp");
-
-            writer.WriteLine(
-                $"\"{Escape(query)}\",\"{Escape(chosenDisplay)}\",\"{chosenUri}\"," +
-                $"{(wasHistory ? 1 : 0)},{(wasOpenTab ? 1 : 0)},{DateTimeOffset.UtcNow:O}");
-        }
-        catch
-        {
-            // never crash the browser over logging
+                _engine =
+                    _mlContext.Model.CreatePredictionEngine<
+                        SuggestionFeatures,
+                        SuggestionPrediction>(_model);
+            }
+            catch
+            {
+                _model = null;
+                _engine = null;
+            }
         }
     }
 
-    private static string Escape(string s) => s.Replace("\"", "\"\"");
+    private void OnModelTrained(object? sender, EventArgs e) => TryLoadModel();
 
     // ---------- ML.NET types ----------
 
-    private sealed class SuggestionFeatures
+    public sealed class SuggestionFeatures
     {
         public float BaseScore { get; set; }
         public float IsHistory { get; set; }
