@@ -8,8 +8,8 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 - 🟧 Low Priority
 - ❌ Currently out of scope
 
-| Feature                                                     | Status | Notes |
-|:------------------------------------------------------------|:------:|:------:|
+| Feature                                                     | Status | Notes                                                                                                 |
+|:------------------------------------------------------------|:------:|:------------------------------------------------------------------------------------------------------|
 | Add MenuFlyout context menus                                |   ✅   | The context menus when you right click on the web view
 | Add every option to the new context menu                    |   🚧   | I don't know what to add to the context menu, but it just seems unfinished.
 | Make it unfocus after pressing Enter on the address bar     |   ✅   |
