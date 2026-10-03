@@ -169,7 +169,8 @@ public sealed partial class MainWindow
                                     item.DisplayText,
                                     item.TargetUri,
                                     item.Score,
-                                    true));
+                                    true,
+                                    item.Title));
                         }
                     }
                     catch
@@ -655,6 +656,27 @@ public sealed partial class MainWindow
         else
         {
             target = CreateSearchUri(text);
+        }
+
+        if (_suggestionWasChosen && args.ChosenSuggestion is string chosenDisplay)
+        {
+            bool wasOpenTab = MainTabView.TabItems
+                .OfType<TabViewItem>()
+                .Select(tab => tab.Tag as BrowserTab)
+                .Any(t => t?.WebView?.Source is Uri uri &&
+                          Uri.Compare(uri, target,
+                              UriComponents.AbsoluteUri,
+                              UriFormat.Unescaped,
+                              StringComparison.OrdinalIgnoreCase) == 0);
+
+            bool wasHistory = _suggestionWasChosen;
+
+            _suggestionRanker.LogClick(
+                query: text,
+                chosenDisplay: chosenDisplay,
+                chosenUri: target,
+                wasHistory: true,      // or track it properly
+                wasOpenTab: false);    // improve later
         }
 
         _suggestionWasChosen = false;
