@@ -35,6 +35,7 @@ public sealed partial class MainWindow
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
+    private readonly SuggestionRanker _suggestionRanker = new();
 
     private readonly Dictionary<string, Uri> _suggestionTargets =
         new(StringComparer.OrdinalIgnoreCase);
@@ -44,11 +45,11 @@ public sealed partial class MainWindow
     private CancellationTokenSource? _suggestionCancellation;
     private bool _suggestionWasChosen;
 
-    private sealed record SuggestionCandidate(
+    /*private sealed record SuggestionCandidate(
         string Display,
         Uri Target,
         double Score,
-        bool IsHistory);
+        bool IsHistory);*/
 
     private bool AreSearchSuggestionsEnabled() =>
         _settings.Values["SearchSuggestions"] as bool? ?? true;
@@ -231,70 +232,28 @@ public sealed partial class MainWindow
     }
 
     private void ApplyRankedSuggestions(
-        AutoSuggestBox sender,
-        string query,
-        List<SuggestionCandidate> candidates,
-        int requestVersion,
-        CancellationTokenSource cancellation)
+    AutoSuggestBox sender,
+    string query,
+    List<SuggestionCandidate> candidates,
+    int requestVersion,
+    CancellationTokenSource cancellation)
     {
-        if (!IsCurrentSuggestionRequest(
-                sender,
-                query,
-                requestVersion,
-                cancellation))
-        {
+        if (!IsCurrentSuggestionRequest(sender, query, requestVersion, cancellation))
             return;
-        }
 
-        var ranked = candidates
-            .Where(candidate => !string.IsNullOrWhiteSpace(candidate.Display))
-            .GroupBy(
-                candidate => candidate.Display,
-                StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.OrderByDescending(candidate => candidate.Score).First())
+        var openUris = MainTabView.TabItems
+            .OfType<TabViewItem>()
+            .Select(tab => tab.Tag as BrowserTab)
+            .Where(t => t?.WebView?.Source is Uri)
+            .Select(t => t!.WebView!.Source!)
             .ToList();
 
-        foreach (SuggestionCandidate candidate in ranked.ToList())
-        {
-            if (!candidate.IsHistory)
-                continue;
-
-            bool isOpen = MainTabView.TabItems
-                .OfType<TabViewItem>()
-                .Any(tab =>
-                    tab.Tag is BrowserTab browserTab &&
-                    browserTab.WebView is WebView2 webView &&
-                    webView.Source is Uri uri &&
-                    Uri.Compare(
-                        uri,
-                        candidate.Target,
-                        UriComponents.AbsoluteUri,
-                        UriFormat.Unescaped,
-                        StringComparison.OrdinalIgnoreCase) == 0);
-
-            if (!isOpen)
-                continue;
-
-            int index = ranked.IndexOf(candidate);
-
-            ranked[index] = candidate with
-            {
-                Score = candidate.Score + 250
-            };
-        }
-
-        ranked = ranked
-            .OrderByDescending(candidate => candidate.Score)
-            .Take(8)
-            .ToList();
+        var ranked = _suggestionRanker.Rank(candidates, query, openUris);
 
         if (ranked.Count == 1 &&
             SelectedWebView?.Source is Uri currentUri &&
-            Uri.Compare(
-                ranked[0].Target,
-                currentUri,
-                UriComponents.AbsoluteUri,
-                UriFormat.Unescaped,
+            Uri.Compare(ranked[0].Target, currentUri,
+                UriComponents.AbsoluteUri, UriFormat.Unescaped,
                 StringComparison.OrdinalIgnoreCase) == 0)
         {
             ClearSuggestions(sender);
@@ -302,24 +261,15 @@ public sealed partial class MainWindow
         }
 
         _suggestionTargets.Clear();
+        foreach (var item in ranked)
+            _suggestionTargets[item.Display] = item.Target;
 
-        foreach (SuggestionCandidate candidate in ranked)
-            _suggestionTargets[candidate.Display] = candidate.Target;
+        string[] items = ranked.Select(r => r.Display).ToArray();
 
-        string[] items = ranked
-            .Select(candidate => candidate.Display)
-            .ToArray();
-
-        if (sender.ItemsSource is not string[] currentItems ||
-            !currentItems.SequenceEqual(items))
-        {
+        if (sender.ItemsSource is not string[] current || !current.SequenceEqual(items))
             sender.ItemsSource = items;
-        }
 
-        bool shouldOpen = items.Length > 0;
-
-        if (sender.IsSuggestionListOpen != shouldOpen)
-            sender.IsSuggestionListOpen = shouldOpen;
+        sender.IsSuggestionListOpen = items.Length > 0;
     }
 
     private void CancelSuggestionRequest()
