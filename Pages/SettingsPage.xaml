@@ -195,8 +195,8 @@
                                     </ListView>
                                     <Button
                                         x:Name="AddCustomSiteButton"
-                                        Click="AddCustomSiteButton_Click"
                                         l:Uids.Uid="Add"
+                                        Click="AddCustomSiteButton_Click"
                                         Style="{ThemeResource AccentButtonStyle}" />
                                 </StackPanel>
                             </controls:SettingsCard>

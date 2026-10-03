@@ -765,8 +765,9 @@ public sealed partial class SettingsPage : Page, IDisposable
                 var toggle = new ToggleSwitch
                 {
                     IsOn = extension.IsEnabled,
-                    Tag = extension
+                    Tag = extension,
                 };
+                Uids.SetUid(toggle, "General_ToggleSwitch");
                 toggle.Toggled += ExtensionToggle_Toggled;
 
                 var card = new SettingsCard
