@@ -471,4 +471,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>Deschide o filă nouă</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>Site-uri personalizate</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>Adaugă</value>
+  </data>
 </root>

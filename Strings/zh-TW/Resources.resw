@@ -471,4 +471,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>開啟新分頁</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>自訂網站</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>新增</value>
+  </data>
 </root>

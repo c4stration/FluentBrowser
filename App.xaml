@@ -1094,6 +1094,14 @@
                 </Setter>
             </Style>
 
+            <Style
+                x:Key="FixedContentDialogStyle"
+                BasedOn="{StaticResource DefaultContentDialogStyle}"
+                TargetType="ContentDialog">
+                <Setter Property="PrimaryButtonStyle" Value="{StaticResource AccentButtonStyle}" />
+                <Setter Property="CloseButtonStyle" Value="{StaticResource DefaultButtonStyle}" />
+            </Style>
+
             <!--  Converters  -->
             <c:ValueToVisibilityConverter x:Key="ValueToVisibilityConverter" />
         </ResourceDictionary>

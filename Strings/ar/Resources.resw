@@ -483,4 +483,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>فتح علامة تبويب جديدة</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>مواقع مخصصة</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>إضافة</value>
+  </data>
 </root>

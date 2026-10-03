@@ -489,4 +489,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>פתיחת כרטיסייה חדשה</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>אתרים מותאמים אישית</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>הוסף</value>
+  </data>
 </root>

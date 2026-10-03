@@ -7,6 +7,7 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Windows.Globalization;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,8 +24,17 @@ using WinUI3Localizer;
 
 namespace FluentBrowser.Pages;
 
+public sealed class CustomSiteItem
+{
+    public string Url { get; set; } = string.Empty;
+    public string Header { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}
+
 public sealed partial class SettingsPage : Page, IDisposable
 {
+    private readonly ObservableCollection<CustomSiteItem> _customSites = new();
+
     // WebView2 exposes chrome.tabs.create and chrome.tabs.update through its
     // browser process, but it has no tab strip for chrome.tabs.remove to close.
     // The shim turns remove into a navigation that MainWindow closes locally.
@@ -88,6 +98,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadTabWidth();
         LoadNewTabPosition();
         LoadFullWebAddress();
+        LoadCustomSites();
         LoadStartupBehavior();
         LoadSearchSuggestions();
         LoadSearchEngine();
@@ -95,6 +106,9 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadDownloadLocation();
         LoadAskEveryDownload();
         LoadAllShortcuts();
+
+        CustomSitesListView.ItemsSource = _customSites;
+        CustomSitesListView.DragItemsCompleted += CustomSitesListView_DragItemsCompleted;
 
         _loadingSettings = false;
 
@@ -1443,6 +1457,8 @@ public sealed partial class SettingsPage : Page, IDisposable
         object sender,
         SelectionChangedEventArgs e)
     {
+        UpdateCustomSitesCardEnabled();
+
         if (_loadingSettings ||
             StartupBehaviorComboBox.SelectedIndex < 0)
         {
@@ -1454,6 +1470,7 @@ public sealed partial class SettingsPage : Page, IDisposable
             {
                 0 => "ContinueSession",
                 1 => "NewTab",
+                2 => "CustomSites",
                 _ => "ContinueSession"
             };
 
@@ -1471,7 +1488,167 @@ public sealed partial class SettingsPage : Page, IDisposable
             {
                 "ContinueSession" => 0,
                 "NewTab" => 1,
+                "CustomSites" => 2,
                 _ => 0
             };
+
+        UpdateCustomSitesCardEnabled();
+    }
+
+    private void UpdateCustomSitesCardEnabled()
+    {
+        bool isCustomSites =
+            StartupBehaviorComboBox.SelectedIndex == 2;
+
+        CustomSitesCard.IsEnabled = isCustomSites;
+    }
+
+    private void LoadCustomSites()
+    {
+        _customSites.Clear();
+
+        if (_settings.Values["CustomSites"] is not string json ||
+            string.IsNullOrWhiteSpace(json))
+        {
+            return;
+        }
+
+        try
+        {
+            var urls = JsonSerializer.Deserialize<List<string>>(json);
+            if (urls is null)
+                return;
+
+            foreach (string url in urls)
+            {
+                if (string.IsNullOrWhiteSpace(url))
+                    continue;
+
+                _customSites.Add(CreateCustomSiteItem(url));
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load custom sites: {ex}");
+        }
+    }
+
+    private void SaveCustomSites()
+    {
+        var urls = _customSites
+            .Select(s => s.Url)
+            .Where(u => !string.IsNullOrWhiteSpace(u))
+            .ToList();
+
+        _settings.Values["CustomSites"] =
+            JsonSerializer.Serialize(urls);
+    }
+
+    private static CustomSiteItem CreateCustomSiteItem(string url)
+    {
+        string header = url;
+        string description = url;
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+        {
+            header = string.IsNullOrWhiteSpace(uri.Host)
+                ? url
+                : uri.Host;
+            description = uri.AbsoluteUri;
+        }
+
+        return new CustomSiteItem
+        {
+            Url = url,
+            Header = header,
+            Description = description
+        };
+    }
+
+    private async void AddCustomSiteButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        var urlBox = new TextBox
+        {
+            PlaceholderText = "https://example.com",
+            Width = 360
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Add site",
+            Content = urlBox,
+            PrimaryButtonText = "Add",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+
+            Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+            return;
+
+        string input = urlBox.Text?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(input))
+            return;
+
+        if (!input.Contains("://", StringComparison.Ordinal))
+            input = "https://" + input;
+
+        if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp &&
+             uri.Scheme != Uri.UriSchemeHttps))
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = "Invalid URL",
+                Content = "Please enter a valid http or https URL.",
+                CloseButtonText = "OK",
+                XamlRoot = XamlRoot,
+
+                Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
+            };
+
+            await errorDialog.ShowAsync();
+            return;
+        }
+
+        string absoluteUrl = uri.AbsoluteUri;
+
+        if (_customSites.Any(s =>
+                string.Equals(
+                    s.Url,
+                    absoluteUrl,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        _customSites.Add(CreateCustomSiteItem(absoluteUrl));
+        SaveCustomSites();
+    }
+
+    private void RemoveCustomSiteButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not Button button ||
+            button.Tag is not CustomSiteItem item)
+        {
+            return;
+        }
+
+        _customSites.Remove(item);
+        SaveCustomSites();
+    }
+
+    private void CustomSitesListView_DragItemsCompleted(
+        ListViewBase sender,
+        DragItemsCompletedEventArgs args)
+    {
+        SaveCustomSites();
     }
 }

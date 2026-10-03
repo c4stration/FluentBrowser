@@ -475,4 +475,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>打开新标签页</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>自定义网站</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>添加</value>
+  </data>
 </root>

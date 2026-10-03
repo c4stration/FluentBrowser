@@ -494,4 +494,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>Open a new tab</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>Open custom sites</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>Add</value>
+  </data>
 </root>

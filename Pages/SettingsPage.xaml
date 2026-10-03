@@ -7,104 +7,74 @@
     xmlns:l="using:WinUI3Localizer"
     xmlns:my="using:FluentBrowser.Controls"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
-
     <Grid Grid.Column="1">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
         <TextBlock
             x:Name="CategoryName"
             Grid.Column="1"
             Margin="36,14,36,0"
             l:Uids.Uid="SettingsTitle"
             Style="{StaticResource TitleTextBlockStyle}" />
-
         <ScrollViewer
             Grid.Row="1"
             Grid.Column="1"
             Padding="36,14,36,0"
             Visibility="Visible">
-
             <StackPanel>
-
                 <StackPanel HorizontalAlignment="Stretch" Spacing="3">
-
                     <!--  App Theme  -->
-
                     <TextBlock
                         Margin="0,5,0,8"
                         l:Uids.Uid="ColorsSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsCard l:Uids.Uid="AppTheme">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE790;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
                             <ComboBoxItem l:Uids.Uid="ThemeLight" />
                             <ComboBoxItem l:Uids.Uid="ThemeDark" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="WebTheme">
-
                         <controls:SettingsCard.HeaderIcon>
                             <PathIcon Data="{StaticResource WebPaint}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="WebThemeComboBox" SelectionChanged="WebThemeComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
                             <ComboBoxItem l:Uids.Uid="FollowAppTheme" />
                             <ComboBoxItem l:Uids.Uid="ThemeLight" />
                             <ComboBoxItem l:Uids.Uid="ThemeDark" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="BackdropMaterial">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEF1F;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="BackdropMaterialComboBox" SelectionChanged="BackdropMaterialComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="Mica" />
                             <ComboBoxItem l:Uids.Uid="MicaAlt" />
                             <ComboBoxItem l:Uids.Uid="Acrylic" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="ThemeColorTint">
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEF3C;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ToggleSwitch
                             x:Name="ThemeColorTintToggleSwitch"
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="ThemeColorTintToggleSwitch_Toggled" />
                     </controls:SettingsCard>
-
                     <!--  Language  -->
-
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="LanguageSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <InfoBar
                         x:Name="SystemLanguageUnavailableInfoBar"
                         Title="Your system language isn’t available!"
@@ -116,15 +86,11 @@
                             <HyperlinkButton Content="Open Crowdin" NavigateUri="https://crowdin.com/project/fluentbrowser" />
                         </InfoBar.ActionButton>
                     </InfoBar>
-
                     <controls:SettingsCard l:Uids.Uid="DisplayLanguage">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xF2B7;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="LanguageComboBox" SelectionChanged="LanguageComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
                             <ComboBoxItem l:Uids.Uid="ar" Content="العربية" />
                             <ComboBoxItem l:Uids.Uid="zh-CN" Content="中文（中华人民共和国）" />
@@ -137,165 +103,170 @@
                             <ComboBoxItem l:Uids.Uid="th" Content="ไทย" />
                             <ComboBoxItem l:Uids.Uid="en-UWU" Content="UwU (Republic of UwU)" />
                             <ComboBoxItem l:Uids.Uid="en-LOL" Content="LOLCAT (Kingdom of Cats)" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard
                         x:Name="TextDirectionCard"
                         l:Uids.Uid="TextDirection"
                         Visibility="Collapsed">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE8AB;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="TextDirComboBox" SelectionChanged="TextDirComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="LeftToRight" />
                             <ComboBoxItem l:Uids.Uid="RightToLeft" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <!--  Tabs  -->
-
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="TabsSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsCard l:Uids.Uid="TabWidth">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xF57C;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="TabWidthComboBox" SelectionChanged="TabWidthComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="EqualTabWidth" />
                             <ComboBoxItem l:Uids.Uid="TitleTabWidth" />
                             <ComboBoxItem l:Uids.Uid="CompactTabWidth" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="NewTabPosition">
-
                         <ComboBox x:Name="NewTabPositionComboBox" SelectionChanged="NewTabPositionComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="AfterLastTab" />
                             <ComboBoxItem l:Uids.Uid="AfterCurrentTab" />
-
                         </ComboBox>
-
                     </controls:SettingsCard>
-
-                    <controls:SettingsCard l:Uids.Uid="StartupBehavior">
-
-                        <controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsExpander l:Uids.Uid="StartupBehavior">
+                        <controls:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xE7E8;" />
-                        </controls:SettingsCard.HeaderIcon>
-
+                        </controls:SettingsExpander.HeaderIcon>
                         <ComboBox x:Name="StartupBehaviorComboBox" SelectionChanged="StartupBehaviorComboBox_SelectionChanged">
-
                             <ComboBoxItem l:Uids.Uid="ContinueSession" />
                             <ComboBoxItem l:Uids.Uid="OpenNewTab" />
-
+                            <ComboBoxItem l:Uids.Uid="CustomSites" />
                         </ComboBox>
-                        
-                    </controls:SettingsCard>
-
+                        <controls:SettingsExpander.Items>
+                            <controls:SettingsCard
+                                x:Name="CustomSitesCard"
+                                HorizontalContentAlignment="Stretch"
+                                ContentAlignment="Vertical"
+                                IsEnabled="False">
+                                <StackPanel Spacing="16">
+                                    <ListView
+                                        x:Name="CustomSitesListView"
+                                        AllowDrop="True"
+                                        CanDragItems="True"
+                                        CanReorderItems="True"
+                                        ReorderMode="Enabled"
+                                        SelectionMode="None">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Spacing="8" />
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="-32">
+                                                    <controls:SettingsCard
+                                                        BorderThickness="0"
+                                                        Description="{Binding Description}"
+                                                        Header="{Binding Header}">
+                                                        <controls:SettingsCard.HeaderIcon>
+                                                            <FontIcon Glyph="&#xE774;" />
+                                                        </controls:SettingsCard.HeaderIcon>
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <Button
+                                                                Click="RemoveCustomSiteButton_Click"
+                                                                Style="{ThemeResource SubtleButtonStyle}"
+                                                                Tag="{Binding}">
+                                                                <FontIcon
+                                                                    FontSize="14"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    Glyph="&#xE74D;" />
+                                                            </Button>
+                                                            <FontIcon Foreground="{ThemeResource TextFillColorTertiaryBrush}" Glyph="&#xE76F;" />
+                                                        </StackPanel>
+                                                    </controls:SettingsCard>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <Button
+                                        x:Name="AddCustomSiteButton"
+                                        Click="AddCustomSiteButton_Click"
+                                        l:Uids.Uid="Add"
+                                        Style="{ThemeResource AccentButtonStyle}" />
+                                </StackPanel>
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander.Items>
+                    </controls:SettingsExpander>
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="AddressBarSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsCard l:Uids.Uid="FullWebAddress">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEB41;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ToggleSwitch
                             x:Name="FullWebAddressToggle"
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="FullWebAddressToggle_Toggled" />
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="SearchSuggestions">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEA80;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ToggleSwitch
                             x:Name="SearchSuggestionsToggle"
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="SearchSuggestionsToggle_Toggled" />
                     </controls:SettingsCard>
-
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="DownloadsSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsCard x:Name="DownloadLocationCard" l:Uids.Uid="DownloadLocation">
                         <controls:SettingsCard.HeaderIcon>
                             <PathIcon Data="{StaticResource DownloadsIconData}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <Button
                             x:Name="ChooseDownloadFolderButton"
                             l:Uids.Uid="ChooseDownloadFolderButton"
                             Click="ChooseDownloadFolderButton_Click" />
                     </controls:SettingsCard>
-
                     <controls:SettingsCard l:Uids.Uid="AskEveryDownload">
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE78C;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ToggleSwitch
                             x:Name="AskEveryDownloadToggle"
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="AskEveryDownload_Toggled" />
-
                     </controls:SettingsCard>
-
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="AdvancedSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsCard l:Uids.Uid="SearchEngine">
-
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE721;" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <ComboBox x:Name="SearchEngineComboBox" SelectionChanged="SearchEngineComboBox_SelectionChanged">
                             <ComboBoxItem Content="Bing" />
                             <ComboBoxItem Content="Google" />
                             <ComboBoxItem Content="Yahoo" />
                             <ComboBoxItem Content="DuckDuckGo" />
-
                             <!--<my:ComboBoxSeparator />
-
                             <ComboBoxItem Content="Manage search engines" />-->
                         </ComboBox>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsCard x:Name="FaviconCacheCard" l:Uids.Uid="FaviconCache">
-
                         <controls:SettingsCard.HeaderIcon>
                             <PathIcon Data="{StaticResource FaviconCache}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
-
                         <Button Click="ClearFaviconCacheButton_Click">
                             <Grid>
                                 <TextBlock x:Name="ClearFaviconCacheText" l:Uids.Uid="ClearCacheText">
@@ -303,7 +274,6 @@
                                         <ScalarTransition />
                                     </TextBlock.OpacityTransition>
                                 </TextBlock>
-
                                 <ProgressRing
                                     x:Name="ClearFaviconCacheProgressRing"
                                     Width="16"
@@ -311,15 +281,11 @@
                                     IsActive="False" />
                             </Grid>
                         </Button>
-
                     </controls:SettingsCard>
-
                     <controls:SettingsExpander l:Uids.Uid="KeyboardShortcuts">
-
                         <controls:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xEDA7;" />
                         </controls:SettingsExpander.HeaderIcon>
-
                         <controls:SettingsExpander.Items>
                             <controls:SettingsCard l:Uids.Uid="ShortcutNewTab">
                                 <my:ShortcutControl
@@ -327,50 +293,42 @@
                                     AllowDisable="True"
                                     ShortcutChanged="NewTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutCloseTab">
                                 <my:ShortcutControl
                                     x:Name="CloseTabShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="CloseTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutReopenTab">
                                 <my:ShortcutControl
                                     x:Name="ReopenTabShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="ReopenTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutFocusAddressBar">
                                 <my:ShortcutControl
                                     x:Name="FocusAddressBarShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="FocusAddressBarShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutReload">
                                 <my:ShortcutControl
                                     x:Name="ReloadShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="ReloadShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutRightTab">
                                 <my:ShortcutControl
                                     x:Name="RightTabShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="RightTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutLeftTab">
                                 <my:ShortcutControl
                                     x:Name="LeftTabShortcutControl"
                                     AllowDisable="True"
                                     ShortcutChanged="LeftTabShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
-
-
                             <controls:SettingsCard l:Uids.Uid="ShortcutFindOnPage">
                                 <my:ShortcutControl
                                     x:Name="FindOnPageShortcutControl"
@@ -378,29 +336,21 @@
                                     ShortcutChanged="FindOnPageShortcutControl_ShortcutChanged" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
-
                     </controls:SettingsExpander>
-
                     <controls:SettingsExpander x:Name="ExtensionsExpander" l:Uids.Uid="Extensions">
-
                         <controls:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xEA86;" />
                         </controls:SettingsExpander.HeaderIcon>
-
                         <controls:SettingsExpander.Items />
-
                         <Button
                             x:Name="AddExtensionButton"
                             l:Uids.Uid="AddExtensionButton"
                             Style="{ThemeResource AccentButtonStyle}" />
-
                     </controls:SettingsExpander>
-
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="AboutSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
                     <controls:SettingsExpander
                         Margin="0,0,0,36"
                         l:Uids.Uid="AboutExpander"
@@ -410,11 +360,8 @@
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             IsTextSelectionEnabled="True"
                             Text="Version 0.14.0" />
-
                         <controls:SettingsExpander.Items>
-
                             <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
-
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Margin="0,0,0,5" l:Uids.Uid="LinksText" />
                                     <HyperlinkButton
@@ -422,11 +369,8 @@
                                         NavigateUri="https://crowdin.com/project/fluentbrowser"
                                         Style="{ThemeResource TextBlockButtonStyle}" />
                                 </StackPanel>
-
                             </controls:SettingsCard>
-
                             <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
-
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Margin="0,0,0,5" l:Uids.Uid="Deps" />
                                     <HyperlinkButton
@@ -454,9 +398,7 @@
                                         NavigateUri="https://github.com/MessagePack-CSharp/MessagePack-CSharp"
                                         Style="{ThemeResource TextBlockButtonStyle}" />
                                 </StackPanel>
-
                             </controls:SettingsCard>
-
                         </controls:SettingsExpander.Items>
                     </controls:SettingsExpander>
                 </StackPanel>

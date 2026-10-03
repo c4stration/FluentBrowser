@@ -80,20 +80,7 @@ public sealed partial class MainWindow
 
                     XamlRoot = webView.XamlRoot,
 
-                    Style =
-        Application.Current.Resources[
-            "DefaultContentDialogStyle"]
-        as Style,
-
-                    PrimaryButtonStyle =
-        Application.Current.Resources[
-            "AccentButtonStyle"]
-        as Style,
-
-                    CloseButtonStyle =
-        Application.Current.Resources[
-            "DefaultButtonStyle"]
-        as Style
+                    Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
                 };
 
                 ContentDialogResult result = await dialog.ShowAsync();

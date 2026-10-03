@@ -33,11 +33,66 @@ public sealed partial class MainWindow
             return;
         }
 
+        if (startupBehavior == "CustomSites" &&
+            OpenCustomStartupSites())
+        {
+            return;
+        }
+
         AddNewTab(
             CreateNewTab(
                 CreateSearchEngineHomeUri().AbsoluteUri),
             true);
     }
+
+    private bool OpenCustomStartupSites()
+    {
+        if (_settings.Values["CustomSites"] is not string json ||
+            string.IsNullOrWhiteSpace(json))
+        {
+            return false;
+        }
+
+        try
+        {
+            var urls = System.Text.Json.JsonSerializer
+                .Deserialize<List<string>>(json);
+
+            if (urls is null || urls.Count == 0)
+                return false;
+
+            bool openedAny = false;
+
+            foreach (string url in urls)
+            {
+                if (string.IsNullOrWhiteSpace(url) ||
+                    !Uri.TryCreate(
+                        url,
+                        UriKind.Absolute,
+                        out Uri? uri) ||
+                    (uri.Scheme != Uri.UriSchemeHttp &&
+                     uri.Scheme != Uri.UriSchemeHttps))
+                {
+                    continue;
+                }
+
+                AddNewTab(
+                    CreateNewTab(uri.AbsoluteUri),
+                    !openedAny);
+
+                openedAny = true;
+            }
+
+            return openedAny;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to open custom startup sites: {ex}");
+            return false;
+        }
+    }
+
 
     private bool RestoreBrowserSession()
     {

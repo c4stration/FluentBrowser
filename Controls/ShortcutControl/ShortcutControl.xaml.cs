@@ -105,9 +105,7 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
             PrimaryButtonText = "Save",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
-            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
-            CloseButtonStyle = Application.Current.Resources["DefaultButtonStyle"] as Style
+            Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
         };
 
         _shortcutDialog.Opened += ShortcutDialog_Opened;

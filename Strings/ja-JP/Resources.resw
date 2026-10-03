@@ -475,4 +475,10 @@
   <data name="OpenNewTab.Content" xml:space="preserve">
     <value>新しいタブを開く</value>
   </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>カスタムサイト</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>追加</value>
+  </data>
 </root>
