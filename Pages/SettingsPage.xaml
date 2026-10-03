@@ -356,6 +356,9 @@
                         l:Uids.Uid="AboutExpander"
                         Header="FluentBrowser"
                         IsExpanded="False">
+                        <controls:SettingsExpander.HeaderIcon>
+                            <ImageIcon Source="/Assets/StoreLogo.png" />
+                        </controls:SettingsExpander.HeaderIcon>
                         <TextBlock
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             IsTextSelectionEnabled="True"

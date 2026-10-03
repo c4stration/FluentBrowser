@@ -255,6 +255,37 @@
                             <Setter Property="Padding" Value="12,6,36,4" />
                         </Style>
                     </AutoSuggestBox.TextBoxStyle>
+
+                    <AutoSuggestBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MinWidth="280" Padding="10,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid
+                                    Width="20"
+                                    Height="20"
+                                    Margin="-16,0,0,0"
+                                    VerticalAlignment="Center">
+                                    
+                                    <FontIcon FontSize="16" Visibility="{Binding Favicon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" Glyph="{Binding IconGlyph}" />
+
+                                    <Image
+                                        Width="20"
+                                        Height="20"
+                                        Source="{Binding Favicon}"
+                                        Stretch="Uniform" />
+                                </Grid>
+
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding Display}" />
+                            </Grid>
+                        </DataTemplate>
+                    </AutoSuggestBox.ItemTemplate>
                 </AutoSuggestBox>
 
                 <StackPanel
@@ -348,6 +379,7 @@
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
 
+                                <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
@@ -682,11 +714,11 @@
 
         <TeachingTip
             x:Name="FindOnPageTeachingTip"
-            Style="{StaticResource TeachingTipStyleWithoutCloseButton}"
             Closed="FindOnPageTeachingTip_Closed"
             IsLightDismissEnabled="False"
             PlacementMargin="69"
-            PreferredPlacement="Top">
+            PreferredPlacement="Top"
+            Style="{StaticResource TeachingTipStyleWithoutCloseButton}">
 
             <Grid>
                 <Grid.ColumnDefinitions>

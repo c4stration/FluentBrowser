@@ -427,6 +427,7 @@ public sealed partial class MainWindow
                     CancelSuggestionRequest();
                     ClearSuggestions(AddressBar);
                     _suggestionTargets.Clear();
+                    _suggestionTrainingIds.Clear();
                     _selectedSuggestionTarget = null;
                     _suggestionWasChosen = false;
                 }
@@ -437,6 +438,7 @@ public sealed partial class MainWindow
                 CancelSuggestionRequest();
                 ClearSuggestions(AddressBar);
                 _suggestionTargets.Clear();
+                _suggestionTrainingIds.Clear();
                 _selectedSuggestionTarget = null;
                 _suggestionWasChosen = false;
             };

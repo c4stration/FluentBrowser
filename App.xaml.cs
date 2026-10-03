@@ -74,6 +74,11 @@ namespace FluentBrowser
 
             _window = new MainWindow();
             _window.Activate();
+
+            // Training is CPU-intensive and must not delay the first interactive UI.
+            // The trainer serializes duplicate launch requests and reports failures to
+            // the debug output instead of surfacing an unobserved task exception.
+            _ = SuggestionModelTrainer.TrainInBackgroundAsync();
         }
 
         public static void ApplyBackdropMaterial(string material)

@@ -6,9 +6,11 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
+using Microsoft.UI.Xaml.Media;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Net.Http;
@@ -35,7 +37,9 @@ public sealed partial class MainWindow
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
-
+    private readonly SuggestionRanker _suggestionRanker = new();
+    private readonly Dictionary<string, (string GroupId, string CandidateId)> _suggestionTrainingIds =
+    new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Uri> _suggestionTargets =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -44,11 +48,50 @@ public sealed partial class MainWindow
     private CancellationTokenSource? _suggestionCancellation;
     private bool _suggestionWasChosen;
 
-    private sealed record SuggestionCandidate(
+    private sealed class AddressBarSuggestion : INotifyPropertyChanged
+    {
+        private ImageSource? _favicon;
+
+        public AddressBarSuggestion(
+            string display,
+            Uri target,
+            string iconGlyph,
+            bool isHistory)
+        {
+            Display = display;
+            Target = target;
+            IconGlyph = iconGlyph;
+            IsHistory = isHistory;
+        }
+
+        public string Display { get; }
+        public Uri Target { get; }
+        public string IconGlyph { get; }
+        public bool IsHistory { get; }
+
+        public ImageSource? Favicon
+        {
+            get => _favicon;
+            set
+            {
+                if (ReferenceEquals(_favicon, value))
+                    return;
+
+                _favicon = value;
+                PropertyChanged?.Invoke(
+                    this,
+                    new PropertyChangedEventArgs(nameof(Favicon)));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+    }
+
+    /*private sealed record SuggestionCandidate(
         string Display,
         Uri Target,
         double Score,
-        bool IsHistory);
+        bool IsHistory);*/
 
     private bool AreSearchSuggestionsEnabled() =>
         _settings.Values["SearchSuggestions"] as bool? ?? true;
@@ -82,6 +125,7 @@ public sealed partial class MainWindow
             CancelSuggestionRequest();
             ClearSuggestions(sender);
             _suggestionTargets.Clear();
+            _suggestionTrainingIds.Clear();
             _selectedSuggestionTarget = null;
             _suggestionWasChosen = false;
             return;
@@ -168,7 +212,8 @@ public sealed partial class MainWindow
                                     item.DisplayText,
                                     item.TargetUri,
                                     item.Score,
-                                    true));
+                                    true,
+                                    item.Title));
                         }
                     }
                     catch
@@ -213,7 +258,7 @@ public sealed partial class MainWindow
                 }
             }
 
-            ApplyRankedSuggestions(
+            await ApplyRankedSuggestionsAsync(
                 sender,
                 query,
                 candidates,
@@ -230,71 +275,29 @@ public sealed partial class MainWindow
         }
     }
 
-    private void ApplyRankedSuggestions(
-        AutoSuggestBox sender,
-        string query,
-        List<SuggestionCandidate> candidates,
-        int requestVersion,
-        CancellationTokenSource cancellation)
+    private async Task ApplyRankedSuggestionsAsync(
+    AutoSuggestBox sender,
+    string query,
+    List<SuggestionCandidate> candidates,
+    int requestVersion,
+    CancellationTokenSource cancellation)
     {
-        if (!IsCurrentSuggestionRequest(
-                sender,
-                query,
-                requestVersion,
-                cancellation))
-        {
+        if (!IsCurrentSuggestionRequest(sender, query, requestVersion, cancellation))
             return;
-        }
 
-        var ranked = candidates
-            .Where(candidate => !string.IsNullOrWhiteSpace(candidate.Display))
-            .GroupBy(
-                candidate => candidate.Display,
-                StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.OrderByDescending(candidate => candidate.Score).First())
+        var openUris = MainTabView.TabItems
+            .OfType<TabViewItem>()
+            .Select(tab => tab.Tag as BrowserTab)
+            .Where(t => t?.WebView?.Source is Uri)
+            .Select(t => t!.WebView!.Source!)
             .ToList();
 
-        foreach (SuggestionCandidate candidate in ranked.ToList())
-        {
-            if (!candidate.IsHistory)
-                continue;
-
-            bool isOpen = MainTabView.TabItems
-                .OfType<TabViewItem>()
-                .Any(tab =>
-                    tab.Tag is BrowserTab browserTab &&
-                    browserTab.WebView is WebView2 webView &&
-                    webView.Source is Uri uri &&
-                    Uri.Compare(
-                        uri,
-                        candidate.Target,
-                        UriComponents.AbsoluteUri,
-                        UriFormat.Unescaped,
-                        StringComparison.OrdinalIgnoreCase) == 0);
-
-            if (!isOpen)
-                continue;
-
-            int index = ranked.IndexOf(candidate);
-
-            ranked[index] = candidate with
-            {
-                Score = candidate.Score + 250
-            };
-        }
-
-        ranked = ranked
-            .OrderByDescending(candidate => candidate.Score)
-            .Take(8)
-            .ToList();
+        var ranked = _suggestionRanker.Rank(candidates, query, openUris);
 
         if (ranked.Count == 1 &&
             SelectedWebView?.Source is Uri currentUri &&
-            Uri.Compare(
-                ranked[0].Target,
-                currentUri,
-                UriComponents.AbsoluteUri,
-                UriFormat.Unescaped,
+            Uri.Compare(ranked[0].Target, currentUri,
+                UriComponents.AbsoluteUri, UriFormat.Unescaped,
                 StringComparison.OrdinalIgnoreCase) == 0)
         {
             ClearSuggestions(sender);
@@ -302,25 +305,103 @@ public sealed partial class MainWindow
         }
 
         _suggestionTargets.Clear();
+        _suggestionTrainingIds.Clear();
 
-        foreach (SuggestionCandidate candidate in ranked)
-            _suggestionTargets[candidate.Display] = candidate.Target;
+        string groupId = Guid.NewGuid().ToString("N");
 
-        string[] items = ranked
-            .Select(candidate => candidate.Display)
-            .ToArray();
-
-        if (sender.ItemsSource is not string[] currentItems ||
-            !currentItems.SequenceEqual(items))
+        for (int i = 0; i < ranked.Count; i++)
         {
-            sender.ItemsSource = items;
+            var item = ranked[i];
+
+            _suggestionTargets[item.Display] = item.Target;
+
+            SuggestionCandidate candidate =
+                candidates.First(c =>
+                    string.Equals(
+                        c.Display,
+                        item.Display,
+                        StringComparison.OrdinalIgnoreCase));
+
+            bool isOpenTab = item.IsOpenTab;
+
+            string q = query.Trim().ToLowerInvariant();
+            string display = candidate.Display.ToLowerInvariant();
+            string host = candidate.Target.Host.ToLowerInvariant();
+            string title = (candidate.Title ?? string.Empty).ToLowerInvariant();
+            string candidateId = Guid.NewGuid().ToString("N");
+
+            _suggestionTrainingIds[item.Display] = (groupId, candidateId);
+
+            _ = SuggestionTrainingLogger.LogImpressionAsync(
+                new SuggestionImpression
+                {
+                    GroupId = groupId,
+                    CandidateId = candidateId,
+                    Query = query,
+                    Display = candidate.Display,
+                    Uri = candidate.Target.AbsoluteUri,
+                    BaseScore = (float)candidate.Score,
+                    IsHistory = candidate.IsHistory ? 1f : 0f,
+                    IsOpenTab = isOpenTab ? 1f : 0f,
+                    DisplayLength = candidate.Display.Length,
+                    QueryLength = q.Length,
+                    ExactMatch = display == q ? 1f : 0f,
+                    PrefixMatch =
+                        display.StartsWith(q, StringComparison.Ordinal)
+                            ? 1f
+                            : 0f,
+                    HostPrefix =
+                        !string.IsNullOrEmpty(q) &&
+                        host.StartsWith(q, StringComparison.Ordinal)
+                            ? 1f
+                            : 0f,
+                    TitleContains =
+                        !string.IsNullOrEmpty(q) &&
+                        title.Contains(q, StringComparison.Ordinal)
+                            ? 1f
+                            : 0f,
+                    Position = i,
+                    Timestamp = DateTimeOffset.UtcNow
+                });
         }
 
-        bool shouldOpen = items.Length > 0;
+        AddressBarSuggestion[] items = ranked
+            .Select(r => new AddressBarSuggestion(
+                r.Display,
+                r.Target,
+                LooksLikeWebsiteSuggestion(r.Display)
+                    ? "\uE774"
+                    : r.IsHistory
+                        ? "\uE81C"
+                        : "\uE721",
+                r.IsHistory))
+            .ToArray();
 
-        if (sender.IsSuggestionListOpen != shouldOpen)
-            sender.IsSuggestionListOpen = shouldOpen;
+        sender.ItemsSource = items;
+
+        sender.IsSuggestionListOpen = items.Length > 0;
+
+        foreach (AddressBarSuggestion item in items.Where(
+                     item => LooksLikeWebsiteSuggestion(item.Display)))
+        {
+            ImageSource? favicon = await GetSuggestionFaviconAsync(
+                item.Target);
+
+            if (!IsCurrentSuggestionRequest(
+                    sender,
+                    query,
+                    requestVersion,
+                    cancellation))
+            {
+                return;
+            }
+
+            item.Favicon = favicon;
+        }
     }
+
+    private static bool LooksLikeWebsiteSuggestion(string display) =>
+        TryCreateAddressUri(display, out Uri? uri) && uri is not null;
 
     private void CancelSuggestionRequest()
     {
@@ -655,14 +736,10 @@ public sealed partial class MainWindow
         AutoSuggestBox sender,
         AutoSuggestBoxSuggestionChosenEventArgs args)
     {
-        if (args.SelectedItem is not string suggestion)
+        if (args.SelectedItem is not AddressBarSuggestion suggestion)
             return;
 
-        _selectedSuggestionTarget = _suggestionTargets.TryGetValue(
-            suggestion,
-            out Uri? target)
-                ? target
-                : null;
+        _selectedSuggestionTarget = suggestion.Target;
 
         _suggestionWasChosen = true;
         _addressBarUserEditing = true;
@@ -682,6 +759,7 @@ public sealed partial class MainWindow
             CancelSuggestionRequest();
             ClearSuggestions(sender);
             _suggestionTargets.Clear();
+            _suggestionTrainingIds.Clear();
             return;
         }
 
@@ -707,12 +785,28 @@ public sealed partial class MainWindow
             target = CreateSearchUri(text);
         }
 
+        if (_suggestionWasChosen &&
+            args.ChosenSuggestion is AddressBarSuggestion chosenSuggestion &&
+            _suggestionTrainingIds.TryGetValue(
+        chosenSuggestion.Display,
+        out var trainingId))
+        {
+            _ = SuggestionTrainingLogger.LogClickAsync(
+                new SuggestionClick
+                {
+                    GroupId = trainingId.GroupId,
+                    CandidateId = trainingId.CandidateId,
+                    Timestamp = DateTimeOffset.UtcNow
+                });
+        }
+
         _suggestionWasChosen = false;
         _selectedSuggestionTarget = null;
 
         CancelSuggestionRequest();
         ClearSuggestions(sender);
         _suggestionTargets.Clear();
+        _suggestionTrainingIds.Clear();
         _addressBarUserEditing = false;
 
         if (SelectedTab is not BrowserTab tab)
@@ -846,6 +940,7 @@ public sealed partial class MainWindow
         CancelSuggestionRequest();
         ClearSuggestions(AddressBar);
         _suggestionTargets.Clear();
+        _suggestionTrainingIds.Clear();
         _addressBarUserEditing = false;
 
         Navigate(webView, target);

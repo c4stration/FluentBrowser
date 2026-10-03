@@ -121,4 +121,9 @@ public sealed partial class MainWindow : Window
         foreach (DownloadItem item in Downloads)
             item.UpdateLocalizedStatus();
     }
+
+    private void trainML(object sender, RoutedEventArgs e)
+    {
+        _ = SuggestionModelTrainer.TrainInBackgroundAsync();
+    }
 }
