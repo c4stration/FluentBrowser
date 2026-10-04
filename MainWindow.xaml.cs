@@ -1,6 +1,3 @@
-using FluentBrowser.Pages;
-using FluentBrowser.Shared;
-using FluentBrowser.Utilities;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

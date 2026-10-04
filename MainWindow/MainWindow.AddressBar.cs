@@ -1,25 +1,20 @@
-using FluentBrowser.Pages;
-using FluentBrowser.Utilities;
-
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Composition;
-using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
 using System.Net.Http;
+using System.Numerics;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Windows.System;
 using Windows.Foundation;
+using Windows.System;
 
 namespace FluentBrowser;
 
@@ -103,9 +98,7 @@ public sealed partial class MainWindow
         if (_addressTextBox is null)
             return;
 
-        var deleteButton = UIHelpers.FindDescendant<Button>(
-            _addressTextBox,
-            "DeleteButton");
+        var deleteButton = _addressTextBox.FindDescendant<Button>(x => x.Name == "DeleteButton");
 
         if (deleteButton?.Parent is Grid parent)
             parent.Children.Remove(deleteButton);
@@ -894,14 +887,14 @@ public sealed partial class MainWindow
         if (_addressTextBox is not null)
             return;
 
-        _addressTextBox = UIHelpers.FindDescendant<TextBox>(AddressBar);
+        _addressTextBox = AddressBar.FindDescendant<TextBox>();
 
         if (_addressTextBox is null)
             return;
 
         _addressTextBox.TextAlignment = TextAlignment.Left;
 
-        _addressTextHost = UIHelpers.FindDescendant<ScrollViewer>(_addressTextBox);
+        _addressTextHost = _addressTextBox.FindDescendant<ScrollViewer>();
 
         if (_addressTextHost is null)
             return;

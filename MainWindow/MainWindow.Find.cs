@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.WinUI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.Web.WebView2.Core;
@@ -31,7 +32,7 @@ public sealed partial class MainWindow
         {
             FindOnPageBox.Focus(FocusState.Programmatic);
 
-            if (Helpers.FindDescendant<TextBox>(FindOnPageBox) is TextBox textBox)
+            if (FindOnPageBox.FindDescendant<TextBox>() is TextBox textBox)
             {
                 textBox.Focus(FocusState.Programmatic);
                 textBox.SelectAll();

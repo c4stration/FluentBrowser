@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Controls;
 using FluentBrowser.Controls;
 using FluentBrowser.Shared;
 using Microsoft.UI.Xaml;
@@ -1570,66 +1571,75 @@ public sealed partial class SettingsPage : Page, IDisposable
         object sender,
         RoutedEventArgs e)
     {
-        var urlBox = new TextBox
+        AddCustomSiteButton.IsEnabled = false;
+
+        try
         {
-            PlaceholderText = "https://example.com",
-            Width = 360
-        };
-
-        var dialog = new ContentDialog
-        {
-            Title = "Add site",
-            Content = urlBox,
-            PrimaryButtonText = "Add",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-
-            Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
-        };
-
-        ContentDialogResult result = await dialog.ShowAsync();
-        if (result != ContentDialogResult.Primary)
-            return;
-
-        string input = urlBox.Text?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(input))
-            return;
-
-        if (!input.Contains("://", StringComparison.Ordinal))
-            input = "https://" + input;
-
-        if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uri) ||
-            (uri.Scheme != Uri.UriSchemeHttp &&
-             uri.Scheme != Uri.UriSchemeHttps))
-        {
-            var errorDialog = new ContentDialog
+            var urlBox = new TextBox
             {
-                Title = "Invalid URL",
-                Content = "Please enter a valid http or https URL.",
-                CloseButtonText = "OK",
+                PlaceholderText = "https://example.com",
+                Width = 360
+            };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Add site",
+                Content = urlBox,
+                PrimaryButtonText = "Add",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = XamlRoot,
 
                 Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
             };
 
-            await errorDialog.ShowAsync();
-            return;
+            ContentDialogResult result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+                return;
+
+            string input = urlBox.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(input))
+                return;
+
+            if (!input.Contains("://", StringComparison.Ordinal))
+                input = "https://" + input;
+
+            if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uri) ||
+                (uri.Scheme != Uri.UriSchemeHttp &&
+                 uri.Scheme != Uri.UriSchemeHttps))
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Invalid URL",
+                    Content = "Please enter a valid URL.",
+                    CloseButtonText = "OK",
+                    XamlRoot = XamlRoot,
+
+                    Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
+                };
+
+                await errorDialog.ShowAsync();
+                return;
+            }
+
+            string absoluteUrl = uri.AbsoluteUri;
+
+            if (_customSites.Any(s =>
+                    string.Equals(
+                        s.Url,
+                        absoluteUrl,
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            _customSites.Add(CreateCustomSiteItem(absoluteUrl));
+            SaveCustomSites();
         }
-
-        string absoluteUrl = uri.AbsoluteUri;
-
-        if (_customSites.Any(s =>
-                string.Equals(
-                    s.Url,
-                    absoluteUrl,
-                    StringComparison.OrdinalIgnoreCase)))
+        finally
         {
-            return;
+            AddCustomSiteButton.IsEnabled = true;
         }
-
-        _customSites.Add(CreateCustomSiteItem(absoluteUrl));
-        SaveCustomSites();
     }
 
     private void RemoveCustomSiteButton_Click(

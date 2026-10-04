@@ -26,29 +26,6 @@ public static class Helpers
     public static string FormatFileSize(ulong bytes) =>
         FormatFileSize((long)bytes);
 
-    public static T? FindDescendant<T>(
-        DependencyObject parent,
-        Func<T, bool>? predicate = null)
-        where T : DependencyObject
-    {
-        int count = VisualTreeHelper.GetChildrenCount(parent);
-
-        for (int i = 0; i < count; i++)
-        {
-            DependencyObject child = VisualTreeHelper.GetChild(parent, i);
-
-            if (child is T result && (predicate == null || predicate(result)))
-                return result;
-
-            T? descendant = FindDescendant(child, predicate);
-
-            if (descendant != null)
-                return descendant;
-        }
-
-        return null;
-    }
-
     public static bool UsesWordSpacing(string language)
     {
         return language switch
