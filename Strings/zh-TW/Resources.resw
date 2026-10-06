@@ -291,6 +291,9 @@
   <data name="Extensions.Header" xml:space="preserve">
     <value>擴充功能</value>
   </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>擴充功能</value>
+  </data>
   <data name="AddExtensionButton.Content" xml:space="preserve">
     <value>新增擴充功能</value>
   </data>

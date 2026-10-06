@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.WinUI;
-using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Controls;
 using FluentBrowser.Controls;
 using FluentBrowser.Shared;
 using Microsoft.UI.Xaml;
@@ -82,6 +81,11 @@ public sealed partial class SettingsPage : Page, IDisposable
         {
             _mainWindow = window;
             _mainWindow.FaviconCacheChanged += MainWindow_FaviconCacheChanged;
+            _mainWindow.BrowserExtensionChanged +=
+                MainWindow_BrowserExtensionChanged;
+
+            _mainWindow.BrowserExtensionsReset +=
+                MainWindow_BrowserExtensionsReset;
         }
 
         _settings = ApplicationData.Current.LocalSettings;
@@ -130,7 +134,94 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (_mainWindow is not null)
         {
             _mainWindow.FaviconCacheChanged -= MainWindow_FaviconCacheChanged;
+            _mainWindow.BrowserExtensionChanged -=
+                MainWindow_BrowserExtensionChanged;
+
+            _mainWindow.BrowserExtensionsReset -=
+                MainWindow_BrowserExtensionsReset;
             _mainWindow = null;
+        }
+    }
+
+    private async void MainWindow_BrowserExtensionsReset(
+        object? sender,
+        EventArgs e)
+    {
+        if (_isDisposed || _mainWindow is null)
+            return;
+
+        try
+        {
+            await LoadExtensionsAsync(
+                await _mainWindow.GetBrowserProfileAsync());
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to refresh extensions: {ex}");
+        }
+    }
+
+    private void MainWindow_BrowserExtensionsChanged(
+        object? sender,
+        BrowserExtensionChangedEventArgs e)
+    {
+        if (_isDisposed)
+            return;
+
+        foreach (object item in ExtensionsExpander.Items)
+        {
+            if (item is not SettingsCard card ||
+                card.Content is not ToggleSwitch toggle ||
+                toggle.Tag is not string extensionId)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                    extensionId,
+                    e.ExtensionId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            toggle.Toggled -= ExtensionToggle_Toggled;
+            toggle.IsOn = e.IsEnabled;
+            toggle.Toggled += ExtensionToggle_Toggled;
+
+            break;
+        }
+    }
+
+    private void MainWindow_BrowserExtensionChanged(
+        object? sender,
+        BrowserExtensionChangedEventArgs e)
+    {
+        if (_isDisposed)
+            return;
+
+        foreach (object item in ExtensionsExpander.Items)
+        {
+            if (item is not SettingsCard card ||
+                card.Content is not ToggleSwitch toggle ||
+                toggle.Tag is not string extensionId)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                    extensionId,
+                    e.ExtensionId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            toggle.Toggled -= ExtensionToggle_Toggled;
+            toggle.IsOn = e.IsEnabled;
+            toggle.Toggled += ExtensionToggle_Toggled;
+
+            break;
         }
     }
 
@@ -381,29 +472,22 @@ public sealed partial class SettingsPage : Page, IDisposable
         var available = Localizer.Get().GetAvailableLanguages()
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        // 1. Prefer an exact match from the system preferred languages
         foreach (string preferred in ApplicationLanguages.Languages)
         {
             if (available.Contains(preferred))
                 return preferred;
         }
 
-        // 2. Prefer a full match ignoring case (already covered above, but kept for clarity)
-        // 3. Fallback: only accept the canonical English variant for "en"
-        //    (or the first real language that matches the base code)
         foreach (string preferred in ApplicationLanguages.Languages)
         {
             string preferredBase = preferred.Split('-')[0];
 
-            // Explicitly prefer the normal English locale over joke locales
             if (preferredBase.Equals("en", StringComparison.OrdinalIgnoreCase)
                 && available.Contains("en-US"))
             {
                 return "en-US";
             }
 
-            // For other languages, take the first available match on the base code
-            // that is NOT a joke language
             foreach (string avail in Localizer.Get().GetAvailableLanguages())
             {
                 if (avail.StartsWith("en-UWU", StringComparison.OrdinalIgnoreCase) ||
@@ -416,7 +500,6 @@ public sealed partial class SettingsPage : Page, IDisposable
             }
         }
 
-        // Final fallback
         return available.Contains("en-US") ? "en-US" : "en-US";
     }
 
@@ -766,7 +849,7 @@ public sealed partial class SettingsPage : Page, IDisposable
                 var toggle = new ToggleSwitch
                 {
                     IsOn = extension.IsEnabled,
-                    Tag = extension,
+                    Tag = extension.Id,
                 };
                 Uids.SetUid(toggle, "General_ToggleSwitch");
                 toggle.Toggled += ExtensionToggle_Toggled;
@@ -782,7 +865,7 @@ public sealed partial class SettingsPage : Page, IDisposable
                 var removeItem = new MenuFlyoutItem
                 {
                     Text = "Remove",
-                    Tag = extension,
+                    Tag = extension.Id,
                     Icon = new FontIcon { Glyph = "\uE738" }
                 };
                 removeItem.Click += ExtensionRemove_Click;
@@ -814,16 +897,33 @@ public sealed partial class SettingsPage : Page, IDisposable
     }
 
     private async void ExtensionToggle_Toggled(
-        object sender,
-        RoutedEventArgs e)
+    object sender,
+    RoutedEventArgs e)
     {
         if (sender is not ToggleSwitch toggle ||
-            toggle.Tag is not CoreWebView2BrowserExtension extension)
+            toggle.Tag is not string extensionId ||
+            _mainWindow is null)
         {
             return;
         }
 
-        await extension.EnableAsync(toggle.IsOn);
+        toggle.IsEnabled = false;
+
+        try
+        {
+            await _mainWindow.SetExtensionEnabledAsync(
+                extensionId,
+                toggle.IsOn);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to toggle extension '{extensionId}': {ex}");
+        }
+        finally
+        {
+            toggle.IsEnabled = true;
+        }
     }
 
     private async void ExtensionRemove_Click(
@@ -831,28 +931,15 @@ public sealed partial class SettingsPage : Page, IDisposable
         RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem item ||
-            item.Tag is not CoreWebView2BrowserExtension extension ||
+            item.Tag is not string extensionId ||
             App.MainWindow is not MainWindow window)
         {
             return;
         }
 
-        CoreWebView2Profile? profile =
-            window.GetBrowserProfile();
-
-        if (profile is null)
-            return;
-
-        string extensionId = extension.Id;
-
         try
         {
-            await extension.RemoveAsync();
-
-            _settings.Values.Remove(
-                $"ExtensionPath_{extensionId}");
-
-            await LoadExtensionsAsync(profile);
+            await window.RemoveExtensionAsync(extensionId);
         }
         catch (Exception ex)
         {
@@ -874,12 +961,6 @@ public sealed partial class SettingsPage : Page, IDisposable
             if (App.MainWindow is not MainWindow window)
                 return;
 
-            CoreWebView2Profile? profile = window.GetBrowserProfile();
-            if (profile is null)
-                return;
-
-            profile.AreWebViewScriptApisEnabledForServiceWorkers = true;
-
             var picker = new FolderPicker();
             picker.FileTypeFilter.Add("*");
             InitializeWithWindow.Initialize(picker, window.GetWindowHandle());
@@ -893,13 +974,7 @@ public sealed partial class SettingsPage : Page, IDisposable
                 string compatibleExtensionPath =
                     CreateCompatibleExtensionCopy(folder.Path);
 
-                CoreWebView2BrowserExtension extension =
-                    await profile.AddBrowserExtensionAsync(
-                        compatibleExtensionPath);
-
-                _settings.Values[$"ExtensionPath_{extension.Id}"] =
-                    compatibleExtensionPath;
-                await LoadExtensionsAsync(profile);
+                await window.InstallExtensionAsync(compatibleExtensionPath);
             }
             catch (Exception ex)
             {

@@ -295,6 +295,9 @@
   <data name="Extensions.Header" xml:space="preserve">
     <value>拡張機能</value>
   </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>拡張機能</value>
+  </data>
   <data name="AddExtensionButton.Content" xml:space="preserve">
     <value>拡張機能を追加</value>
   </data>

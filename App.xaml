@@ -62,7 +62,6 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-
                             <Grid>
                                 <Border
                                     x:Name="BackgroundElement"
@@ -91,7 +90,6 @@
 
                                         <VisualState x:Name="Normal">
                                             <VisualState.Setters>
-                                                <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackground}" />
                                                 <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="Normal" />
                                             </VisualState.Setters>
                                         </VisualState>
@@ -113,7 +111,6 @@
                                         <VisualState x:Name="Disabled">
                                             <VisualState.Setters>
                                                 <Setter Target="BackgroundElement.Background" Value="{ThemeResource AppBarButtonBackgroundDisabled}" />
-                                                <Setter Target="ContentPresenter.(controls:AnimatedIcon.State)" Value="Normal" />
                                                 <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource AppBarButtonForegroundDisabled}" />
                                             </VisualState.Setters>
                                         </VisualState>
@@ -121,7 +118,6 @@
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
                             </Grid>
-
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -1100,6 +1096,13 @@
                 TargetType="ContentDialog">
                 <Setter Property="PrimaryButtonStyle" Value="{StaticResource AccentButtonStyle}" />
                 <Setter Property="CloseButtonStyle" Value="{StaticResource DefaultButtonStyle}" />
+            </Style>
+
+            <Style
+                x:Key="AlternateToggleSwitchStyle"
+                BasedOn="{StaticResource DefaultToggleSwitchStyle}"
+                TargetType="ToggleSwitch">
+                <Setter Property="FlowDirection" Value="RightToLeft" />
             </Style>
 
             <!--  Converters  -->

@@ -1,17 +1,36 @@
 using FluentBrowser.Controls;
 using Microsoft.UI;
 using Microsoft.UI.Input;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
 
 namespace FluentBrowser;
+
+public sealed class BrowserExtensionChangedEventArgs : EventArgs
+{
+    public string ExtensionId { get; }
+    public bool IsEnabled { get; }
+
+    public BrowserExtensionChangedEventArgs(
+        string extensionId,
+        bool isEnabled)
+    {
+        ExtensionId = extensionId;
+        IsEnabled = isEnabled;
+    }
+}
 
 public sealed partial class MainWindow
 {
@@ -19,20 +38,29 @@ public sealed partial class MainWindow
         _browserProfileReady = new(
             TaskCreationOptions.RunContinuationsAsynchronously);
 
+    private readonly SemaphoreSlim _extensionOperationLock = new(1, 1);
+
+    public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionsChanged;
+
     private readonly Dictionary<WebView2, TaskCompletionSource<bool>>
         _certificateErrorDecisions = [];
 
     private readonly Dictionary<WebView2, string>
         _navigationUris = [];
 
+    private readonly ObservableCollection<ExtensionListItem> _extensionItems = [];
+
     // WinUI keyboard accelerators do not receive input while WebView2 owns focus.
     // Each WebView gets a unique token so that only its document-start bridge can
     // invoke browser commands through WebMessageReceived.
     private readonly Dictionary<WebView2, string>
         _webViewShortcutTokens = [];
-    
+
     private bool _middleClickPending;
     private InputKeyboardSource? _keyboardSource;
+    private bool _isExtensionsFlyoutOpen;
+    public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionChanged;
+    public event EventHandler? BrowserExtensionsReset;
 
     public CoreWebView2Profile? GetBrowserProfile()
     {
@@ -52,6 +80,301 @@ public sealed partial class MainWindow
         return GetBrowserProfile()
             ?? throw new InvalidOperationException(
                 "No active WebView2 profile is available");
+    }
+
+    private async void ExtensionsFlyout_Opening(
+        object sender,
+        object e)
+    {
+        _isExtensionsFlyoutOpen = true;
+
+        ShowExtensionsList();
+
+        await RefreshExtensionsFlyoutAsync();
+    }
+
+    private void ExtensionsFlyout_Closing(object sender, object e)
+    {
+        _isExtensionsFlyoutOpen = false;
+    }
+
+    private async Task RefreshExtensionsFlyoutAsync()
+    {
+        try
+        {
+            CoreWebView2Profile profile =
+                await GetBrowserProfileAsync();
+
+            var extensions =
+                await profile.GetBrowserExtensionsAsync();
+
+            var items = new List<ExtensionListItem>();
+
+            foreach (CoreWebView2BrowserExtension extension in extensions)
+            {
+                IconElement icon;
+
+                string key =
+                    $"ExtensionPath_{extension.Id}";
+
+                string? iconPath = null;
+
+                if (_settings.Values[key] is string extensionPath &&
+                    Directory.Exists(extensionPath))
+                {
+                    string manifestPath =
+                        Path.Combine(
+                            extensionPath,
+                            "manifest.json");
+
+                    if (File.Exists(manifestPath))
+                    {
+                        try
+                        {
+                            string json =
+                                await File.ReadAllTextAsync(
+                                    manifestPath);
+
+                            using JsonDocument document =
+                                JsonDocument.Parse(json);
+
+                            iconPath =
+                                GetBestExtensionIconPath(
+                                    extensionPath,
+                                    document.RootElement);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(
+                                $"Failed to read extension icon: {ex}");
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(iconPath) &&
+                    File.Exists(iconPath))
+                {
+                    icon = new BitmapIcon
+                    {
+                        UriSource = new Uri(iconPath),
+                        Width = 20,
+                        Height = 20,
+                        ShowAsMonochrome = false
+                    };
+                }
+                else
+                {
+                    icon = new FontIcon
+                    {
+                        Glyph = "\uF158"
+                    };
+                }
+
+                var iconContainer = new Grid
+                {
+                    Width = 28,
+                    Height = 28
+                };
+
+                iconContainer.Children.Add(icon);
+
+                items.Add(
+                    new ExtensionListItem(
+                        extension.Id,
+                        extension.Name,
+                        extension.IsEnabled,
+                        iconContainer));
+            }
+
+            _extensionItems.Clear();
+
+            foreach (ExtensionListItem item in items)
+                _extensionItems.Add(item);
+
+            if (!ReferenceEquals(ExtensionsList.ItemsSource, _extensionItems))
+                ExtensionsList.ItemsSource = _extensionItems;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to load extensions: {ex}");
+        }
+    }
+
+    public async Task SetExtensionEnabledAsync(
+        string extensionId,
+        bool isEnabled)
+    {
+        try
+        {
+            await _extensionOperationLock.WaitAsync();
+
+            try
+            {
+                CoreWebView2Profile profile =
+                    await GetBrowserProfileAsync();
+
+                CoreWebView2BrowserExtension? extension =
+                    (await profile.GetBrowserExtensionsAsync()).FirstOrDefault(
+                        candidate => string.Equals(
+                            candidate.Id,
+                            extensionId,
+                            StringComparison.Ordinal));
+
+                if (extension is null)
+                    return;
+
+                if (extension.IsEnabled == isEnabled)
+                    return;
+
+                await extension.EnableAsync(isEnabled);
+
+                BrowserExtensionChanged?.Invoke(
+                    this,
+                    new BrowserExtensionChangedEventArgs(
+                        extensionId,
+                        extension.IsEnabled));
+            }
+            finally
+            {
+                _extensionOperationLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to set extension '{extensionId}' enabled state: {ex}");
+            throw;
+        }
+    }
+
+    public async Task RemoveExtensionAsync(string extensionId)
+    {
+        try
+        {
+            await _extensionOperationLock.WaitAsync();
+            try
+            {
+                CoreWebView2Profile profile =
+                    await GetBrowserProfileAsync();
+
+                CoreWebView2BrowserExtension? extension =
+                    (await profile.GetBrowserExtensionsAsync()).FirstOrDefault(
+                        candidate => string.Equals(
+                            candidate.Id,
+                            extensionId,
+                            StringComparison.Ordinal));
+
+                if (extension is null)
+                    return;
+
+                await extension.RemoveAsync();
+                _settings.Values.Remove($"ExtensionPath_{extensionId}");
+            }
+            finally
+            {
+                _extensionOperationLock.Release();
+            }
+        }
+        finally
+        {
+            BrowserExtensionsReset?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public async Task InstallExtensionAsync(string extensionPath)
+    {
+        try
+        {
+            await _extensionOperationLock.WaitAsync();
+            try
+            {
+                CoreWebView2Profile profile =
+                    await GetBrowserProfileAsync();
+
+                profile.AreWebViewScriptApisEnabledForServiceWorkers = true;
+
+                CoreWebView2BrowserExtension extension =
+                    await profile.AddBrowserExtensionAsync(extensionPath);
+
+                _settings.Values[$"ExtensionPath_{extension.Id}"] =
+                    extensionPath;
+            }
+            finally
+            {
+                _extensionOperationLock.Release();
+            }
+        }
+        finally
+        {
+            BrowserExtensionsReset?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void ExtensionToggle_Loaded(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggle ||
+            toggle.DataContext is not ExtensionListItem item)
+        {
+            return;
+        }
+
+        // Apply the display value before subscribing. Programmatic refreshes
+        // must never be interpreted as a user request to change an extension.
+        toggle.Toggled -= ExtensionToggle_Toggled;
+        toggle.Tag = item.ExtensionId;
+        toggle.IsOn = item.IsEnabled;
+        toggle.Toggled += ExtensionToggle_Toggled;
+    }
+
+    private async void ExtensionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggle ||
+            toggle.Tag is not string extensionId)
+        {
+            return;
+        }
+
+        toggle.IsEnabled = false;
+
+        try
+        {
+            await SetExtensionEnabledAsync(extensionId, toggle.IsOn);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to toggle extension '{extensionId}': {ex}");
+        }
+        finally
+        {
+            toggle.IsEnabled = true;
+        }
+    }
+
+    private async void ExtensionRemove_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem item ||
+            item.Tag is not string extensionId)
+        {
+            return;
+        }
+
+        try
+        {
+            await RemoveExtensionAsync(extensionId);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to remove extension '{extensionId}': {ex}");
+        }
     }
 
     public void ApplyWebTheme()
@@ -546,5 +869,170 @@ public sealed partial class MainWindow
             target.AbsoluteUri);
 
         CurrentTabContent.Content = webView;
+    }
+
+    private static string? GetBestExtensionIconPath(
+    string extensionPath,
+    JsonElement manifest)
+    {
+        int[] preferredSizes = { 32, 48, 16, 64, 128, 24, 20 };
+
+        if (TryGetIconFromObject(
+                manifest,
+                "icons",
+                preferredSizes,
+                extensionPath,
+                out string? path))
+        {
+            return path;
+        }
+
+        foreach (string key in new[]
+        {
+        "action",
+        "browser_action",
+        "page_action"
+    })
+        {
+            if (!manifest.TryGetProperty(
+                    key,
+                    out JsonElement action))
+            {
+                continue;
+            }
+
+            if (action.TryGetProperty(
+                    "default_icon",
+                    out JsonElement defaultIcon))
+            {
+                if (defaultIcon.ValueKind == JsonValueKind.String)
+                {
+                    string? rel = defaultIcon.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(rel))
+                    {
+                        string full =
+                            Path.Combine(extensionPath, rel);
+
+                        if (File.Exists(full))
+                            return full;
+                    }
+                }
+                else if (TryGetIconFromObject(
+                             action,
+                             "default_icon",
+                             preferredSizes,
+                             extensionPath,
+                             out path))
+                {
+                    return path;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryGetIconFromObject(
+        JsonElement parent,
+        string propertyName,
+        int[] preferredSizes,
+        string extensionPath,
+        out string? fullPath)
+    {
+        fullPath = null;
+
+        if (!parent.TryGetProperty(
+                propertyName,
+                out JsonElement icons) ||
+            icons.ValueKind != JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        foreach (int size in preferredSizes)
+        {
+            if (!icons.TryGetProperty(
+                    size.ToString(),
+                    out JsonElement iconEl))
+            {
+                continue;
+            }
+
+            string? rel = iconEl.GetString();
+
+            if (string.IsNullOrWhiteSpace(rel))
+                continue;
+
+            string candidate =
+                Path.Combine(extensionPath, rel);
+
+            if (File.Exists(candidate))
+            {
+                fullPath = candidate;
+                return true;
+            }
+        }
+
+        foreach (JsonProperty prop in icons.EnumerateObject())
+        {
+            string? rel = prop.Value.GetString();
+
+            if (string.IsNullOrWhiteSpace(rel))
+                continue;
+
+            string candidate =
+                Path.Combine(extensionPath, rel);
+
+            if (File.Exists(candidate))
+            {
+                fullPath = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+public sealed class ExtensionListItem : System.ComponentModel.INotifyPropertyChanged
+{
+    public string ExtensionId { get; }
+    public string Name { get; }
+
+    private bool _isEnabled;
+
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
+        {
+            if (_isEnabled == value)
+                return;
+
+            _isEnabled = value;
+
+            PropertyChanged?.Invoke(
+                this,
+                new System.ComponentModel.PropertyChangedEventArgs(
+                    nameof(IsEnabled)));
+        }
+    }
+
+    public UIElement Icon { get; }
+
+    public event System.ComponentModel.PropertyChangedEventHandler?
+        PropertyChanged;
+
+    public ExtensionListItem(
+        string extensionId,
+        string name,
+        bool isEnabled,
+        UIElement icon)
+    {
+        ExtensionId = extensionId;
+        Name = name;
+        _isEnabled = isEnabled;
+        Icon = icon;
     }
 }

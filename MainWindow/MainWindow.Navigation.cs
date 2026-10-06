@@ -105,11 +105,11 @@ public sealed partial class MainWindow
     }
 
     private void RegisterNavigationEvents(
-        BrowserTab tab,
-        WebView2 webView,
-        TextBlock title,
-        ProgressRing progressRing,
-        Image favicon)
+    BrowserTab tab,
+    WebView2 webView,
+    TextBlock title,
+    ProgressRing progressRing,
+    Image favicon)
     {
         webView.NavigationStarting += (_, args) =>
         {
@@ -121,8 +121,8 @@ public sealed partial class MainWindow
                 args.NavigationId);
 
             if (_certificateErrorDecisions.Remove(
-                webView,
-                out TaskCompletionSource<bool>? decision))
+                    webView,
+                    out TaskCompletionSource<bool>? decision))
             {
                 decision.TrySetResult(false);
             }
@@ -164,94 +164,164 @@ public sealed partial class MainWindow
 
         webView.NavigationCompleted += async (_, args) =>
         {
-            bool isPotentialDownload =
-                !args.IsSuccess &&
-                args.WebErrorStatus ==
-                    CoreWebView2WebErrorStatus.ConnectionAborted;
-
-            _loadingWebViews.Remove(webView);
-            CompleteLoadingProgress(
-                webView,
-                !args.IsSuccess && !isPotentialDownload);
-
-            progressRing.IsActive = false;
-            progressRing.Visibility = Visibility.Collapsed;
-
-            if (!args.IsSuccess)
+            try
             {
-                if (args.WebErrorStatus ==
-                    CoreWebView2WebErrorStatus.OperationCanceled)
-                {
-                    tab.ErrorPage = null;
-                }
-                else if (isPotentialDownload)
-                {
-                    // WebView2 can raise NavigationCompleted before DownloadStarting. Give that handoff a short time to arrive before declaring the navigation to be broken
-                    await Task.Delay(500);
+                bool isPotentialDownload =
+                    !args.IsSuccess &&
+                    args.WebErrorStatus ==
+                        CoreWebView2WebErrorStatus.ConnectionAborted;
 
-                    if (!IsTrackedNavigation(webView, args.NavigationId))
-                    {
-                        return;
-                    }
-                    else if (IsDownloadNavigation(webView, args.NavigationId))
+                _loadingWebViews.Remove(webView);
+
+                CompleteLoadingProgress(
+                    webView,
+                    !args.IsSuccess && !isPotentialDownload);
+
+                progressRing.IsActive = false;
+                progressRing.Visibility = Visibility.Collapsed;
+
+                if (!args.IsSuccess)
+                {
+                    if (args.WebErrorStatus ==
+                        CoreWebView2WebErrorStatus.OperationCanceled)
                     {
                         tab.ErrorPage = null;
                     }
+                    else if (isPotentialDownload)
+                    {
+                        // WebView2 can raise NavigationCompleted before
+                        // DownloadStarting. Give that handoff a short time
+                        // to arrive before declaring the navigation broken.
+                        await Task.Delay(500);
+
+                        if (!IsTrackedNavigation(
+                                webView,
+                                args.NavigationId))
+                        {
+                            return;
+                        }
+
+                        if (IsDownloadNavigation(
+                                webView,
+                                args.NavigationId))
+                        {
+                            tab.ErrorPage = null;
+                        }
+                        else if (args.HttpStatusCode == 0)
+                        {
+                            CompleteLoadingProgress(
+                                webView,
+                                hasError: true);
+
+                            ShowNavigationErrorPage(
+                                tab,
+                                webView,
+                                args.WebErrorStatus);
+                        }
+
+                        RemoveDownloadNavigation(
+                            webView,
+                            args.NavigationId);
+                    }
                     else if (args.HttpStatusCode == 0)
                     {
-                        CompleteLoadingProgress(webView, hasError: true);
-                        ShowNavigationErrorPage(tab, webView, args.WebErrorStatus);
+                        ShowNavigationErrorPage(
+                            tab,
+                            webView,
+                            args.WebErrorStatus);
+
+                        RemoveDownloadNavigation(
+                            webView,
+                            args.NavigationId);
+                    }
+                }
+                else if (webView.CoreWebView2 is { } core)
+                {
+                    RemoveDownloadNavigation(
+                        webView,
+                        args.NavigationId);
+
+                    tab.ErrorPage = null;
+                    webView.Visibility = Visibility.Visible;
+
+                    if (ReferenceEquals(SelectedWebView, webView))
+                        CurrentTabContent.Content = tab.Content;
+
+                    title.Text = core.DocumentTitle;
+
+                    if (string.IsNullOrWhiteSpace(core.FaviconUri))
+                    {
+                        favicon.Source = null;
+                        favicon.Visibility = Visibility.Collapsed;
+
+                        UpdateDefaultFavicon(tab, true);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            await UpdateFaviconAsync(tab);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            Debug.WriteLine(
+                                $"Favicon update canceled for tab " +
+                                $"{tab.ExtensionTabId}.");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(
+                                $"Favicon update failed for tab " +
+                                $"{tab.ExtensionTabId}: {ex}");
+                        }
                     }
 
-                    RemoveDownloadNavigation(webView, args.NavigationId);
+                    if (ReferenceEquals(SelectedWebView, webView))
+                    {
+                        try
+                        {
+                            await UpdateThemeColorFromPageAsync(
+                                webView,
+                                core);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            Debug.WriteLine(
+                                $"Theme color update canceled for tab " +
+                                $"{tab.ExtensionTabId}.");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(
+                                $"Theme color update failed for tab " +
+                                $"{tab.ExtensionTabId}: {ex}");
+                        }
+                    }
                 }
-                else if (args.HttpStatusCode == 0)
-                {
-                    ShowNavigationErrorPage(tab, webView, args.WebErrorStatus);
-                    RemoveDownloadNavigation(webView, args.NavigationId);
-                }
+
+                if (!ReferenceEquals(SelectedWebView, webView))
+                    return;
+
+                VisualStateManager.GoToState(
+                    RefreshButton,
+                    "NotLoading",
+                    true);
+
+                UpdateNavigationButtons();
+                UpdateAddressBar(webView);
             }
-            else if (webView.CoreWebView2 is { } core)
+            catch (TaskCanceledException)
             {
-                RemoveDownloadNavigation(webView, args.NavigationId);
-                tab.ErrorPage = null;
-                webView.Visibility = Visibility.Visible;
-
-                if (ReferenceEquals(SelectedWebView, webView))
-                    CurrentTabContent.Content = tab.Content;
-
-                title.Text = core.DocumentTitle;
-
-                if (string.IsNullOrWhiteSpace(core.FaviconUri))
-                {
-                    favicon.Source = null;
-                    favicon.Visibility = Visibility.Collapsed;
-
-                    UpdateDefaultFavicon(tab, true);
-                }
-                else
-                {
-                    await UpdateFaviconAsync(tab);
-                }
-
-                if (ReferenceEquals(SelectedWebView, webView))
-                {
-                    await UpdateThemeColorFromPageAsync(
-                        webView,
-                        core);
-                }
+                Debug.WriteLine(
+                    $"NavigationCompleted task canceled for tab " +
+                    $"{tab.ExtensionTabId}.");
             }
-
-            if (!ReferenceEquals(SelectedWebView, webView))
-                return;
-
-            VisualStateManager.GoToState(
-                RefreshButton,
-                "NotLoading",
-                true);
-
-            UpdateNavigationButtons();
-            UpdateAddressBar(webView);
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"NavigationCompleted failed for tab " +
+                    $"{tab.ExtensionTabId}: {ex}");
+            }
         };
     }
 
@@ -345,32 +415,54 @@ public sealed partial class MainWindow
                     $"Creating host tab {hostTabId} for requested window " +
                     $"'{args.Uri}'.");
 
-                if (newTab.Tag is BrowserTab { WebView: WebView2 newWebView })
+                if (newTab.Tag is BrowserTab
+                    {
+                        WebView: WebView2 newWebView
+                    })
                 {
-                    await newWebView.EnsureCoreWebView2Async(
-                        App.WebViewEnvironment);
-
-                    await EnableLoadProgressTrackingAsync(newWebView);
-
-                    if (newWebView.CoreWebView2 is { } newCore)
+                    try
                     {
-                        args.NewWindow = newCore;
+                        await newWebView.EnsureCoreWebView2Async(
+                            App.WebViewEnvironment);
 
-                        Debug.WriteLine(
-                            $"Bound requested window '{args.Uri}' to host tab " +
-                            $"{hostTabId}.");
+                        await EnableLoadProgressTrackingAsync(
+                            newWebView);
+
+                        if (newWebView.CoreWebView2 is { } newCore)
+                        {
+                            args.NewWindow = newCore;
+
+                            Debug.WriteLine(
+                                $"Bound requested window '{args.Uri}' " +
+                                $"to host tab {hostTabId}.");
+                        }
+                        else
+                        {
+                            Debug.WriteLine(
+                                $"Failed to initialize host tab " +
+                                $"{hostTabId} for '{args.Uri}'.");
+                            args.Handled = true;
+                        }
                     }
-                    else
+                    catch (TaskCanceledException)
                     {
                         Debug.WriteLine(
-                            $"Failed to initialize host tab {hostTabId} for " +
-                            $"'{args.Uri}'.");
+                            $"New window initialization canceled for " +
+                            $"host tab {hostTabId}.");
+                        args.Handled = true;
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                Debug.WriteLine(
+                    $"New window request canceled: {args.Uri}");
+                args.Handled = true;
+            }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to host new window: {ex}");
+                Debug.WriteLine(
+                    $"Failed to host new window: {ex}");
                 args.Handled = true;
             }
             finally

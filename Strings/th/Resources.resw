@@ -309,6 +309,9 @@
   <data name="Extensions.Header" xml:space="preserve">
     <value>ส่วนขยาย</value>
   </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>ส่วนขยาย</value>
+  </data>
   <data name="AddExtensionButton.Content" xml:space="preserve">
     <value>เพิ่มส่วนขยาย</value>
   </data>

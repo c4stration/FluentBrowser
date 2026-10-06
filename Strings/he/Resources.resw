@@ -308,6 +308,9 @@
   <data name="Extensions.Header" xml:space="preserve">
     <value>הרחבות</value>
   </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>הרחבות</value>
+  </data>
   <data name="AddExtensionButton.Content" xml:space="preserve">
     <value>הוספת הרחבה</value>
   </data>
