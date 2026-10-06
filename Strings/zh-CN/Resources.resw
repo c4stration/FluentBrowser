@@ -484,4 +484,7 @@
   <data name="Add.Content" xml:space="preserve">
     <value>添加</value>
   </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜索</value>
+  </data>
 </root>

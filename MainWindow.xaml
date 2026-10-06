@@ -412,19 +412,26 @@
                                 Closing="ExtensionsFlyout_Closing"
                                 Opening="ExtensionsFlyout_Opening"
                                 Placement="BottomEdgeAlignedRight">
-                                <my:ContentMenuFlyoutItem MinWidth="400">
-                                    <Grid>
+                                <my:ContentMenuFlyoutItem>
+                                    <Grid Width="400">
                                         <TextBlock
                                             x:Name="ExtensionsTextBlock"
                                             l:Uids.Uid="Extensions"
                                             Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
+                                        <AutoSuggestBox
+                                            x:Name="ExtensionsSearchBox"
+                                            Margin="0,27,0,0"
+                                            VerticalAlignment="Top"
+                                            l:Uids.Uid="SearchBox"
+                                            QueryIcon="Find"
+                                            TextChanged="ExtensionsSearchBox_TextChanged" />
+
                                         <ListView
                                             x:Name="ExtensionsList"
-                                            MaxHeight="400"
-                                            Margin="0,27,0,0"
+                                            MaxHeight="402"
+                                            Margin="0,68,0,0"
                                             IsItemClickEnabled="False"
-                                            ItemContainerTransitions="{x:Null}"
                                             SelectionMode="None">
 
                                             <ListView.ItemTemplate>

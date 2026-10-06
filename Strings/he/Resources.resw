@@ -498,4 +498,7 @@
   <data name="Add.Content" xml:space="preserve">
     <value>הוסף</value>
   </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>חיפוש</value>
+  </data>
 </root>

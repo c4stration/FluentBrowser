@@ -191,8 +191,15 @@ public sealed partial class MainWindow
             foreach (ExtensionListItem item in items)
                 _extensionItems.Add(item);
 
-            if (!ReferenceEquals(ExtensionsList.ItemsSource, _extensionItems))
-                ExtensionsList.ItemsSource = _extensionItems;
+            if (!ReferenceEquals(
+                    ExtensionsList.ItemsSource,
+                    _filteredExtensionItems))
+            {
+                ExtensionsList.ItemsSource = _filteredExtensionItems;
+            }
+
+            UpdateExtensionSearchResults(
+                ExtensionsSearchBox.Text);
         }
         catch (Exception ex)
         {
