@@ -15,7 +15,7 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Make it unfocus after pressing Enter on the address bar     |   ✅   |
 | Add every navigation option                                 |   ✅   | Add tab, close tab, reopen closed tab
 | Add extension support                                       |   ✅   |
-| Add extension UI/settings                                   |   🚧   | Not really currently being worked on yet, but marked as 🚧 for the future
+| Add extension popups                                        |   ✅   |
 | Add support for downloads                                   |   ✅   | Download progress, list of previous downloads
 | Add privacy-related stuff like hiding your IP               |   ❌   | Just copy them from Safari. Yes, I know. Wanna fight about it?
 | Add "inspect element"                                       |   🟧   | You know, like the pane
