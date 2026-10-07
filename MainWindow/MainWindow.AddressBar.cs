@@ -903,6 +903,8 @@ public sealed partial class MainWindow
             _addressTextHost,
             true);
 
+        _addressTextHost.IsHitTestVisible = false;
+
         _addressTextHost.SizeChanged +=
             (_, _) => UpdateUnfocusedTranslation();
 
@@ -949,7 +951,11 @@ public sealed partial class MainWindow
         _addressBarFocused = focused;
         _addressBarAnimating = true;
 
-        var visual = ElementCompositionPreview.GetElementVisual(_addressTextHost);
+        _addressTextHost.IsHitTestVisible = focused;
+
+        var visual = ElementCompositionPreview.GetElementVisual(
+            _addressTextHost);
+
         var compositor = visual.Compositor;
 
         int version = ++_addressBarAnimationVersion;
@@ -961,12 +967,15 @@ public sealed partial class MainWindow
         float targetX = focused ? 0 : center;
 
         visual.StopAnimation("Translation");
+
         visual.Properties.InsertVector3(
             "Translation",
             new Vector3(startX, 0, 0));
 
         var animation = compositor.CreateVector3KeyFrameAnimation();
+
         animation.Target = "Translation";
+
         animation.InsertKeyFrame(
             1f,
             new Vector3(targetX, 0, 0),
@@ -974,6 +983,7 @@ public sealed partial class MainWindow
                 compositor,
                 CompositionEasingFunctionMode.Out,
                 7f));
+
         animation.Duration = TimeSpan.FromMilliseconds(350);
 
         var batch = compositor.CreateScopedBatch(
@@ -990,6 +1000,7 @@ public sealed partial class MainWindow
                 "Translation",
                 new Vector3(targetX, 0, 0));
 
+            _addressTextHost.IsHitTestVisible = focused;
             _addressBarAnimating = false;
         };
 
@@ -1005,11 +1016,16 @@ public sealed partial class MainWindow
             return;
         }
 
-        var visual = ElementCompositionPreview.GetElementVisual(_addressTextHost);
+        var visual = ElementCompositionPreview.GetElementVisual(
+            _addressTextHost);
+
         visual.StopAnimation("Translation");
+
         visual.Properties.InsertVector3(
             "Translation",
             new Vector3((float)CalculateCenterOffset(), 0, 0));
+
+        _addressTextHost.IsHitTestVisible = false;
     }
 
     private double CalculateCenterOffset()

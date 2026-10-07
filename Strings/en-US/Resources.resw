@@ -506,4 +506,7 @@
   <data name="SearchBox.PlaceholderText" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="CustomizeToolbar.Text" xml:space="preserve">
+    <value>Customize toolbar...</value>
+  </data>
 </root>

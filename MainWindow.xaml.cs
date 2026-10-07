@@ -123,4 +123,18 @@ public sealed partial class MainWindow : Window
     {
         _ = SuggestionModelTrainer.TrainInBackgroundAsync();
     }
+
+    private void ToolbarButtons_ItemClick(
+        object sender,
+        ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is not ListViewItem item ||
+            item.Content is not Button button ||
+            button.Flyout is null)
+        {
+            return;
+        }
+
+        button.Flyout.ShowAt(button);
+    }
 }

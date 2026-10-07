@@ -483,4 +483,7 @@
   <data name="SearchBox.PlaceholderText" xml:space="preserve">
     <value>검색</value>
   </data>
+  <data name="CustomizeToolbar.Text" xml:space="preserve">
+    <value>도구 모음 사용자 지정...</value>
+  </data>
 </root>
