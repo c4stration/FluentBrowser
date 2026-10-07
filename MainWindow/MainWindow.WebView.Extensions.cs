@@ -26,9 +26,6 @@ public sealed partial class MainWindow
 
     private readonly Dictionary<int, BrowserTab> _extensionTabMap = [];
 
-    private readonly ObservableCollection<ExtensionListItem>
-        _filteredExtensionItems = [];
-
     private int _nextExtensionTabId = 1;
 
     private bool _extensionPopupNewWindowHooked;
@@ -524,58 +521,6 @@ public sealed partial class MainWindow
                 $"Extension service worker destroying: {worker.ScriptUri}");
             _extensionServiceWorkers.Remove(worker);
         };
-    }
-
-    private void ExtensionsSearchBox_TextChanged(
-        AutoSuggestBox sender,
-        AutoSuggestBoxTextChangedEventArgs args)
-    {
-        UpdateExtensionSearchResults(sender.Text);
-    }
-
-    private void UpdateExtensionSearchResults(string query)
-    {
-        query = query.Trim();
-
-        var matchingItems = new List<ExtensionListItem>();
-
-        foreach (ExtensionListItem item in _extensionItems)
-        {
-            if (string.IsNullOrWhiteSpace(query) ||
-                item.Name.Contains(
-                    query,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                matchingItems.Add(item);
-            }
-        }
-
-        for (int i = _filteredExtensionItems.Count - 1; i >= 0; i--)
-        {
-            if (!matchingItems.Contains(_filteredExtensionItems[i]))
-                _filteredExtensionItems.RemoveAt(i);
-        }
-
-        for (int i = 0; i < matchingItems.Count; i++)
-        {
-            ExtensionListItem item = matchingItems[i];
-
-            if (i >= _filteredExtensionItems.Count)
-            {
-                _filteredExtensionItems.Add(item);
-                continue;
-            }
-
-            if (ReferenceEquals(_filteredExtensionItems[i], item))
-                continue;
-
-            int existingIndex = _filteredExtensionItems.IndexOf(item);
-
-            if (existingIndex >= 0)
-                _filteredExtensionItems.Move(existingIndex, i);
-            else
-                _filteredExtensionItems.Insert(i, item);
-        }
     }
 
     private async void ExtensionButton_Click(

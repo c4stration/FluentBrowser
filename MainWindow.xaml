@@ -338,495 +338,493 @@
                     </ProgressBar>
                 </Border>
 
-                <StackPanel
+                <ListView
                     Grid.Column="2"
                     Margin="0,2,5,0"
+                    Padding="0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="8">
+                    HorizontalContentAlignment="Left"
+                    IsItemClickEnabled="False"
+                    SelectionMode="None">
 
-                    <StackPanel.ChildrenTransitions>
-                        <TransitionCollection>
-                            <EntranceThemeTransition />
-                        </TransitionCollection>
-                    </StackPanel.ChildrenTransitions>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
 
-                    <Button
-                        x:Name="DevToolsButton"
-                        Padding="6"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        ClickMode="Release"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Style="{StaticResource AppBarButtonStyle}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="MinWidth" Value="0" />
+                            <Setter Property="Width" Value="Auto" />
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
 
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="18"
-                            Glyph="&#xEBE8;"
-                            Translation="0,0,0">
-                            <FontIcon.TranslationTransition>
-                                <Vector3Transition />
-                            </FontIcon.TranslationTransition>
-                        </FontIcon>
-
-                        <Button.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                <MenuFlyoutItem
-                                    x:Name="ShowPageSelector"
-                                    Click="ShowPageSelector_Click"
-                                    Text="Show page selector">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE7C3;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-
-                                <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-
-                    <Button
-                        x:Name="ExtensionButton"
-                        Padding="6"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Click="ExtensionButton_Click"
-                        ClickMode="Release"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Style="{StaticResource AppBarButtonStyle}">
-
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="18"
-                            Glyph="&#xEA86;"
-                            Translation="0,0,0">
-                            <FontIcon.TranslationTransition>
-                                <Vector3Transition />
-                            </FontIcon.TranslationTransition>
-                        </FontIcon>
-
-                        <Button.Flyout>
-                            <MenuFlyout
-                                Closing="ExtensionsFlyout_Closing"
-                                Opening="ExtensionsFlyout_Opening"
-                                Placement="BottomEdgeAlignedRight">
-                                <my:ContentMenuFlyoutItem>
-                                    <Grid Width="400">
-                                        <TextBlock
-                                            x:Name="ExtensionsTextBlock"
-                                            l:Uids.Uid="Extensions"
-                                            Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
-                                        <AutoSuggestBox
-                                            x:Name="ExtensionsSearchBox"
-                                            Margin="0,27,0,0"
-                                            VerticalAlignment="Top"
-                                            l:Uids.Uid="SearchBox"
-                                            QueryIcon="Find"
-                                            TextChanged="ExtensionsSearchBox_TextChanged" />
-
-                                        <ListView
-                                            x:Name="ExtensionsList"
-                                            MaxHeight="402"
-                                            Margin="0,68,0,0"
-                                            IsItemClickEnabled="False"
-                                            SelectionMode="None">
-
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="-16,3,-12,0">
-                                                        <Border
-                                                            Padding="12"
-                                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                            BorderThickness="1"
-                                                            CornerRadius="{ThemeResource ControlCornerRadius}" />
-
-                                                        <Button
-                                                            Padding="12"
-                                                            HorizontalAlignment="Stretch"
-                                                            HorizontalContentAlignment="Stretch"
-                                                            VerticalContentAlignment="Stretch"
-                                                            Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Click="ExtensionButton_Click"
-                                                            Style="{StaticResource AppBarButtonStyle}">
-
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="36" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                </Grid.ColumnDefinitions>
-
-                                                                <ContentControl
-                                                                    Width="36"
-                                                                    Height="36"
-                                                                    HorizontalAlignment="Center"
-                                                                    VerticalAlignment="Center"
-                                                                    HorizontalContentAlignment="Center"
-                                                                    VerticalContentAlignment="Center"
-                                                                    Content="{Binding Icon}" />
-
-                                                                <TextBlock
-                                                                    Grid.Column="1"
-                                                                    Margin="14,0,12,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Name}"
-                                                                    TextTrimming="CharacterEllipsis" />
-
-                                                                <ToggleSwitch
-                                                                    Grid.Column="2"
-                                                                    Margin="32,0,-106,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Loaded="ExtensionToggle_Loaded"
-                                                                    OffContent=""
-                                                                    OnContent=""
-                                                                    Tag="{Binding ExtensionId}" />
-
-                                                                <Grid.ContextFlyout>
-                                                                    <MenuFlyout>
-                                                                        <MenuFlyoutItem
-                                                                            Click="ExtensionRemove_Click"
-                                                                            Tag="{Binding ExtensionId}"
-                                                                            Text="Remove">
-                                                                            <MenuFlyoutItem.Icon>
-                                                                                <FontIcon Glyph="&#xE894;" />
-                                                                            </MenuFlyoutItem.Icon>
-                                                                        </MenuFlyoutItem>
-                                                                    </MenuFlyout>
-                                                                </Grid.ContextFlyout>
-                                                            </Grid>
-                                                        </Button>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                        </ListView>
-
-                                        <Button
-                                            x:Name="ExtensionsBackButton"
-                                            VerticalAlignment="Top"
-                                            Click="ExtensionsBackButton_Click"
-                                            Content="&#xE72B;"
-                                            CornerRadius="{ThemeResource ControlCornerRadius}"
-                                            FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                            Style="{StaticResource AppBarButtonStyle}"
-                                            Visibility="Collapsed" />
-
-                                        <WebView2
-                                            x:Name="ExtensionWebView"
-                                            Width="400"
-                                            Height="400"
-                                            Margin="0,36,0,0"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Visibility="Collapsed" />
-                                    </Grid>
-                                </my:ContentMenuFlyoutItem>
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-
-                    <Button
-                        x:Name="DownloadsButton"
-                        Padding="6"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        ClickMode="Release"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Style="{StaticResource AppBarButtonStyle}">
-
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <Grid Name="DownloadingIcon" Visibility="Collapsed">
-                                <PathIcon
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="{StaticResource SmallDown}"
-                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
-
-                                <ProgressRing
-                                    Name="DownloadProgress"
-                                    Width="18"
-                                    Height="18"
-                                    Background="{ThemeResource ControlStrokeColorSecondaryBrush}"
-                                    IsIndeterminate="False"
-                                    Value="50" />
-                            </Grid>
-
-                            <PathIcon
-                                Name="DownloadComplete"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Data="{StaticResource DownloadFullEllipse}"
-                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                Visibility="Collapsed" />
+                    <ListViewItem>
+                        <Button
+                            x:Name="DevToolsButton"
+                            Padding="6"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            ClickMode="Release"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{StaticResource AppBarButtonStyle}">
 
                             <FontIcon
-                                Name="DownloadIcon"
                                 FontFamily="Segoe Fluent Icons"
                                 FontSize="18"
-                                Glyph="&#xE896;" />
+                                Glyph="&#xEBE8;"
+                                Translation="0,0,0">
+                                <FontIcon.TranslationTransition>
+                                    <Vector3Transition />
+                                </FontIcon.TranslationTransition>
+                            </FontIcon>
 
-                            <!--<PathIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Data="{StaticResource LongDown}"
-                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                    <MenuFlyoutItem
+                                        x:Name="ShowPageSelector"
+                                        Click="ShowPageSelector_Click"
+                                        Text="Show page selector">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE7C3;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
 
-                            <ProgressBar
-                                Grid.Row="1"
-                                Width="18"
-                                Margin="0,4,0,0"
-                                Value="54" />-->
-                        </Grid>
+                                    <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                    </ListViewItem>
 
-                        <Button.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                <my:ContentMenuFlyoutItem MinWidth="400">
-                                    <StackPanel>
-                                        <Grid>
-                                            <!--  Settings page already has a text that says "downloads", so it's named "DownloadsSection"  -->
-                                            <TextBlock l:Uids.Uid="DownloadsSection" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                    <ListViewItem>
+                        <Button
+                            x:Name="ExtensionButton"
+                            Padding="6"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Click="ExtensionButton_Click"
+                            ClickMode="Release"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{StaticResource AppBarButtonStyle}">
 
-                                            <Grid l:Uids.Uid="ClearCompletedGrid">
-                                                <Button
-                                                    Name="ClearCompletedButton"
-                                                    HorizontalAlignment="Right"
-                                                    VerticalAlignment="Top"
-                                                    l:Uids.Uid="ClearCompletedButton"
-                                                    Click="ClearCompletedButton_Click"
-                                                    IsEnabled="False"
-                                                    Style="{StaticResource SmallButtonStyle}" />
-                                            </Grid>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="18"
+                                Glyph="&#xEA86;"
+                                Translation="0,0,0">
+                                <FontIcon.TranslationTransition>
+                                    <Vector3Transition />
+                                </FontIcon.TranslationTransition>
+                            </FontIcon>
+
+                            <Button.Flyout>
+                                <MenuFlyout Opening="ExtensionsFlyout_Opening" Placement="BottomEdgeAlignedRight">
+                                    <my:ContentMenuFlyoutItem>
+                                        <Grid Width="400">
+                                            <TextBlock
+                                                x:Name="ExtensionsTextBlock"
+                                                l:Uids.Uid="Extensions"
+                                                Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
                                             <ListView
-                                                x:Name="DownloadsList"
-                                                MaxHeight="400"
+                                                x:Name="ExtensionsList"
+                                                MaxHeight="402"
                                                 Margin="0,27,0,0"
                                                 IsItemClickEnabled="False"
-                                                ItemsSource="{x:Bind Downloads}"
                                                 SelectionMode="None">
 
                                                 <ListView.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border
-                                                            Margin="-16,8,-12,0"
-                                                            Padding="12"
-                                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                            BorderThickness="1"
-                                                            CornerRadius="{ThemeResource ControlCornerRadius}">
+                                                        <Grid Margin="-16,3,-12,0">
+                                                            <Border
+                                                                Padding="12"
+                                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                BorderThickness="1"
+                                                                CornerRadius="{ThemeResource ControlCornerRadius}" />
 
-                                                            <Grid>
-                                                                <Grid.ContextFlyout>
-                                                                    <MenuFlyout>
-                                                                        <MenuFlyoutItem l:Uids.Uid="RemoveFromList" Click="RemoveFromList_Click">
-                                                                            <MenuFlyoutItem.Icon>
-                                                                                <FontIcon Glyph="&#xE894;" />
-                                                                            </MenuFlyoutItem.Icon>
-                                                                        </MenuFlyoutItem>
-                                                                    </MenuFlyout>
-                                                                </Grid.ContextFlyout>
+                                                            <Button
+                                                                Padding="12"
+                                                                HorizontalAlignment="Stretch"
+                                                                HorizontalContentAlignment="Stretch"
+                                                                VerticalContentAlignment="Stretch"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Click="ExtensionButton_Click"
+                                                                Style="{StaticResource AppBarButtonStyle}">
 
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="36" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                </Grid.ColumnDefinitions>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="36" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="Auto" />
+                                                                    </Grid.ColumnDefinitions>
 
-                                                                <Image
-                                                                    x:Name="FileIcon"
-                                                                    Width="28"
-                                                                    Height="28"
-                                                                    HorizontalAlignment="Center"
-                                                                    VerticalAlignment="Center"
-                                                                    Source="{Binding Icon}"
-                                                                    Visibility="{Binding Icon, Converter={StaticResource ValueToVisibilityConverter}}" />
+                                                                    <ContentControl
+                                                                        Width="36"
+                                                                        Height="36"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        HorizontalContentAlignment="Center"
+                                                                        VerticalContentAlignment="Center"
+                                                                        Content="{Binding Icon}" />
 
-                                                                <FontIcon
-                                                                    Name="FilePlaceholder"
-                                                                    Glyph="&#xE7C3;"
-                                                                    Visibility="{Binding Icon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" />
-
-                                                                <StackPanel
-                                                                    Grid.Column="1"
-                                                                    Margin="14,0,12,0"
-                                                                    Spacing="6">
                                                                     <TextBlock
-                                                                        Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                                                        Text="{Binding FileName}"
+                                                                        Grid.Column="1"
+                                                                        Margin="14,0,12,0"
+                                                                        VerticalAlignment="Center"
+                                                                        Text="{Binding Name}"
                                                                         TextTrimming="CharacterEllipsis" />
 
-                                                                    <ProgressBar IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding Progress}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="2"
+                                                                        Margin="32,0,-106,0"
+                                                                        VerticalAlignment="Center"
+                                                                        Loaded="ExtensionToggle_Loaded"
+                                                                        OffContent=""
+                                                                        OnContent=""
+                                                                        Tag="{Binding ExtensionId}" />
 
-                                                                    <TextBlock
-                                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                                                        Text="{Binding Status}" />
-                                                                </StackPanel>
-
-                                                                <Button
-                                                                    Name="MainButton"
-                                                                    Grid.Column="2"
-                                                                    Width="32"
-                                                                    Height="32"
-                                                                    Padding="4"
-                                                                    Click="MainButton_Click"
-                                                                    CornerRadius="{ThemeResource ControlCornerRadius}"
-                                                                    Style="{StaticResource AppBarButtonStyle}">
-                                                                    <FontIcon FontSize="14" Glyph="{Binding MainButtonGlyph}" />
-                                                                </Button>
-                                                            </Grid>
-
-                                                        </Border>
+                                                                    <Grid.ContextFlyout>
+                                                                        <MenuFlyout>
+                                                                            <MenuFlyoutItem
+                                                                                Click="ExtensionRemove_Click"
+                                                                                Tag="{Binding ExtensionId}"
+                                                                                Text="Remove">
+                                                                                <MenuFlyoutItem.Icon>
+                                                                                    <FontIcon Glyph="&#xE894;" />
+                                                                                </MenuFlyoutItem.Icon>
+                                                                            </MenuFlyoutItem>
+                                                                        </MenuFlyout>
+                                                                    </Grid.ContextFlyout>
+                                                                </Grid>
+                                                            </Button>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </ListView.ItemTemplate>
                                             </ListView>
+
+                                            <Button
+                                                x:Name="ExtensionsBackButton"
+                                                VerticalAlignment="Top"
+                                                Click="ExtensionsBackButton_Click"
+                                                Content="&#xE72B;"
+                                                CornerRadius="{ThemeResource ControlCornerRadius}"
+                                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                Style="{StaticResource AppBarButtonStyle}"
+                                                Visibility="Collapsed" />
+
+                                            <WebView2
+                                                x:Name="ExtensionWebView"
+                                                Width="400"
+                                                Height="400"
+                                                Margin="0,36,0,0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Visibility="Collapsed" />
                                         </Grid>
+                                    </my:ContentMenuFlyoutItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                    </ListViewItem>
 
-                                        <TextBlock
-                                            x:Name="NoDownloadsText"
-                                            Margin="0,32,0,18"
-                                            HorizontalAlignment="Center"
-                                            l:Uids.Uid="NoDownloadsText"
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    </StackPanel>
-                                </my:ContentMenuFlyoutItem>
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
+                    <ListViewItem>
+                        <Button
+                            x:Name="DownloadsButton"
+                            Padding="6"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            ClickMode="Release"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{StaticResource AppBarButtonStyle}">
 
-                    <Button
-                        x:Name="MoreButton"
-                        Padding="6"
-                        ClickMode="Release"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Style="{StaticResource AppBarButtonStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
 
-                        <ToolTipService.ToolTip>
-                            <StackPanel>
-                                <TextBlock
-                                    l:Uids.Uid="MoreButtonTooltipTitle"
-                                    FontWeight="SemiBold"
-                                    Style="{ThemeResource CaptionTextBlockStyle}" />
-                                <TextBlock l:Uids.Uid="MoreButtonTooltipDescription" Style="{ThemeResource CaptionTextBlockStyle}" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
+                                <Grid Name="DownloadingIcon" Visibility="Collapsed">
+                                    <PathIcon
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Data="{StaticResource SmallDown}"
+                                        Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
 
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="18"
-                            Glyph="&#xE712;"
-                            Translation="0,0,0">
-                            <FontIcon.TranslationTransition>
-                                <Vector3Transition />
-                            </FontIcon.TranslationTransition>
-                        </FontIcon>
+                                    <ProgressRing
+                                        Name="DownloadProgress"
+                                        Width="18"
+                                        Height="18"
+                                        Background="{ThemeResource ControlStrokeColorSecondaryBrush}"
+                                        IsIndeterminate="False"
+                                        Value="50" />
+                                </Grid>
 
-                        <Button.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <PathIcon
+                                    Name="DownloadComplete"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="{StaticResource DownloadFullEllipse}"
+                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                    Visibility="Collapsed" />
 
-                                <!--  Navigation / Tab  -->
-                                <MenuFlyoutItem
-                                    x:Name="NewTabMenuItem"
-                                    MinWidth="178"
-                                    l:Uids.Uid="NewTabMenuItem"
-                                    Click="NewTabMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE710;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                <FontIcon
+                                    Name="DownloadIcon"
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="18"
+                                    Glyph="&#xE896;" />
+                            </Grid>
 
-                                <MenuFlyoutItem
-                                    x:Name="DuplicateTabMenuItem"
-                                    l:Uids.Uid="DuplicateTabMenuItem"
-                                    Click="DuplicateTabMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xEB91;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                    <my:ContentMenuFlyoutItem MinWidth="400">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock l:Uids.Uid="DownloadsSection" Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                                <MenuFlyoutSeparator />
+                                                <Grid l:Uids.Uid="ClearCompletedGrid">
+                                                    <Button
+                                                        Name="ClearCompletedButton"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        l:Uids.Uid="ClearCompletedButton"
+                                                        Click="ClearCompletedButton_Click"
+                                                        IsEnabled="False"
+                                                        Style="{StaticResource SmallButtonStyle}" />
+                                                </Grid>
 
-                                <!--  Page actions  -->
-                                <MenuFlyoutItem
-                                    x:Name="ZoomInMenuItem"
-                                    l:Uids.Uid="ZoomInMenuItem"
-                                    Click="ZoomInMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE8A3;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                                <ListView
+                                                    x:Name="DownloadsList"
+                                                    MaxHeight="400"
+                                                    Margin="0,27,0,0"
+                                                    IsItemClickEnabled="False"
+                                                    ItemsSource="{x:Bind Downloads}"
+                                                    SelectionMode="None">
 
-                                <MenuFlyoutItem
-                                    x:Name="ZoomOutMenuItem"
-                                    l:Uids.Uid="ZoomOutMenuItem"
-                                    Click="ZoomOutMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE71F;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border
+                                                                Margin="-16,8,-12,0"
+                                                                Padding="12"
+                                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                BorderThickness="1"
+                                                                CornerRadius="{ThemeResource ControlCornerRadius}">
 
-                                <MenuFlyoutItem
-                                    x:Name="ResetZoomMenuItem"
-                                    l:Uids.Uid="ResetZoomMenuItem"
-                                    Click="ResetZoomMenuItem_Click" />
+                                                                <Grid>
+                                                                    <Grid.ContextFlyout>
+                                                                        <MenuFlyout>
+                                                                            <MenuFlyoutItem l:Uids.Uid="RemoveFromList" Click="RemoveFromList_Click">
+                                                                                <MenuFlyoutItem.Icon>
+                                                                                    <FontIcon Glyph="&#xE894;" />
+                                                                                </MenuFlyoutItem.Icon>
+                                                                            </MenuFlyoutItem>
+                                                                        </MenuFlyout>
+                                                                    </Grid.ContextFlyout>
 
-                                <MenuFlyoutSeparator />
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="36" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="Auto" />
+                                                                    </Grid.ColumnDefinitions>
 
-                                <MenuFlyoutItem
-                                    x:Name="FindMenuItem"
-                                    l:Uids.Uid="FindMenuItem"
-                                    Click="FindMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE721;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                                                    <Image
+                                                                        x:Name="FileIcon"
+                                                                        Width="28"
+                                                                        Height="28"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        Source="{Binding Icon}"
+                                                                        Visibility="{Binding Icon, Converter={StaticResource ValueToVisibilityConverter}}" />
 
-                                <MenuFlyoutItem
-                                    x:Name="PrintMenuItem"
-                                    l:Uids.Uid="PrintMenuItem"
-                                    Click="PrintMenuItem_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE749;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                                                    <FontIcon
+                                                                        Name="FilePlaceholder"
+                                                                        Glyph="&#xE7C3;"
+                                                                        Visibility="{Binding Icon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" />
 
-                                <MenuFlyoutSeparator />
+                                                                    <StackPanel
+                                                                        Grid.Column="1"
+                                                                        Margin="14,0,12,0"
+                                                                        Spacing="6">
+                                                                        <TextBlock
+                                                                            Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                                                            Text="{Binding FileName}"
+                                                                            TextTrimming="CharacterEllipsis" />
 
-                                <!--  Dev / Info  -->
-                                <MenuFlyoutItem
-                                    x:Name="ViewSourceMenuItem"
-                                    l:Uids.Uid="ViewSourceMenuItem"
-                                    Click="ViewSourceMenuItem_Click" />
+                                                                        <ProgressBar IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding Progress}" />
 
-                                <MenuFlyoutItem
-                                    x:Name="DevToolsMenuItem"
-                                    l:Uids.Uid="DevToolsMenuItem"
-                                    Click="DevToolsMenuItem_Click" />
+                                                                        <TextBlock
+                                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                            Style="{ThemeResource CaptionTextBlockStyle}"
+                                                                            Text="{Binding Status}" />
+                                                                    </StackPanel>
 
-                                <MenuFlyoutSeparator />
+                                                                    <Button
+                                                                        Name="MainButton"
+                                                                        Grid.Column="2"
+                                                                        Width="32"
+                                                                        Height="32"
+                                                                        Padding="4"
+                                                                        Click="MainButton_Click"
+                                                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                                                        Style="{StaticResource AppBarButtonStyle}">
+                                                                        <FontIcon FontSize="14" Glyph="{Binding MainButtonGlyph}" />
+                                                                    </Button>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </Grid>
 
-                                <MenuFlyoutItem
-                                    x:Name="SettingsMenuItem"
-                                    l:Uids.Uid="SettingsTitle"
-                                    Click="SettingsButton_Click">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE713;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                            <TextBlock
+                                                x:Name="NoDownloadsText"
+                                                Margin="0,32,0,18"
+                                                HorizontalAlignment="Center"
+                                                l:Uids.Uid="NoDownloadsText"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        </StackPanel>
+                                    </my:ContentMenuFlyoutItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                    </ListViewItem>
 
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-                </StackPanel>
+                    <ListViewItem>
+                        <Button
+                            x:Name="MoreButton"
+                            Padding="6"
+                            ClickMode="Release"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{StaticResource AppBarButtonStyle}">
+
+                            <ToolTipService.ToolTip>
+                                <StackPanel>
+                                    <TextBlock
+                                        l:Uids.Uid="MoreButtonTooltipTitle"
+                                        FontWeight="SemiBold"
+                                        Style="{ThemeResource CaptionTextBlockStyle}" />
+                                    <TextBlock l:Uids.Uid="MoreButtonTooltipDescription" Style="{ThemeResource CaptionTextBlockStyle}" />
+                                </StackPanel>
+                            </ToolTipService.ToolTip>
+
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="18"
+                                Glyph="&#xE712;"
+                                Translation="0,0,0">
+                                <FontIcon.TranslationTransition>
+                                    <Vector3Transition />
+                                </FontIcon.TranslationTransition>
+                            </FontIcon>
+
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+
+                                    <!--  Navigation / Tab  -->
+                                    <MenuFlyoutItem
+                                        x:Name="NewTabMenuItem"
+                                        MinWidth="178"
+                                        l:Uids.Uid="NewTabMenuItem"
+                                        Click="NewTabMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE710;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutItem
+                                        x:Name="DuplicateTabMenuItem"
+                                        l:Uids.Uid="DuplicateTabMenuItem"
+                                        Click="DuplicateTabMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xEB91;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutSeparator />
+
+                                    <!--  Page actions  -->
+                                    <MenuFlyoutItem
+                                        x:Name="ZoomInMenuItem"
+                                        l:Uids.Uid="ZoomInMenuItem"
+                                        Click="ZoomInMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8A3;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutItem
+                                        x:Name="ZoomOutMenuItem"
+                                        l:Uids.Uid="ZoomOutMenuItem"
+                                        Click="ZoomOutMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE71F;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutItem
+                                        x:Name="ResetZoomMenuItem"
+                                        l:Uids.Uid="ResetZoomMenuItem"
+                                        Click="ResetZoomMenuItem_Click" />
+
+                                    <MenuFlyoutSeparator />
+
+                                    <MenuFlyoutItem
+                                        x:Name="FindMenuItem"
+                                        l:Uids.Uid="FindMenuItem"
+                                        Click="FindMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE721;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutItem
+                                        x:Name="PrintMenuItem"
+                                        l:Uids.Uid="PrintMenuItem"
+                                        Click="PrintMenuItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE749;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                    <MenuFlyoutSeparator />
+
+                                    <!--  Dev / Info  -->
+                                    <MenuFlyoutItem
+                                        x:Name="ViewSourceMenuItem"
+                                        l:Uids.Uid="ViewSourceMenuItem"
+                                        Click="ViewSourceMenuItem_Click" />
+
+                                    <MenuFlyoutItem
+                                        x:Name="DevToolsMenuItem"
+                                        l:Uids.Uid="DevToolsMenuItem"
+                                        Click="DevToolsMenuItem_Click" />
+
+                                    <MenuFlyoutSeparator />
+
+                                    <MenuFlyoutItem
+                                        x:Name="SettingsMenuItem"
+                                        l:Uids.Uid="SettingsTitle"
+                                        Click="SettingsButton_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE713;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                    </ListViewItem>
+
+                </ListView>
             </Grid>
 
             <!--  smart, right?  -->

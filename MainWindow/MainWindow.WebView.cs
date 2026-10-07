@@ -40,8 +40,6 @@ public sealed partial class MainWindow
 
     private readonly SemaphoreSlim _extensionOperationLock = new(1, 1);
 
-    public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionsChanged;
-
     private readonly Dictionary<WebView2, TaskCompletionSource<bool>>
         _certificateErrorDecisions = [];
 
@@ -58,7 +56,6 @@ public sealed partial class MainWindow
 
     private bool _middleClickPending;
     private InputKeyboardSource? _keyboardSource;
-    private bool _isExtensionsFlyoutOpen;
     public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionChanged;
     public event EventHandler? BrowserExtensionsReset;
 
@@ -86,16 +83,9 @@ public sealed partial class MainWindow
         object sender,
         object e)
     {
-        _isExtensionsFlyoutOpen = true;
-
         ShowExtensionsList();
 
         await RefreshExtensionsFlyoutAsync();
-    }
-
-    private void ExtensionsFlyout_Closing(object sender, object e)
-    {
-        _isExtensionsFlyoutOpen = false;
     }
 
     private async Task RefreshExtensionsFlyoutAsync()
@@ -192,14 +182,11 @@ public sealed partial class MainWindow
                 _extensionItems.Add(item);
 
             if (!ReferenceEquals(
-                    ExtensionsList.ItemsSource,
-                    _filteredExtensionItems))
+                ExtensionsList.ItemsSource,
+                _extensionItems))
             {
-                ExtensionsList.ItemsSource = _filteredExtensionItems;
+                ExtensionsList.ItemsSource = _extensionItems;
             }
-
-            UpdateExtensionSearchResults(
-                ExtensionsSearchBox.Text);
         }
         catch (Exception ex)
         {
