@@ -23,7 +23,7 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Add personalized suggestions                                |   🚧   | This feature is currently being worked on. Planning to add ML-based ranking like how Edge does it. No, it's not expensive, I promise
 | Add settings                                                |   ✅   |
 | Add fullscreen support                                      |   ✅   | F11 and website requests
-| Add toolbar managing                                        |   🟨   | This would be fun to make. Planned to add
+| Add toolbar managing                                        |   🚧   | This would be fun to make. Planned to add
 | Add zoom controls                                           |   🚧   | Works, but unpolished. Planning to add a TeachingTip like Find on Page
 | Add a native "Find on Page" feature                         |   ✅   |
 | Add keyboard shortcuts                                      |   ✅   | I don't think EVERY keyboard shortcut is implemented yet, but I don't want to deal with this anymore...
