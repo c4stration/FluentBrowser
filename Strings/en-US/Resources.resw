@@ -509,4 +509,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>Customize toolbar...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>Drag your favorite items into the toolbar...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>Done</value>
+  </data>
 </root>

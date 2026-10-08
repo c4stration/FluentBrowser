@@ -486,4 +486,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>Particularizare bară de instrumente...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>Trageți elementele preferate în bara de instrumente...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>Gata</value>
+  </data>
 </root>

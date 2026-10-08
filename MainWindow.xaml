@@ -361,7 +361,11 @@
                     VerticalAlignment="Center"
                     HorizontalContentAlignment="Left"
                     AllowDrop="True"
+                    CanDragItems="True"
                     CanReorderItems="True"
+                    DragItemsStarting="Toolbar_DragItemsStarting"
+                    DragOver="Toolbar_DragOver"
+                    Drop="Toolbar_Drop"
                     IsItemClickEnabled="False"
                     Loaded="ToolbarListView_Loaded"
                     SelectionMode="None">
@@ -986,94 +990,61 @@
             x:Name="CustomizeToolbarTeachingTip"
             Width="1000"
             MaxWidth="Infinity"
+            Closed="CustomizeToolbarTeachingTip_Closed"
             IsLightDismissEnabled="False"
             PlacementMargin="69"
             PreferredPlacement="Top"
             Style="{ThemeResource TeachingTipStyleWithoutCloseButton}">
 
-            <Grid Margin="0,-13,0,0">
-                <TextBlock
-                    VerticalAlignment="Top"
-                    Style="{ThemeResource BodyStrongTextBlockStyle}"
-                    Text="Drag your favorite items in the toolbar..." />
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <controls:WrapPanel>
-                    <StackPanel
-                        Grid.Column="0"
-                        Margin="0,0,8,0"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="2">
+                <TextBlock l:Uids.Uid="DragToolbarItemsText" Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                        <Button
-                            Margin="0,2,5,0"
-                            Padding="3,6"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            CornerRadius="{ThemeResource ControlCornerRadius}"
-                            Style="{StaticResource AppBarButtonStyle}">
-                            <ToolTipService.ToolTip>
-                                <StackPanel>
-                                    <TextBlock
-                                        l:Uids.Uid="BackButtonTooltipTitle"
-                                        FontWeight="SemiBold"
-                                        Style="{ThemeResource CaptionTextBlockStyle}" />
-                                    <TextBlock l:Uids.Uid="BackButtonTooltipDescription" Style="{ThemeResource CaptionTextBlockStyle}" />
-                                </StackPanel>
-                            </ToolTipService.ToolTip>
+                <ListView
+                    x:Name="AvailableToolbarListView"
+                    Grid.Row="1"
+                    MinHeight="48"
+                    Margin="32,12,32,0"
+                    AllowDrop="True"
+                    CanDragItems="True"
+                    DragItemsStarting="Toolbar_DragItemsStarting"
+                    DragOver="Toolbar_DragOver"
+                    Drop="Toolbar_Drop"
+                    IsItemClickEnabled="False"
+                    SelectionMode="None">
 
-                            <AnimatedIcon Width="18" Height="18">
-                                <AnimatedIcon.Source>
-                                    <a:AnimatedChevronDownSmallVisualSource />
-                                </AnimatedIcon.Source>
-                                <AnimatedIcon.RenderTransform>
-                                    <RotateTransform Angle="90" />
-                                </AnimatedIcon.RenderTransform>
-                                <AnimatedIcon.FallbackIconSource>
-                                    <SymbolIconSource Symbol="Find" />
-                                </AnimatedIcon.FallbackIconSource>
-                            </AnimatedIcon>
-                        </Button>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:WrapPanel HorizontalSpacing="32" VerticalSpacing="24" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
 
-                        <Button
-                            Margin="0,2,5,0"
-                            Padding="3,6"
-                            VerticalAlignment="Center"
-                            ClickMode="Release"
-                            CornerRadius="{ThemeResource ControlCornerRadius}"
-                            Style="{StaticResource AppBarButtonStyle}">
-                            <ToolTipService.ToolTip>
-                                <StackPanel>
-                                    <TextBlock
-                                        l:Uids.Uid="ForwardButtonTooltipTitle"
-                                        FontWeight="SemiBold"
-                                        Style="{ThemeResource CaptionTextBlockStyle}" />
-                                    <TextBlock l:Uids.Uid="ForwardButtonTooltipDescription" Style="{ThemeResource CaptionTextBlockStyle}" />
-                                </StackPanel>
-                            </ToolTipService.ToolTip>
-                            <AnimatedIcon Width="18" Height="18">
-                                <AnimatedIcon.Source>
-                                    <a:AnimatedChevronDownSmallVisualSource />
-                                </AnimatedIcon.Source>
-                                <AnimatedIcon.RenderTransform>
-                                    <RotateTransform Angle="-90" />
-                                </AnimatedIcon.RenderTransform>
-                                <AnimatedIcon.FallbackIconSource>
-                                    <SymbolIconSource Symbol="Find" />
-                                </AnimatedIcon.FallbackIconSource>
-                            </AnimatedIcon>
-                        </Button>
-                    </StackPanel>
-                </controls:WrapPanel>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="MinWidth" Value="0" />
+                            <Setter Property="Width" Value="Auto" />
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+
+                <Button
+                    Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    l:Uids.Uid="DoneButton"
+                    Click="FinishToolbarCustomize_Click"
+                    Style="{StaticResource AccentButtonStyle}" />
             </Grid>
         </TeachingTip>
-
-        <Button
-            Grid.Row="1"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Click="test"
-            Content="show teaching tip" />
 
         <Border
             x:Name="StatusBarBorder"

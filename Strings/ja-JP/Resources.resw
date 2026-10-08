@@ -490,4 +490,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>ツールバーをカスタマイズ...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>お気に入りの項目をツールバーにドラッグ...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>完了</value>
+  </data>
 </root>

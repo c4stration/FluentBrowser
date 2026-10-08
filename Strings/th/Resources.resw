@@ -504,4 +504,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>ปรับแต่งแถบเครื่องมือ...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>ลากรายการโปรดของคุณไปยังแถบเครื่องมือ...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>เสร็จสิ้น</value>
+  </data>
 </root>

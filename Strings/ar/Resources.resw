@@ -498,4 +498,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>تخصيص شريط الأدوات...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>اسحب العناصر المفضلة لديك إلى شريط الأدوات...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>تم</value>
+  </data>
 </root>

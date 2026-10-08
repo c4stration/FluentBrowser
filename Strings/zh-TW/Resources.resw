@@ -486,4 +486,10 @@
   <data name="CustomizeToolbar.Text" xml:space="preserve">
     <value>自訂工具列...</value>
   </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>將你喜歡的項目拖曳至工具列...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>完成</value>
+  </data>
 </root>
