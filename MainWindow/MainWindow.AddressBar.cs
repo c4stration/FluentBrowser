@@ -34,9 +34,11 @@ public sealed partial class MainWindow
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
     private readonly SuggestionRanker _suggestionRanker = new();
     private readonly Dictionary<string, (string GroupId, string CandidateId)> _suggestionTrainingIds =
-    new(StringComparer.OrdinalIgnoreCase);
+        new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Uri> _suggestionTargets =
         new(StringComparer.OrdinalIgnoreCase);
+
+    private readonly SearchSuggestionProvider _searchSuggestionProvider;
 
     private Uri? _selectedSuggestionTarget;
     private int _suggestionRequestVersion;
@@ -168,8 +170,9 @@ public sealed partial class MainWindow
                         Array.Empty<HistorySuggestion>());
 
             Task<IReadOnlyList<string>> searchTask =
-                GetSearchSuggestionsAsync(
+                _searchSuggestionProvider.GetSuggestionsAsync(
                     query,
+                    GetSearchEngine(),
                     cancellation.Token);
 
             var pendingTasks = new List<Task>
@@ -234,7 +237,9 @@ public sealed partial class MainWindow
                                     out Uri? addressUri) &&
                                 addressUri is not null
                                     ? addressUri
-                                    : CreateSearchUri(suggestion);
+                                    : _searchSuggestionProvider.CreateSearchUri(
+                                        suggestion,
+                                        GetSearchEngine());
 
                             candidates.Add(
                                 new SuggestionCandidate(
@@ -426,304 +431,8 @@ public sealed partial class MainWindow
     }
 
     private string GetSearchEngine() =>
-    _settings.Values["SearchEngine"] as string
-    ?? "Google";
-
-    private async Task<IReadOnlyList<string>> GetSearchSuggestionsAsync(
-        string query,
-        CancellationToken cancellationToken)
-    {
-        string engine = GetSearchEngine();
-
-        if (engine == "Google")
-        {
-            return await GetGoogleSuggestionsAsync(
-                query,
-                cancellationToken);
-        }
-
-        IReadOnlyList<string> suggestions = engine switch
-        {
-            "Bing" => await GetBingSuggestionsAsync(
-                query,
-                cancellationToken),
-
-            "Yahoo" => await GetYahooSuggestionsAsync(
-                query,
-                cancellationToken),
-
-            "DuckDuckGo" => await GetDuckDuckGoSuggestionsAsync(
-                query,
-                cancellationToken),
-
-            _ => Array.Empty<string>()
-        };
-
-        // fallback to google
-        if (suggestions.Count > 0)
-            return suggestions;
-
-        return await GetGoogleSuggestionsAsync(
-            query,
-            cancellationToken);
-    }
-
-    private async Task<IReadOnlyList<string>> GetGoogleSuggestionsAsync(
-        string query,
-        CancellationToken cancellationToken)
-    {
-        string url =
-            "https://suggestqueries.google.com/complete/search" +
-            "?client=firefox" +
-            "&hl=en" +
-            $"&q={Uri.EscapeDataString(query)}";
-
-        string? json = await GetSuggestionResponseAsync(
-            url,
-            cancellationToken);
-
-        return json is null
-            ? Array.Empty<string>()
-            : ParsePairSuggestions(json);
-    }
-
-    private async Task<IReadOnlyList<string>> GetBingSuggestionsAsync(
-    string query,
-    CancellationToken cancellationToken)
-    {
-        string url =
-            "https://www.bing.com/qbox" +
-            "?query=" +
-            Uri.EscapeDataString(query) +
-            "&language=en-US";
-
-        string? json = await GetSuggestionResponseAsync(
-            url,
-            cancellationToken);
-
-        return json is null
-            ? Array.Empty<string>()
-            : ParsePairSuggestions(json);
-    }
-
-    private async Task<IReadOnlyList<string>> GetYahooSuggestionsAsync(
-        string query,
-        CancellationToken cancellationToken)
-    {
-        string url =
-            "https://search.yahoo.com/sugg/gossip/gossip-us-ura/" +
-            "?output=sd1" +
-            "&appid=search.yahoo.com" +
-            "&nresults=10" +
-            "&command=" +
-            Uri.EscapeDataString(query);
-
-        string? json = await GetSuggestionResponseAsync(
-            url,
-            cancellationToken);
-
-        return json is null
-            ? Array.Empty<string>()
-            : ParseYahooSuggestions(json);
-    }
-
-    private async Task<IReadOnlyList<string>> GetDuckDuckGoSuggestionsAsync(
-        string query,
-        CancellationToken cancellationToken)
-    {
-        string url =
-            "https://duckduckgo.com/ac/" +
-            "?q=" +
-            Uri.EscapeDataString(query) +
-            "&type=list";
-
-        string? json = await GetSuggestionResponseAsync(
-            url,
-            cancellationToken);
-
-        return json is null
-            ? Array.Empty<string>()
-            : ParsePairSuggestions(json);
-    }
-
-    private async Task<string?> GetSuggestionResponseAsync(
-        string url,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var request = new HttpRequestMessage(
-                HttpMethod.Get,
-                url);
-
-            request.Headers.TryAddWithoutValidation(
-                "User-Agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/154.0.0.0 Safari/537.36");
-
-            request.Headers.TryAddWithoutValidation(
-                "Accept",
-                "application/json,text/plain,*/*");
-
-            using var timeout =
-                CancellationTokenSource.CreateLinkedTokenSource(
-                    cancellationToken);
-
-            timeout.CancelAfter(
-                TimeSpan.FromSeconds(3));
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    timeout.Token);
-
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            return await response.Content.ReadAsStringAsync(
-                timeout.Token);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private static IReadOnlyList<string> ParsePairSuggestions(
-        string json)
-    {
-        try
-        {
-            using JsonDocument document =
-                JsonDocument.Parse(json);
-
-            JsonElement root = document.RootElement;
-
-            if (root.ValueKind != JsonValueKind.Array ||
-                root.GetArrayLength() < 2)
-            {
-                return Array.Empty<string>();
-            }
-
-            JsonElement suggestions = root[1];
-
-            if (suggestions.ValueKind != JsonValueKind.Array)
-                return Array.Empty<string>();
-
-            return suggestions
-                .EnumerateArray()
-                .Where(item => item.ValueKind == JsonValueKind.String)
-                .Select(item => item.GetString())
-                .OfType<string>()
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .Select(value => value.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Take(8)
-                .ToArray();
-        }
-        catch
-        {
-            return Array.Empty<string>();
-        }
-    }
-
-    private static IReadOnlyList<string> ParseYahooSuggestions(
-        string json)
-    {
-        try
-        {
-            using JsonDocument document =
-                JsonDocument.Parse(json);
-
-            JsonElement root = document.RootElement;
-
-            if (root.ValueKind != JsonValueKind.Array ||
-                root.GetArrayLength() == 0)
-            {
-                return Array.Empty<string>();
-            }
-
-            JsonElement suggestions = root[0];
-
-            if (suggestions.ValueKind != JsonValueKind.Array)
-                return Array.Empty<string>();
-
-            var results = new List<string>();
-
-            foreach (JsonElement item in suggestions.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Array ||
-                    item.GetArrayLength() == 0)
-                {
-                    continue;
-                }
-
-                JsonElement value = item[0];
-
-                if (value.ValueKind != JsonValueKind.String)
-                    continue;
-
-                string? suggestion = value.GetString();
-
-                if (!string.IsNullOrWhiteSpace(suggestion))
-                    results.Add(suggestion.Trim());
-            }
-
-            return results
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Take(8)
-                .ToArray();
-        }
-        catch
-        {
-            return Array.Empty<string>();
-        }
-    }
-
-    private Uri CreateSearchUri(string query)
-    {
-        string encoded =
-            Uri.EscapeDataString(query);
-
-        return GetSearchEngine() switch
-        {
-            "Bing" =>
-                new Uri(
-                    $"https://www.bing.com/search?q={encoded}"),
-
-            "Yahoo" =>
-                new Uri(
-                    $"https://search.yahoo.com/search?p={encoded}"),
-
-            "DuckDuckGo" =>
-                new Uri(
-                    $"https://duckduckgo.com/?q={encoded}"),
-
-            _ =>
-                new Uri(
-                    $"https://www.google.com/search?q={encoded}")
-        };
-    }
-
-    private Uri CreateSearchEngineHomeUri()
-    {
-        return GetSearchEngine() switch
-        {
-            "Bing" =>
-                new Uri("https://www.bing.com/"),
-
-            "Yahoo" =>
-                new Uri("https://search.yahoo.com/"),
-
-            "DuckDuckGo" =>
-                new Uri("https://duckduckgo.com/"),
-
-            _ =>
-                new Uri("https://www.google.com/")
-        };
-    }
+        _settings.Values["SearchEngine"] as string
+        ?? "Google";
 
     private void AddressBar_SuggestionChosen(
         AutoSuggestBox sender,
@@ -775,7 +484,9 @@ public sealed partial class MainWindow
         }
         else
         {
-            target = CreateSearchUri(text);
+            target = _searchSuggestionProvider.CreateSearchUri(
+                text,
+                GetSearchEngine());
         }
 
         if (_suggestionWasChosen &&

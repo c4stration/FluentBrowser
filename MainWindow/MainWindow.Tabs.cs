@@ -58,7 +58,8 @@ public sealed partial class MainWindow
 
     private void TabView_AddButtonClick(TabView sender, object args)
     {
-        var tab = CreateNewTab(CreateSearchEngineHomeUri().AbsoluteUri);
+        var tab = CreateNewTab(
+            _searchSuggestionProvider.CreateHomeUri(GetSearchEngine()).AbsoluteUri);
 
         AddNewTab(tab, true);
 
@@ -613,4 +614,18 @@ public sealed partial class MainWindow
 
         MainTabView.SelectedItem = selectedTab;
     }
+
+    private void NewTabMenuItem_Click(
+        object sender,
+        RoutedEventArgs e) =>
+        OpenNewTab("https://www.google.com");
+
+    private void DuplicateTabMenuItem_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (SelectedWebView?.Source is Uri uri)
+            OpenNewTab(uri.AbsoluteUri);
+    }
 }
+

@@ -41,7 +41,7 @@ public sealed partial class MainWindow
 
         AddNewTab(
             CreateNewTab(
-                CreateSearchEngineHomeUri().AbsoluteUri),
+                _searchSuggestionProvider.CreateHomeUri(GetSearchEngine()).AbsoluteUri),
             true);
     }
 

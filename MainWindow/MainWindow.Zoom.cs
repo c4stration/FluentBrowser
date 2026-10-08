@@ -33,19 +33,6 @@ public sealed partial class MainWindow
             $"document.documentElement.style.zoom = '{value}';");
     }
 
-    private void NewTabMenuItem_Click(
-        object sender,
-        RoutedEventArgs e) =>
-        OpenNewTab("https://www.google.com");
-
-    private void DuplicateTabMenuItem_Click(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (SelectedWebView?.Source is Uri uri)
-            OpenNewTab(uri.AbsoluteUri);
-    }
-
     private async void ZoomInMenuItem_Click(
         object sender,
         RoutedEventArgs e)
@@ -77,23 +64,4 @@ public sealed partial class MainWindow
         if (SelectedWebView is WebView2 webView)
             await SetZoomFactorAsync(webView, 1.0);
     }
-
-    private void PrintMenuItem_Click(
-        object sender,
-        RoutedEventArgs e) =>
-        SelectedWebView?.CoreWebView2?.ShowPrintUI(
-            CoreWebView2PrintDialogKind.Browser);
-
-    private void ViewSourceMenuItem_Click(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (SelectedWebView?.Source is Uri uri)
-            OpenNewTab($"view-source:{uri}");
-    }
-
-    private void DevToolsMenuItem_Click(
-        object sender,
-        RoutedEventArgs e) =>
-        SelectedWebView?.CoreWebView2?.OpenDevToolsWindow();
 }

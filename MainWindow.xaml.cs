@@ -40,6 +40,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
 
         _settings = ApplicationData.Current.LocalSettings;
+        _searchSuggestionProvider = new SearchSuggestionProvider(_httpClient);
 
         _ = LoadDownloadHistoryAsync();
 
@@ -136,5 +137,12 @@ public sealed partial class MainWindow : Window
         }
 
         button.Flyout.ShowAt(button);
+    }
+
+    private void test(
+        object sender,
+        RoutedEventArgs e)
+    {
+        CustomizeToolbarTeachingTip.IsOpen = !CustomizeToolbarTeachingTip.IsOpen;
     }
 }

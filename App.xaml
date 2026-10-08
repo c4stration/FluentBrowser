@@ -655,6 +655,7 @@
             </Style>
 
             <Style x:Key="TeachingTipStyleWithoutCloseButton" TargetType="controls:TeachingTip">
+                <Setter Property="MaxWidth" Value="10000" />
                 <Setter Property="Background" Value="{ThemeResource TeachingTipBackgroundBrush}" />
                 <Setter Property="Foreground" Value="{ThemeResource TeachingTipForegroundBrush}" />
                 <Setter Property="BorderBrush" Value="{ThemeResource TeachingTipBorderBrush}" />
@@ -672,9 +673,8 @@
                                 VerticalAlignment="Top"
                                 Background="Transparent">
                                 <Grid
-                                    MinWidth="{ThemeResource TeachingTipMinWidth}"
+                                    Width="{TemplateBinding Width}"
                                     MinHeight="{ThemeResource TeachingTipMinHeight}"
-                                    MaxWidth="{ThemeResource TeachingTipMaxWidth}"
                                     MaxHeight="{ThemeResource TeachingTipMaxHeight}"
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}">
                                     <Grid.ColumnDefinitions>
@@ -695,9 +695,8 @@
                                         x:Name="TailOcclusionGrid"
                                         Grid.RowSpan="5"
                                         Grid.ColumnSpan="5"
-                                        MinWidth="{ThemeResource TeachingTipMinWidth}"
+                                        Width="{TemplateBinding Width}"
                                         MinHeight="{ThemeResource TeachingTipMinHeight}"
-                                        MaxWidth="{ThemeResource TeachingTipMaxWidth}"
                                         MaxHeight="{ThemeResource TeachingTipMaxHeight}"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top">
