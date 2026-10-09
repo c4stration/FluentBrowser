@@ -1,6 +1,7 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.Web.WebView2.Core;
 using System;
@@ -91,6 +92,8 @@ public sealed partial class MainWindow : Window
             new KeyEventHandler(FindOnPageBox_KeyDownHandled),
             true);
 
+        ToolbarFlyout.OverlayInputPassThroughElement = RootGrid;
+
         Directory.CreateDirectory(_faviconCacheDirectory);
 
         ExtendsContentIntoTitleBar = true;
@@ -123,5 +126,10 @@ public sealed partial class MainWindow : Window
     private void trainML(object sender, RoutedEventArgs e)
     {
         _ = SuggestionModelTrainer.TrainInBackgroundAsync();
+    }
+
+    private void a(object sender, RoutedEventArgs e)
+    {
+        FlyoutBase.ShowAttachedFlyout(Toolbar);
     }
 }

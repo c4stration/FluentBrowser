@@ -1,5 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
@@ -24,6 +26,8 @@ public sealed partial class MainWindow
     private readonly Dictionary<Control, bool> _toolbarItemEnabledStates = [];
     private bool _isCustomizingToolbar;
     private string? _draggedToolbarItemId;
+    private bool _isToolbarPoolPointerPressed;
+    private bool _isToolbarPoolDragActive;
 
     private void ToolbarListView_Loaded(object sender, RoutedEventArgs e)
     {
@@ -273,7 +277,7 @@ public sealed partial class MainWindow
         }
 
         RebuildToolbarLists();
-        CustomizeToolbarTeachingTip.IsOpen = true;
+        FlyoutBase.ShowAttachedFlyout(Toolbar);
     }
 
     private void SyncActiveToolbarIdsFromListView()
@@ -300,7 +304,7 @@ public sealed partial class MainWindow
 
         _isCustomizingToolbar = false;
         _draggedToolbarItemId = null;
-        CustomizeToolbarTeachingTip.IsOpen = false;
+        ToolbarFlyout.CloseExplicitly();
 
         ClearListView(ToolbarListView);
         ClearListView(AvailableToolbarListView);
@@ -349,6 +353,8 @@ public sealed partial class MainWindow
     {
         if (e.Items.Count == 0)
             return;
+
+        _isToolbarPoolDragActive = true;
 
         string? id = ResolveItemId(e.Items[0]);
         if (id is null)
@@ -439,6 +445,33 @@ public sealed partial class MainWindow
 
         RebuildToolbarLists();
         e.Handled = true;
+    }
+
+    private void AvailableToolbarListView_PointerPressed(
+        object sender,
+        PointerRoutedEventArgs e)
+    {
+        _isToolbarPoolPointerPressed = true;
+    }
+
+    private void AvailableToolbarListView_PointerReleased(
+        object sender,
+        PointerRoutedEventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            _isToolbarPoolPointerPressed = false;
+        });
+    }
+
+    private void AvailableToolbarListView_DragItemsCompleted(
+        ListViewBase sender,
+        DragItemsCompletedEventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            _isToolbarPoolDragActive = false;
+        });
     }
 
     private static async Task<string?> ResolveDraggedItemId(DragEventArgs e)

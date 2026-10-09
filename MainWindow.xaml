@@ -142,6 +142,71 @@
                     <BrushTransition />
                 </Grid.BackgroundTransition>-->
 
+                <FlyoutBase.AttachedFlyout>
+                    <my:PersistentMenuFlyout x:Name="ToolbarFlyout" Placement="Bottom">
+                        <my:ContentMenuFlyoutItem x:Name="CustomizeToolbarFlyout" MinWidth="1000">
+                            <Grid>
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Opacity="0" />
+
+                                <Grid RowSpacing="12">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock l:Uids.Uid="DragToolbarItemsText" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                    <ListView
+                                        x:Name="AvailableToolbarListView"
+                                        Grid.Row="1"
+                                        MinHeight="48"
+                                        Margin="32,12,32,0"
+                                        AllowDrop="True"
+                                        CanDragItems="True"
+                                        DragItemsCompleted="AvailableToolbarListView_DragItemsCompleted"
+                                        DragItemsStarting="Toolbar_DragItemsStarting"
+                                        DragOver="Toolbar_DragOver"
+                                        Drop="Toolbar_Drop"
+                                        IsItemClickEnabled="False"
+                                        PointerPressed="AvailableToolbarListView_PointerPressed"
+                                        PointerReleased="AvailableToolbarListView_PointerReleased"
+                                        SelectionMode="None">
+
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <controls:WrapPanel HorizontalSpacing="32" VerticalSpacing="24" />
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Margin" Value="0" />
+                                                <Setter Property="Padding" Value="0" />
+                                                <Setter Property="MinWidth" Value="0" />
+                                                <Setter Property="Width" Value="Auto" />
+                                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+
+                                    <Button
+                                        Grid.Row="2"
+                                        HorizontalAlignment="Right"
+                                        l:Uids.Uid="DoneButton"
+                                        Click="FinishToolbarCustomize_Click"
+                                        Style="{StaticResource AccentButtonStyle}" />
+                                </Grid>
+                            </Grid>
+                        </my:ContentMenuFlyoutItem>
+                    </my:PersistentMenuFlyout>
+                </FlyoutBase.AttachedFlyout>
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="2*" />
@@ -986,65 +1051,12 @@
             </Grid>
         </TeachingTip>
 
-        <TeachingTip
-            x:Name="CustomizeToolbarTeachingTip"
-            Width="1000"
-            MaxWidth="Infinity"
-            Closed="CustomizeToolbarTeachingTip_Closed"
-            IsLightDismissEnabled="False"
-            PlacementMargin="69"
-            PreferredPlacement="Top"
-            Style="{ThemeResource TeachingTipStyleWithoutCloseButton}">
-
-            <Grid RowSpacing="12">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <TextBlock l:Uids.Uid="DragToolbarItemsText" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
-                <ListView
-                    x:Name="AvailableToolbarListView"
-                    Grid.Row="1"
-                    MinHeight="48"
-                    Margin="32,12,32,0"
-                    AllowDrop="True"
-                    CanDragItems="True"
-                    DragItemsStarting="Toolbar_DragItemsStarting"
-                    DragOver="Toolbar_DragOver"
-                    Drop="Toolbar_Drop"
-                    IsItemClickEnabled="False"
-                    SelectionMode="None">
-
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <controls:WrapPanel HorizontalSpacing="32" VerticalSpacing="24" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="MinWidth" Value="0" />
-                            <Setter Property="Width" Value="Auto" />
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="HorizontalContentAlignment" Value="Left" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-
-                <Button
-                    Grid.Row="2"
-                    HorizontalAlignment="Right"
-                    l:Uids.Uid="DoneButton"
-                    Click="FinishToolbarCustomize_Click"
-                    Style="{StaticResource AccentButtonStyle}" />
-            </Grid>
-        </TeachingTip>
+        <Button
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Click="a"
+            Content="ajhdsda" />
 
         <Border
             x:Name="StatusBarBorder"
@@ -1067,7 +1079,6 @@
                 Style="{ThemeResource CaptionTextBlockStyle}"
                 TextTrimming="CharacterEllipsis"
                 TextWrapping="NoWrap" />
-
         </Border>
 
     </Grid>
