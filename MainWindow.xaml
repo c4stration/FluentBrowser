@@ -138,6 +138,15 @@
                 Padding="12,6,12,7"
                 Background="Transparent">
 
+                <Grid.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem
+                            MinWidth="178"
+                            l:Uids.Uid="CustomizeToolbar"
+                            Click="CustomizeToolbar_Click" />
+                    </MenuFlyout>
+                </Grid.ContextFlyout>
+
                 <!--<Grid.BackgroundTransition>
                     <BrushTransition />
                 </Grid.BackgroundTransition>-->
@@ -212,19 +221,6 @@
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-
-                <Border Grid.ColumnSpan="3" Background="Transparent">
-                    <Border.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuFlyout.Items>
-                                <MenuFlyoutItem
-                                    MinWidth="178"
-                                    l:Uids.Uid="CustomizeToolbar"
-                                    Click="CustomizeToolbar_Click" />
-                            </MenuFlyout.Items>
-                        </MenuFlyout>
-                    </Border.ContextFlyout>
-                </Border>
 
                 <StackPanel
                     Grid.Column="0"
@@ -420,12 +416,12 @@
                 <ListView
                     x:Name="ToolbarListView"
                     Grid.Column="2"
-                    Margin="0,2,5,0"
+                    Margin="16,2,5,0"
                     Padding="0"
-                    HorizontalAlignment="Right"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    HorizontalContentAlignment="Left"
                     AllowDrop="True"
+                    Background="Transparent"
                     CanDragItems="True"
                     CanReorderItems="True"
                     DragItemsStarting="Toolbar_DragItemsStarting"
@@ -437,7 +433,10 @@
 
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="8" />
+                            <StackPanel
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal"
+                                Spacing="8" />
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
 
@@ -452,6 +451,15 @@
                             <Setter Property="VerticalContentAlignment" Value="Center" />
                         </Style>
                     </ListView.ItemContainerStyle>
+
+                    <ListView.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem
+                                MinWidth="178"
+                                l:Uids.Uid="CustomizeToolbar"
+                                Click="CustomizeToolbar_Click" />
+                        </MenuFlyout>
+                    </ListView.ContextFlyout>
 
                     <ListViewItem>
                         <Button
@@ -1050,13 +1058,6 @@
                 </StackPanel>
             </Grid>
         </TeachingTip>
-
-        <Button
-            Grid.Row="1"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Click="a"
-            Content="ajhdsda" />
 
         <Border
             x:Name="StatusBarBorder"

@@ -127,9 +127,4 @@ public sealed partial class MainWindow : Window
     {
         _ = SuggestionModelTrainer.TrainInBackgroundAsync();
     }
-
-    private void a(object sender, RoutedEventArgs e)
-    {
-        FlyoutBase.ShowAttachedFlyout(Toolbar);
-    }
 }
