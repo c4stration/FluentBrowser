@@ -492,4 +492,16 @@
   <data name="DoneButton.Content" xml:space="preserve">
     <value>完成</value>
   </data>
+  <data name="ToolbarItemDevTools" xml:space="preserve">
+    <value>開發人員工具</value>
+  </data>
+  <data name="ToolbarItemExtensions" xml:space="preserve">
+    <value>擴充功能</value>
+  </data>
+  <data name="ToolbarItemDownloads" xml:space="preserve">
+    <value>下載項目</value>
+  </data>
+  <data name="ToolbarItemMore" xml:space="preserve">
+    <value>更多</value>
+  </data>
 </root>

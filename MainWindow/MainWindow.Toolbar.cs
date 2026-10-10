@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using WinUI3Localizer;
 
 // TODO: move every toolbar button handlers to this file and add every toolbar item to the pool
 // also make it look good!
@@ -28,11 +29,18 @@ public sealed partial class MainWindow
     private string? _draggedToolbarItemId;
     private bool _isToolbarPoolPointerPressed;
     private bool _isToolbarPoolDragActive;
+    private bool _isToolbarLanguageChangedSubscribed;
 
     private void ToolbarListView_Loaded(object sender, RoutedEventArgs e)
     {
         if (sender is not ListView listView)
             return;
+
+        if (!_isToolbarLanguageChangedSubscribed)
+        {
+            Localizer.Get().LanguageChanged += OnToolbarLanguageChanged;
+            _isToolbarLanguageChangedSubscribed = true;
+        }
 
         RemoveListViewTransitions(listView);
 
@@ -172,12 +180,21 @@ public sealed partial class MainWindow
     {
         "BackButton" => "Back",
         "ForwardButton" => "Forward",
-        "DevToolsButton" => "Developer Tools",
-        "ExtensionButton" => "Extensions",
-        "DownloadsButton" => "Downloads",
-        "MoreButton" => "More",
+        "DevToolsButton" => Localizer.Get().GetLocalizedString("ToolbarItemDevTools"),
+        "ExtensionButton" => Localizer.Get().GetLocalizedString("ToolbarItemExtensions"),
+        "DownloadsButton" => Localizer.Get().GetLocalizedString("ToolbarItemDownloads"),
+        "MoreButton" => Localizer.Get().GetLocalizedString("ToolbarItemMore"),
         _ => id
     };
+
+    private void OnToolbarLanguageChanged(object? sender, LanguageChangedEventArgs e)
+    {
+        foreach (var item in _allToolbarItems)
+            item.DisplayName = GetToolbarItemDisplayName(item.Id);
+
+        if (_isCustomizingToolbar)
+            RebuildAvailableToolbar();
+    }
 
     private static string GetToolbarItemGlyph(string id) => id switch
     {
@@ -542,6 +559,6 @@ public sealed partial class MainWindow
 public sealed class ToolbarItem
 {
     public required string Id { get; init; }
-    public required string DisplayName { get; init; }
+    public required string DisplayName { get; set; }
     public required UIElement Content { get; init; }
 }

@@ -504,4 +504,16 @@
   <data name="DoneButton.Content" xml:space="preserve">
     <value>تم</value>
   </data>
+  <data name="ToolbarItemDevTools" xml:space="preserve">
+    <value>أدوات المطور</value>
+  </data>
+  <data name="ToolbarItemExtensions" xml:space="preserve">
+    <value>الإضافات</value>
+  </data>
+  <data name="ToolbarItemDownloads" xml:space="preserve">
+    <value>التنزيلات</value>
+  </data>
+  <data name="ToolbarItemMore" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
 </root>

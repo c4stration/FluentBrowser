@@ -510,4 +510,16 @@
   <data name="DoneButton.Content" xml:space="preserve">
     <value>סיום</value>
   </data>
+  <data name="ToolbarItemDevTools" xml:space="preserve">
+    <value>כלי מפתחים</value>
+  </data>
+  <data name="ToolbarItemExtensions" xml:space="preserve">
+    <value>הרחבות</value>
+  </data>
+  <data name="ToolbarItemDownloads" xml:space="preserve">
+    <value>הורדות</value>
+  </data>
+  <data name="ToolbarItemMore" xml:space="preserve">
+    <value>עוד</value>
+  </data>
 </root>
