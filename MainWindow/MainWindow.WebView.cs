@@ -845,7 +845,6 @@ public sealed partial class MainWindow
         tab.Content = webView;
         tab.ErrorPage = null;
         tab.WebView = webView;
-        tab.TabItem.Content = webView;
 
         webView.Tag = tab;
 
