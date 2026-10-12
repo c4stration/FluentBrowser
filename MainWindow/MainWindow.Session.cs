@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Windows.Storage;
 using Path = System.IO.Path;
 
 namespace FluentBrowser;
