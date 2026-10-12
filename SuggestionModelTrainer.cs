@@ -51,13 +51,9 @@ public static class SuggestionModelTrainer
         string localPath =
             ApplicationData.Current.LocalFolder.Path;
 
-        string impressionsPath = Path.Combine(
-            localPath,
-            "SuggestionImpressions.msgpack");
+        string impressionsPath = AppDataPaths.SuggestionsFile("SuggestionImpressions.msgpack");
 
-        string clicksPath = Path.Combine(
-            localPath,
-            "SuggestionClicks.msgpack");
+        string clicksPath = AppDataPaths.SuggestionsFile("SuggestionClicks.msgpack");
 
         if (!File.Exists(impressionsPath) ||
             !File.Exists(clicksPath))
@@ -173,13 +169,9 @@ public static class SuggestionModelTrainer
         ITransformer model =
             pipeline.Fit(data);
 
-        string temporaryPath = Path.Combine(
-            localPath,
-            "SuggestionRanker.tmp.zip");
+        string temporaryPath = AppDataPaths.SuggestionsFile("SuggestionRanker.tmp.zip");
 
-        string modelPath = Path.Combine(
-            localPath,
-            "SuggestionRanker.zip");
+        string modelPath = AppDataPaths.SuggestionsFile("SuggestionRanker.zip");
 
         await Task.Run(() =>
         {
