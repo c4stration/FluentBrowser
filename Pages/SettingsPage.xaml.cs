@@ -1584,24 +1584,12 @@ public sealed partial class SettingsPage : Page, IDisposable
     {
         _customSites.Clear();
 
-        if (_settings.Values["CustomSites"] is not string json ||
-            string.IsNullOrWhiteSpace(json))
-        {
-            return;
-        }
-
         try
         {
-            var urls = JsonSerializer.Deserialize<List<string>>(json);
-            if (urls is null)
-                return;
-
-            foreach (string url in urls)
+            foreach (string url in CustomSitesStorage.Load())
             {
-                if (string.IsNullOrWhiteSpace(url))
-                    continue;
-
-                _customSites.Add(CreateCustomSiteItem(url));
+                if (!string.IsNullOrWhiteSpace(url))
+                    _customSites.Add(CreateCustomSiteItem(url));
             }
         }
         catch (Exception ex)
@@ -1617,8 +1605,7 @@ public sealed partial class SettingsPage : Page, IDisposable
             .Where(u => !string.IsNullOrWhiteSpace(u))
             .ToList();
 
-        _settings.Values["CustomSites"] =
-            JsonSerializer.Serialize(urls);
+        CustomSitesStorage.Save(urls);
     }
 
     private static CustomSiteItem CreateCustomSiteItem(string url)
