@@ -12,9 +12,7 @@ internal static class CustomSitesStorage
     private const string SettingKey = "CustomSites";
 
     private static string GetPath() =>
-        Path.Combine(
-            ApplicationData.Current.LocalFolder.Path,
-            "CustomSites.msgpack");
+        AppDataPaths.DataFile("CustomSites.msgpack");
 
     public static List<string> Load()
     {
