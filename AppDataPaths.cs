@@ -49,16 +49,21 @@ internal static class AppDataPaths
             MoveLegacyFile("SuggestionImpressions.jsonl", SuggestionsDirectory);
             MoveLegacyFile("suggestion-clicks.csv", SuggestionsDirectory);
             MoveLegacyFile("SuggestionRanker.zip", SuggestionsDirectory);
-            MoveLegacyFile("suggestion-ranker.zip", SuggestionsDirectory);
+            MoveLegacyFile("suggestion-ranker.zip", SuggestionsDirectory, "SuggestionRanker.zip");
 
             _directoriesReady = true;
         }
     }
 
-    private static void MoveLegacyFile(string fileName, string destinationDirectory)
+    private static void MoveLegacyFile(
+        string fileName,
+        string destinationDirectory,
+        string? destinationFileName = null)
     {
         string sourcePath = Path.Combine(LocalStatePath, fileName);
-        string destinationPath = Path.Combine(destinationDirectory, fileName);
+        string destinationPath = Path.Combine(
+            destinationDirectory,
+            destinationFileName ?? fileName);
 
         if (!File.Exists(sourcePath) || File.Exists(destinationPath))
             return;
