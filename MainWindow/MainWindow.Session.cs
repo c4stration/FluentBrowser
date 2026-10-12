@@ -47,18 +47,11 @@ public sealed partial class MainWindow
 
     private bool OpenCustomStartupSites()
     {
-        if (_settings.Values["CustomSites"] is not string json ||
-            string.IsNullOrWhiteSpace(json))
-        {
-            return false;
-        }
-
         try
         {
-            var urls = System.Text.Json.JsonSerializer
-                .Deserialize<List<string>>(json);
+            var urls = CustomSitesStorage.Load();
 
-            if (urls is null || urls.Count == 0)
+            if (urls.Count == 0)
                 return false;
 
             bool openedAny = false;
