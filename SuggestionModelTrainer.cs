@@ -1,12 +1,12 @@
-﻿using Microsoft.ML;
+﻿using MessagePack;
+using Microsoft.ML;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace FluentBrowser;
 
@@ -15,11 +15,6 @@ public static class SuggestionModelTrainer
     private static readonly SemaphoreSlim _trainingLock = new(1, 1);
 
     public static event EventHandler? ModelTrained;
-
-    private static readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
 
     /// <summary>
     /// Queues model training without tying it to the UI synchronization context.
@@ -50,16 +45,11 @@ public static class SuggestionModelTrainer
 
     private static async Task TrainAsync()
     {
-        string localPath =
-            ApplicationData.Current.LocalFolder.Path;
+        await SuggestionTrainingLogger.EnsureMessagePackLogsAsync();
 
-        string impressionsPath = Path.Combine(
-            localPath,
-            "SuggestionImpressions.jsonl");
+        string impressionsPath = AppDataPaths.SuggestionsFile("SuggestionImpressions.msgpack");
 
-        string clicksPath = Path.Combine(
-            localPath,
-            "SuggestionClicks.jsonl");
+        string clicksPath = AppDataPaths.SuggestionsFile("SuggestionClicks.msgpack");
 
         if (!File.Exists(impressionsPath) ||
             !File.Exists(clicksPath))
@@ -67,10 +57,10 @@ public static class SuggestionModelTrainer
             return;
         }
 
-        var impressions = await ReadJsonLinesAsync<SuggestionImpression>(
+        var impressions = await ReadMessagePackAsync<SuggestionImpression>(
             impressionsPath);
 
-        var clicks = await ReadJsonLinesAsync<SuggestionClick>(
+        var clicks = await ReadMessagePackAsync<SuggestionClick>(
             clicksPath);
 
         var clickedCandidates = clicks
@@ -175,13 +165,9 @@ public static class SuggestionModelTrainer
         ITransformer model =
             pipeline.Fit(data);
 
-        string temporaryPath = Path.Combine(
-            localPath,
-            "SuggestionRanker.tmp.zip");
+        string temporaryPath = AppDataPaths.SuggestionsFile("SuggestionRanker.tmp.zip");
 
-        string modelPath = Path.Combine(
-            localPath,
-            "SuggestionRanker.zip");
+        string modelPath = AppDataPaths.SuggestionsFile("SuggestionRanker.zip");
 
         await Task.Run(() =>
         {
@@ -202,22 +188,25 @@ public static class SuggestionModelTrainer
         ModelTrained?.Invoke(null, EventArgs.Empty);
     }
 
-    private static async Task<List<T>> ReadJsonLinesAsync<T>(
-        string path)
+    private static async Task<List<T>> ReadMessagePackAsync<T>(string path)
     {
+        byte[] data = await File.ReadAllBytesAsync(path);
+        return DeserializeMessagePack<T>(data);
+    }
+
+    private static List<T> DeserializeMessagePack<T>(byte[] data)
+    {
+        var reader = new MessagePackReader(
+            new ReadOnlySequence<byte>(data.AsMemory()));
         var result = new List<T>();
 
-        foreach (string line in await File.ReadAllLinesAsync(path))
+        while (!reader.End)
         {
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            T? value = MessagePackSerializer.Deserialize<T>(
+                ref reader,
+                MessagePackData.Options);
 
-            T? value =
-                JsonSerializer.Deserialize<T>(
-                    line,
-                    _jsonOptions);
-
-            if (value != null)
+            if (value is not null)
                 result.Add(value);
         }
 

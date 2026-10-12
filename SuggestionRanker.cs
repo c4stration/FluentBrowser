@@ -31,7 +31,7 @@ internal sealed class SuggestionRanker
     private readonly object _lock = new();
 
     private static readonly string ModelPath =
-        Path.Combine(ApplicationData.Current.LocalFolder.Path, "suggestion-ranker.zip");
+        AppDataPaths.SuggestionsFile("SuggestionRanker.zip");
 
     public SuggestionRanker()
     {

@@ -6,16 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Windows.Storage;
 using Path = System.IO.Path;
 
 namespace FluentBrowser;
 
 public sealed partial class MainWindow
 {
-    private readonly string _browserSessionFile = Path.Combine(
-        ApplicationData.Current.LocalFolder.Path,
-        "BrowserSession.msgpack");
+    private readonly string _browserSessionFile =
+        AppDataPaths.DataFile("BrowserSession.msgpack");
 
     private static readonly MessagePackSerializerOptions _browserSessionOptions =
         StandardResolver.Options.WithSecurity(
@@ -47,18 +45,11 @@ public sealed partial class MainWindow
 
     private bool OpenCustomStartupSites()
     {
-        if (_settings.Values["CustomSites"] is not string json ||
-            string.IsNullOrWhiteSpace(json))
-        {
-            return false;
-        }
-
         try
         {
-            var urls = System.Text.Json.JsonSerializer
-                .Deserialize<List<string>>(json);
+            var urls = CustomSitesStorage.Load();
 
-            if (urls is null || urls.Count == 0)
+            if (urls.Count == 0)
                 return false;
 
             bool openedAny = false;
