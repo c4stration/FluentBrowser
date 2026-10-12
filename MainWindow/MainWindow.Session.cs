@@ -13,9 +13,8 @@ namespace FluentBrowser;
 
 public sealed partial class MainWindow
 {
-    private readonly string _browserSessionFile = Path.Combine(
-        ApplicationData.Current.LocalFolder.Path,
-        "BrowserSession.msgpack");
+    private readonly string _browserSessionFile =
+        AppDataPaths.DataFile("BrowserSession.msgpack");
 
     private static readonly MessagePackSerializerOptions _browserSessionOptions =
         StandardResolver.Options.WithSecurity(
