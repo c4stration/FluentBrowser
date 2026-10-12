@@ -1,9 +1,10 @@
-﻿using Microsoft.ML;
+﻿using MessagePack;
+using Microsoft.ML;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -15,11 +16,6 @@ public static class SuggestionModelTrainer
     private static readonly SemaphoreSlim _trainingLock = new(1, 1);
 
     public static event EventHandler? ModelTrained;
-
-    private static readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
 
     /// <summary>
     /// Queues model training without tying it to the UI synchronization context.
@@ -50,16 +46,18 @@ public static class SuggestionModelTrainer
 
     private static async Task TrainAsync()
     {
+        await SuggestionTrainingLogger.EnsureMessagePackLogsAsync();
+
         string localPath =
             ApplicationData.Current.LocalFolder.Path;
 
         string impressionsPath = Path.Combine(
             localPath,
-            "SuggestionImpressions.jsonl");
+            "SuggestionImpressions.msgpack");
 
         string clicksPath = Path.Combine(
             localPath,
-            "SuggestionClicks.jsonl");
+            "SuggestionClicks.msgpack");
 
         if (!File.Exists(impressionsPath) ||
             !File.Exists(clicksPath))
@@ -67,10 +65,10 @@ public static class SuggestionModelTrainer
             return;
         }
 
-        var impressions = await ReadJsonLinesAsync<SuggestionImpression>(
+        var impressions = await ReadMessagePackAsync<SuggestionImpression>(
             impressionsPath);
 
-        var clicks = await ReadJsonLinesAsync<SuggestionClick>(
+        var clicks = await ReadMessagePackAsync<SuggestionClick>(
             clicksPath);
 
         var clickedCandidates = clicks
@@ -202,22 +200,20 @@ public static class SuggestionModelTrainer
         ModelTrained?.Invoke(null, EventArgs.Empty);
     }
 
-    private static async Task<List<T>> ReadJsonLinesAsync<T>(
-        string path)
+    private static async Task<List<T>> ReadMessagePackAsync<T>(string path)
     {
+        byte[] data = await File.ReadAllBytesAsync(path);
+        var reader = new MessagePackReader(
+            new ReadOnlySequence<byte>(data.AsMemory()));
         var result = new List<T>();
 
-        foreach (string line in await File.ReadAllLinesAsync(path))
+        while (!reader.End)
         {
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            T? value = MessagePackSerializer.Deserialize<T>(
+                ref reader,
+                MessagePackData.Options);
 
-            T? value =
-                JsonSerializer.Deserialize<T>(
-                    line,
-                    _jsonOptions);
-
-            if (value != null)
+            if (value is not null)
                 result.Add(value);
         }
 
