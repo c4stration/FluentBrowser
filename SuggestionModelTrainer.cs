@@ -203,6 +203,11 @@ public static class SuggestionModelTrainer
     private static async Task<List<T>> ReadMessagePackAsync<T>(string path)
     {
         byte[] data = await File.ReadAllBytesAsync(path);
+        return DeserializeMessagePack<T>(data);
+    }
+
+    private static List<T> DeserializeMessagePack<T>(byte[] data)
+    {
         var reader = new MessagePackReader(
             new ReadOnlySequence<byte>(data.AsMemory()));
         var result = new List<T>();
