@@ -508,4 +508,22 @@
   <data name="ToolbarItemMore" xml:space="preserve">
     <value>その他</value>
   </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>切り取り</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>貼り付け</value>
+  </data>
+  <data name="WebBack" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
 </root>

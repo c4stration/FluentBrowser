@@ -105,7 +105,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
             : "\uE894";
 
     public string Status =>
-        Localizer.Get().GetLocalizedString(_statusKey);
+        LocalizerExtensions.GetLocalizedString(_statusKey);
 
     public string StatusKey =>
         _statusKey;

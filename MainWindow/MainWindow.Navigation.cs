@@ -105,11 +105,11 @@ public sealed partial class MainWindow
     }
 
     private void RegisterNavigationEvents(
-    BrowserTab tab,
-    WebView2 webView,
-    TextBlock title,
-    ProgressRing progressRing,
-    Image favicon)
+        BrowserTab tab,
+        WebView2 webView,
+        TextBlock title,
+        ProgressRing progressRing,
+        Image favicon)
     {
         webView.NavigationStarting += (_, args) =>
         {

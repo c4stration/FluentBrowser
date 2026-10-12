@@ -2,8 +2,10 @@ using CommunityToolkit.WinUI;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +31,10 @@ public sealed partial class MainWindow
     private bool _addressBarAnimating;
     private bool _addressBarUserEditing;
     private CancellationTokenSource? _addressBarBlurCancellation;
+    private Popup? _addressSuggestionPopup;
+    private FrameworkElement? _addressSuggestionContainer;
+    private ListView? _addressSuggestionList;
+    private Storyboard? _addressSuggestionHeightStoryboard;
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
@@ -96,6 +102,7 @@ public sealed partial class MainWindow
     private void AddressBar_Loaded(object sender, RoutedEventArgs e)
     {
         FindAddressBarTextHost();
+        InitializeSuggestionPopupAnimation();
 
         if (_addressTextBox is null)
             return;
@@ -273,12 +280,175 @@ public sealed partial class MainWindow
         }
     }
 
+    private void InitializeSuggestionPopupAnimation()
+    {
+        if (_addressSuggestionPopup is not null)
+            return;
+
+        if (VisualTreeHelper.GetChild(AddressBar, 0) is not Grid templateRoot ||
+            templateRoot.Children.OfType<Popup>().FirstOrDefault() is not { } popup ||
+            popup.Child is not FrameworkElement container)
+        {
+            return;
+        }
+
+        _addressSuggestionPopup = popup;
+        _addressSuggestionContainer = container;
+        _addressSuggestionList = container.FindDescendant<ListView>();
+
+        popup.Opened += AddressSuggestionPopup_Opened;
+        popup.Closed += AddressSuggestionPopup_Closed;
+
+        if (_addressSuggestionList is not null)
+        {
+            _addressSuggestionList.ContainerContentChanging +=
+                AddressSuggestionList_ContainerContentChanging;
+        }
+    }
+
+    private void AddressSuggestionPopup_Opened(object? sender, object e)
+    {
+        if (_addressSuggestionContainer is not { } container ||
+            container.ActualHeight <= 0)
+        {
+            return;
+        }
+
+        _addressSuggestionHeightStoryboard?.Stop();
+        _addressSuggestionHeightStoryboard = null;
+
+        double targetHeight = container.ActualHeight;
+        double startHeight = targetHeight * 0.9;
+
+        container.Height = startHeight;
+
+        var animation = new DoubleAnimation
+        {
+            From = startHeight,
+            To = targetHeight,
+            Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+            EnableDependentAnimation = true,
+            EasingFunction = new SineEase
+            {
+                EasingMode = EasingMode.EaseOut
+            }
+        };
+
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(animation);
+
+        Storyboard.SetTarget(animation, container);
+        Storyboard.SetTargetProperty(animation, "Height");
+
+        _addressSuggestionHeightStoryboard = storyboard;
+
+        storyboard.Completed += (_, _) =>
+        {
+            if (!ReferenceEquals(_addressSuggestionHeightStoryboard, storyboard))
+                return;
+
+            container.Height = targetHeight;
+            _addressSuggestionHeightStoryboard = null;
+        };
+
+        storyboard.Begin();
+
+        if (_addressSuggestionList is { } list)
+        {
+            list.DispatcherQueue.TryEnqueue(() =>
+            {
+                if (_addressSuggestionPopup?.IsOpen != true)
+                    return;
+
+                list.UpdateLayout();
+
+                for (int i = 0; i < list.Items.Count; i++)
+                {
+                    if (list.ContainerFromIndex(i) is ListViewItem item)
+                        AnimateSuggestionItem(item, i);
+                }
+            });
+        }
+    }
+
+    private void AddressSuggestionPopup_Closed(object? sender, object e)
+    {
+        _addressSuggestionHeightStoryboard?.Stop();
+        _addressSuggestionHeightStoryboard = null;
+
+        if (_addressSuggestionContainer is { } container)
+            container.Height = double.NaN;
+    }
+
+    private void AddressSuggestionList_ContainerContentChanging(
+        ListViewBase sender,
+        ContainerContentChangingEventArgs args)
+    {
+        if (args.InRecycleQueue ||
+            args.Phase != 0 ||
+            args.ItemContainer is not ListViewItem item)
+        {
+            return;
+        }
+
+        var visual = ElementCompositionPreview.GetElementVisual(item);
+
+        visual.StopAnimation("Opacity");
+        visual.Opacity = 0;
+
+        if (_addressSuggestionPopup?.IsOpen != true ||
+            _addressSuggestionList is not { } list)
+        {
+            return;
+        }
+
+        int index = args.ItemIndex;
+
+        list.DispatcherQueue.TryEnqueue(() =>
+        {
+            if (_addressSuggestionPopup?.IsOpen != true ||
+                !ReferenceEquals(list.ContainerFromIndex(index), item))
+            {
+                return;
+            }
+
+            AnimateSuggestionItem(item, index);
+        });
+    }
+
+    private static void AnimateSuggestionItem(ListViewItem item, int index)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(item);
+        var compositor = visual.Compositor;
+
+        visual.StopAnimation("Opacity");
+        visual.Opacity = 0;
+
+        var animation = compositor.CreateScalarKeyFrameAnimation();
+
+        animation.InsertKeyFrame(0f, 0f);
+
+        animation.InsertKeyFrame(
+            1f,
+            1f,
+            compositor.CreateCubicBezierEasingFunction(
+                new Vector2(0.16f, 1f),
+                new Vector2(0.3f, 1f)));
+
+        animation.DelayTime =
+            TimeSpan.FromMilliseconds(Math.Min(index * 18, 90));
+
+        animation.Duration = TimeSpan.FromMilliseconds(220);
+
+        visual.StartAnimation("Opacity", animation);
+    }
+
     private async Task ApplyRankedSuggestionsAsync(
-    AutoSuggestBox sender,
-    string query,
-    List<SuggestionCandidate> candidates,
-    int requestVersion,
-    CancellationTokenSource cancellation)
+        AutoSuggestBox sender,
+        string query,
+        List<SuggestionCandidate> candidates,
+        int requestVersion,
+        CancellationTokenSource cancellation)
     {
         if (!IsCurrentSuggestionRequest(sender, query, requestVersion, cancellation))
             return;

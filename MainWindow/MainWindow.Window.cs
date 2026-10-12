@@ -379,9 +379,6 @@ public sealed partial class MainWindow
         _isRestoringNormalContentLayout = false;
         UpdateFullscreenContentLayout();
 
-        // The fullscreen animation translates BrowserChrome (and DragRegion)
-        // off-screen. Register the title bar only after that transform has
-        // returned to zero, otherwise Windows retains an off-screen drag area
         SetTitleBar(DragRegion);
     }
 

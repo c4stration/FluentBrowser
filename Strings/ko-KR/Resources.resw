@@ -504,4 +504,22 @@
   <data name="ToolbarItemMore" xml:space="preserve">
     <value>더 보기</value>
   </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>잘라내기</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>복사</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>붙여넣기</value>
+  </data>
+  <data name="WebBack" xml:space="preserve">
+    <value>뒤로</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
 </root>

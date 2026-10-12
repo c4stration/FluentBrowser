@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
+using WinUI3Localizer;
 
 namespace FluentBrowser;
 
@@ -390,9 +391,11 @@ public sealed partial class MainWindow
             out var audioButton,
             out var favicon);
 
-        title.Text = pageType.Name.EndsWith("Page", StringComparison.Ordinal)
-            ? pageType.Name[..^4]
-            : pageType.Name;
+        title.Text = pageType == typeof(SettingsPage)
+         ? LocalizerExtensions.GetLocalizedString("SettingsTitle")
+         : pageType.Name.EndsWith("Page", StringComparison.Ordinal)
+             ? pageType.Name[..^4]
+             : pageType.Name;
 
         progressRing.Visibility = Visibility.Collapsed;
         audioButton.Visibility = Visibility.Collapsed;

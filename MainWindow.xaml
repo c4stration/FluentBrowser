@@ -313,6 +313,22 @@
                     SuggestionChosen="AddressBar_SuggestionChosen"
                     TextChanged="AddressBar_TextChanged"
                     UpdateTextOnSelect="False">
+
+                    <AutoSuggestBox.Resources>
+                        <Style TargetType="ListView">
+                            <Setter Property="ItemContainerTransitions">
+                                <Setter.Value>
+                                    <TransitionCollection>
+                                        <AddDeleteThemeTransition />
+                                        <ContentThemeTransition />
+                                        <ReorderThemeTransition />
+                                        <EntranceThemeTransition IsStaggeringEnabled="False" />
+                                    </TransitionCollection>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </AutoSuggestBox.Resources>
+
                     <AutoSuggestBox.TextBoxStyle>
                         <Style TargetType="TextBox">
                             <Setter Property="IsSpellCheckEnabled" Value="False" />
@@ -351,8 +367,8 @@
                                         Visibility="{Binding Favicon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" />
 
                                     <Image
-                                        Width="20"
-                                        Height="20"
+                                        Width="16"
+                                        Height="16"
                                         Source="{Binding Favicon}"
                                         Stretch="Uniform" />
                                 </Grid>
@@ -416,9 +432,9 @@
                 <ListView
                     x:Name="ToolbarListView"
                     Grid.Column="2"
+                    MinHeight="36"
                     Margin="16,2,5,0"
                     Padding="0"
-                    MinHeight="36"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     AllowDrop="True"

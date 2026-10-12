@@ -180,10 +180,10 @@ public sealed partial class MainWindow
     {
         "BackButton" => "Back",
         "ForwardButton" => "Forward",
-        "DevToolsButton" => Localizer.Get().GetLocalizedString("ToolbarItemDevTools"),
-        "ExtensionButton" => Localizer.Get().GetLocalizedString("ToolbarItemExtensions"),
-        "DownloadsButton" => Localizer.Get().GetLocalizedString("ToolbarItemDownloads"),
-        "MoreButton" => Localizer.Get().GetLocalizedString("ToolbarItemMore"),
+        "DevToolsButton" => LocalizerExtensions.GetLocalizedString("ToolbarItemDevTools"),
+        "ExtensionButton" => LocalizerExtensions.GetLocalizedString("ToolbarItemExtensions"),
+        "DownloadsButton" => LocalizerExtensions.GetLocalizedString("ToolbarItemDownloads"),
+        "MoreButton" => LocalizerExtensions.GetLocalizedString("ToolbarItemMore"),
         _ => id
     };
 

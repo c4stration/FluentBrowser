@@ -1,3 +1,4 @@
+using FluentBrowser.Pages;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -116,11 +117,20 @@ public sealed partial class MainWindow : Window
     }
 
     private void OnLanguageChanged(
-        object? sender,
-        LanguageChangedEventArgs e)
+    object? sender,
+    LanguageChangedEventArgs e)
     {
         foreach (DownloadItem item in Downloads)
             item.UpdateLocalizedStatus();
+
+        foreach (BrowserTab tab in _browserTabs.Values)
+        {
+            if (tab.Content is SettingsPage)
+            {
+                tab.Title.Text =
+                    Localizer.Get().GetLocalizedString("SettingsTitle");
+            }
+        }
     }
 
     private void trainML(object sender, RoutedEventArgs e)

@@ -71,10 +71,8 @@ public sealed partial class CantOpenPage : Page
         string messageKey =
             GetErrorMessageKey(_errorStatus);
 
-        ILocalizer localizer = Localizer.Get();
-
         string message =
-            localizer.GetLocalizedString(messageKey);
+            LocalizerExtensions.GetLocalizedString(messageKey);
 
         string expiredTime = string.Empty;
 
@@ -95,7 +93,7 @@ public sealed partial class CantOpenPage : Page
                 Helpers.FormatDaysAgo(daysExpired);
         }
 
-        string language = localizer.GetCurrentLanguage();
+        string language = Localizer.Get().GetCurrentLanguage();
 
         string currentDate =
              DateTime.Now.ToString(

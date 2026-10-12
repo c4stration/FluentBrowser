@@ -11,16 +11,26 @@ public static class Helpers
 {
     public static string FormatFileSize(long bytes)
     {
+        bool isArabic = Localizer.Get().GetCurrentLanguage()?.StartsWith("ar") == true;
+        CultureInfo culture = GetCurrentCulture();
+
+        string number(double value) =>
+            value.ToString("0.##", culture);
+
+        string[] units = isArabic
+            ? ["بايت", "ك.ب", "م.ب", "غ.ب"]
+            : ["B", "KB", "MB", "GB"];
+
         if (bytes < 1024)
-            return $"{bytes} B";
+            return $"{number(bytes)} {units[0]}";
 
         if (bytes < 1024 * 1024)
-            return $"{bytes / 1024d:0.##} KB";
+            return $"{number(bytes / 1024d)} {units[1]}";
 
         if (bytes < 1024L * 1024 * 1024)
-            return $"{bytes / (1024d * 1024):0.##} MB";
+            return $"{number(bytes / (1024d * 1024))} {units[2]}";
 
-        return $"{bytes / (1024d * 1024 * 1024):0.##} GB";
+        return $"{number(bytes / (1024d * 1024 * 1024))} {units[3]}";
     }
 
     public static string FormatFileSize(ulong bytes) =>
@@ -57,24 +67,24 @@ public static class Helpers
 
     public static string FormatDaysAgo(int days)
     {
-        ILocalizer localizer = Localizer.Get();
-
         if (days == 1)
-            return localizer.GetLocalizedString("DayAgo");
+            return LocalizerExtensions.GetLocalizedString("DayAgo");
 
         return string.Format(
-            localizer.GetLocalizedString("DaysAgo"),
+            LocalizerExtensions.GetLocalizedString("DaysAgo"),
             days.ToString("N0", GetCurrentCulture()));
     }
 
     public static MenuFlyoutItem CreateContextMenuItem(
         string text,
         string glyph,
-        RoutedEventHandler click)
+        RoutedEventHandler click,
+        string keyboardShortcut = "")
     {
         var item = new MenuFlyoutItem
         {
-            Text = text
+            Text = text,
+            KeyboardAcceleratorTextOverride = keyboardShortcut
         };
 
         if (!string.IsNullOrEmpty(glyph))

@@ -4,6 +4,7 @@ using Microsoft.Web.WebView2.Core;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WinUI3Localizer;
 
 using FluentBrowser.Shared;
 
@@ -11,7 +12,7 @@ namespace FluentBrowser;
 
 public sealed partial class MainWindow
 {
-    private void ShowWebViewContextMenu(
+    private async void ShowWebViewContextMenu(
         WebView2 webView,
         CoreWebView2ContextMenuRequestedEventArgs args)
     {
@@ -20,35 +21,63 @@ public sealed partial class MainWindow
         var menu = new MenuFlyout();
         var target = args.ContextMenuTarget;
         var core = webView.CoreWebView2;
+        bool hasTextToSelect = false;
 
-        if (target.Kind == CoreWebView2ContextMenuTargetKind.SelectedText &&
-            target.IsEditable)
+        bool hasSelection = target.HasSelection;
+
+        if (target.IsEditable)
         {
-            menu.Items.Add(
-                Helpers.CreateContextMenuItem(
-                    "Cut",
-                    "\uE8C6",
-                    async (_, _) =>
-                        await core.ExecuteScriptAsync(
-                            "document.execCommand('cut')")));
+            var cutItem = Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("Cut"),
+                "\uE8C6",
+                async (_, _) =>
+                    await core.ExecuteScriptAsync(
+                        "document.execCommand('cut')"),
+                "Ctrl+X");
+
+            cutItem.IsEnabled = hasSelection;
+            menu.Items.Add(cutItem);
         }
 
-        if (target.Kind == CoreWebView2ContextMenuTargetKind.SelectedText)
+        if (target.IsEditable || hasSelection)
         {
-            menu.Items.Add(
-                Helpers.CreateContextMenuItem(
-                    "Copy",
-                    "\uE8C8",
-                    async (_, _) =>
-                        await core.ExecuteScriptAsync(
-                            "document.execCommand('copy')")));
+            var copyItem = Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("Copy"),
+                "\uE8C8",
+                async (_, _) =>
+                    await core.ExecuteScriptAsync(
+                        "document.execCommand('copy')"),
+                "Ctrl+C");
+
+            copyItem.IsEnabled = hasSelection;
+            menu.Items.Add(copyItem);
         }
 
         if (target.IsEditable)
         {
+            string result = await core.ExecuteScriptAsync(
+                """
+                (() => {
+                    const element = document.activeElement;
+
+                    if (element instanceof HTMLInputElement ||
+                        element instanceof HTMLTextAreaElement) {
+                        return element.value.trim().length > 0;
+                    }
+
+                    if (element instanceof HTMLElement && element.isContentEditable) {
+                        return (element.innerText || element.textContent || "").trim().length > 0;
+                    }
+
+                    return (document.body?.innerText || "").trim().length > 0;
+                })();
+                """);
+
+            hasTextToSelect = bool.TryParse(result, out bool hasText) && hasText;
+
             menu.Items.Add(
                 Helpers.CreateContextMenuItem(
-                    "Paste",
+                    LocalizerExtensions.GetLocalizedString("Paste"),
                     "\uE77F",
                     async (_, _) =>
                     {
@@ -60,7 +89,43 @@ public sealed partial class MainWindow
 
                         await core.ExecuteScriptAsync(
                             $"document.execCommand('insertText', false, {escaped});");
-                    }));
+                    },
+                    "Ctrl+V"));
+
+            var deleteItem = Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("Delete"),
+                "",
+                async (_, _) =>
+                    await core.ExecuteScriptAsync(
+                        "document.execCommand('delete')"));
+
+            deleteItem.IsEnabled =
+                target.Kind == CoreWebView2ContextMenuTargetKind.SelectedText;
+
+            menu.Items.Add(deleteItem);
+
+            menu.Items.Add(new MenuFlyoutSeparator());
+
+            var selectAllItem = Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("SelectAll"),
+                "",
+                async (_, _) =>
+                    await core.ExecuteScriptAsync(
+                        """
+                        (() => {
+                            const element = document.activeElement;
+
+                            if (element instanceof HTMLInputElement ||
+                                element instanceof HTMLTextAreaElement) {
+                                element.select();
+                            } else {
+                                document.execCommand('selectAll');
+                            }
+                        })();
+                        """),
+                "Ctrl+A");
+            selectAllItem.IsEnabled = hasTextToSelect;
+            menu.Items.Add(selectAllItem);
         }
         else
         {
@@ -77,14 +142,14 @@ public sealed partial class MainWindow
     {
         menu.Items.Add(
             Helpers.CreateMenuItem(
-                "Back",
+                LocalizerExtensions.GetLocalizedString("WebBack"),
                 "\uE72B",
                 (_, _) => webView.GoBack(),
                 webView.CanGoBack));
 
         menu.Items.Add(
             Helpers.CreateMenuItem(
-                "Refresh",
+                LocalizerExtensions.GetLocalizedString("TabContextRefresh"),
                 "\uE72C",
                 (_, _) => webView.Reload()));
 
@@ -92,7 +157,7 @@ public sealed partial class MainWindow
 
         menu.Items.Add(
             Helpers.CreateMenuItem(
-                "View page source",
+                LocalizerExtensions.GetLocalizedString("ViewSourceMenuItem"),
                 string.Empty,
                 (_, _) =>
                 {
