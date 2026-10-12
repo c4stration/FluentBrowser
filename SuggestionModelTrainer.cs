@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace FluentBrowser;
 
@@ -47,9 +46,6 @@ public static class SuggestionModelTrainer
     private static async Task TrainAsync()
     {
         await SuggestionTrainingLogger.EnsureMessagePackLogsAsync();
-
-        string localPath =
-            ApplicationData.Current.LocalFolder.Path;
 
         string impressionsPath = AppDataPaths.SuggestionsFile("SuggestionImpressions.msgpack");
 
