@@ -4,7 +4,6 @@ using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +17,14 @@ internal sealed record HistorySuggestion(
 
 internal sealed class HistorySuggestionProvider
 {
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(2);
+
     private readonly SemaphoreSlim _queryGate = new(1, 1);
+
+    private string? _cachedHistoryPath;
+    private DateTimeOffset _cacheExpiresAt;
+    private HistorySuggestionCandidate[] _cachedCandidates =
+        Array.Empty<HistorySuggestionCandidate>();
 
     public async Task<IReadOnlyList<HistorySuggestion>> GetSuggestionsAsync(
         CoreWebView2 core,
@@ -43,12 +49,35 @@ internal sealed class HistorySuggestionProvider
             await _queryGate.WaitAsync(cancellationToken);
             entered = true;
 
-            return await Task.Run(
-                () => QueryHistorySnapshotWithRetry(
+            if (cancellationToken.IsCancellationRequested)
+                return Array.Empty<HistorySuggestion>();
+
+            if (!string.Equals(
+                    _cachedHistoryPath,
                     historyPath,
-                    query,
-                    maxResults,
-                    cancellationToken),
+                    StringComparison.OrdinalIgnoreCase) ||
+                DateTimeOffset.UtcNow >= _cacheExpiresAt)
+            {
+                // Complete the refresh even if this keystroke becomes stale.
+                // The next request can then reuse the populated cache.
+                HistorySuggestionCandidate[] candidates = await Task.Run(
+                    () => QueryHistorySnapshotWithRetry(
+                        historyPath,
+                        CancellationToken.None),
+                    CancellationToken.None);
+
+                _cachedHistoryPath = historyPath;
+                _cachedCandidates = candidates;
+                _cacheExpiresAt = DateTimeOffset.UtcNow + CacheDuration;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+                return Array.Empty<HistorySuggestion>();
+
+            return RankCandidates(
+                _cachedCandidates,
+                query,
+                maxResults,
                 cancellationToken);
         }
         catch (OperationCanceledException)
@@ -62,11 +91,9 @@ internal sealed class HistorySuggestionProvider
         }
     }
 
-    private static IReadOnlyList<HistorySuggestion>
+    private static HistorySuggestionCandidate[]
         QueryHistorySnapshotWithRetry(
             string historyPath,
-            string query,
-            int maxResults,
             CancellationToken cancellationToken)
     {
         string snapshotDirectory = Path.Combine(
@@ -85,16 +112,12 @@ internal sealed class HistorySuggestionProvider
 
             return QueryHistoryWithRetry(
                 snapshotPath,
-                query,
-                maxResults,
                 cancellationToken);
         }
         catch (IOException)
         {
             return QueryHistoryWithRetry(
                 historyPath,
-                query,
-                maxResults,
                 cancellationToken);
         }
         finally
@@ -139,11 +162,9 @@ internal sealed class HistorySuggestionProvider
         }
     }
 
-    private static IReadOnlyList<HistorySuggestion>
+    private static HistorySuggestionCandidate[]
         QueryHistoryWithRetry(
             string historyPath,
-            string query,
-            int maxResults,
             CancellationToken cancellationToken)
     {
         const int maxAttempts = 3;
@@ -151,14 +172,12 @@ internal sealed class HistorySuggestionProvider
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
             if (cancellationToken.IsCancellationRequested)
-                return Array.Empty<HistorySuggestion>();
+                return Array.Empty<HistorySuggestionCandidate>();
 
             try
             {
                 return QueryHistory(
                     historyPath,
-                    query,
-                    maxResults,
                     cancellationToken);
             }
             catch (SqliteException ex)
@@ -166,16 +185,16 @@ internal sealed class HistorySuggestionProvider
                       ex.SqliteErrorCode == 6)
             {
                 if (!WaitBeforeRetry(attempt, cancellationToken))
-                    return Array.Empty<HistorySuggestion>();
+                    return Array.Empty<HistorySuggestionCandidate>();
             }
             catch (IOException)
             {
                 if (!WaitBeforeRetry(attempt, cancellationToken))
-                    return Array.Empty<HistorySuggestion>();
+                    return Array.Empty<HistorySuggestionCandidate>();
             }
         }
 
-        return Array.Empty<HistorySuggestion>();
+        return Array.Empty<HistorySuggestionCandidate>();
     }
 
     private static bool WaitBeforeRetry(
@@ -189,10 +208,8 @@ internal sealed class HistorySuggestionProvider
         return !cancellationToken.WaitHandle.WaitOne(delay);
     }
 
-    private static IReadOnlyList<HistorySuggestion> QueryHistory(
+    private static HistorySuggestionCandidate[] QueryHistory(
         string historyPath,
-        string query,
-        int maxResults,
         CancellationToken cancellationToken)
     {
         long now = DateTimeOffset.UtcNow.ToFileTime() / 10;
@@ -241,7 +258,23 @@ internal sealed class HistorySuggestionProvider
 
         command.CommandTimeout = 2;
 
+        // Limit URLs before joining visits, and ignore visits outside the
+        // frecency window because they contribute zero to both aggregates.
         command.CommandText = """
+            WITH recent_urls AS (
+                SELECT
+                    id,
+                    url,
+                    title,
+                    visit_count,
+                    typed_count,
+                    last_visit_time
+                FROM urls
+                WHERE hidden = 0
+                  AND visit_count > 0
+                ORDER BY last_visit_time DESC
+                LIMIT 5000
+            )
             SELECT
                 u.url,
                 u.title,
@@ -252,14 +285,11 @@ internal sealed class HistorySuggestionProvider
                 COALESCE(
                     SUM(
                         CASE
-                            WHEN v.visit_time >= $cutoff THEN
-                                CASE
-                                    WHEN v.visit_time >= $day THEN 1.0
-                                    WHEN v.visit_time >= $week THEN 0.75
-                                    WHEN v.visit_time >= $month THEN 0.45
-                                    ELSE 0.20
-                                END
-                            ELSE 0.0
+                            WHEN v.visit_time IS NULL THEN 0.0
+                            WHEN v.visit_time >= $day THEN 1.0
+                            WHEN v.visit_time >= $week THEN 0.75
+                            WHEN v.visit_time >= $month THEN 0.45
+                            ELSE 0.20
                         END
                     ),
                     0
@@ -268,7 +298,7 @@ internal sealed class HistorySuggestionProvider
                 COALESCE(
                     SUM(
                         CASE
-                            WHEN v.visit_time >= $cutoff
+                            WHEN v.visit_time IS NOT NULL
                                  AND (v.transition & 255) = 1
                             THEN
                                 CASE
@@ -283,13 +313,11 @@ internal sealed class HistorySuggestionProvider
                     0
                 ) AS typed_frecency
 
-            FROM urls u
+            FROM recent_urls u
 
             LEFT JOIN visits v
                 ON v.url = u.id
-
-            WHERE u.hidden = 0
-              AND u.visit_count > 0
+               AND v.visit_time >= $cutoff
 
             GROUP BY
                 u.id,
@@ -299,8 +327,7 @@ internal sealed class HistorySuggestionProvider
                 u.typed_count,
                 u.last_visit_time
 
-            ORDER BY u.last_visit_time DESC
-            LIMIT 5000;
+            ORDER BY u.last_visit_time DESC;
             """;
 
         command.Parameters.AddWithValue("$cutoff", cutoff);
@@ -308,15 +335,14 @@ internal sealed class HistorySuggestionProvider
         command.Parameters.AddWithValue("$week", week);
         command.Parameters.AddWithValue("$month", month);
 
-        var candidates =
-            new List<HistorySuggestionCandidate>();
+        var candidates = new List<HistorySuggestionCandidate>(5000);
 
         using var reader = command.ExecuteReader();
 
         while (reader.Read())
         {
             if (cancellationToken.IsCancellationRequested)
-                return Array.Empty<HistorySuggestion>();
+                return Array.Empty<HistorySuggestionCandidate>();
 
             string rawUrl =
                 reader.IsDBNull(0)
@@ -366,29 +392,12 @@ internal sealed class HistorySuggestionProvider
             DateTimeOffset lastVisit =
                 ConvertChromiumTime(lastVisitValue);
 
-            string? searchQuery =
-                ExtractSearchQuery(uri);
+            string? searchQuery = ExtractSearchQuery(uri);
 
             string display =
                 !string.IsNullOrWhiteSpace(searchQuery)
                     ? searchQuery
                     : FormatForAddressBar(uri);
-
-            double score =
-                ScoreCandidate(
-                    query,
-                    uri,
-                    display,
-                    title,
-                    searchQuery,
-                    visitCount,
-                    typedCount,
-                    frecency,
-                    typedFrecency,
-                    lastVisit);
-
-            if (score <= 0)
-                continue;
 
             candidates.Add(
                 new HistorySuggestionCandidate(
@@ -396,103 +405,169 @@ internal sealed class HistorySuggestionProvider
                     uri,
                     title,
                     lastVisit,
-                    score));
+                    visitCount,
+                    typedCount,
+                    frecency,
+                    typedFrecency,
+                    Normalize(display),
+                    Normalize(uri.AbsoluteUri),
+                    Normalize(uri.Host),
+                    Normalize(title),
+                    searchQuery is null
+                        ? string.Empty
+                        : Normalize(searchQuery)));
         }
 
-        return candidates
-            .GroupBy(
-                x => x.DisplayText,
-                StringComparer.OrdinalIgnoreCase)
-            .Select(
-                group => group
-                    .OrderByDescending(x => x.Score)
-                    .First())
-            .OrderByDescending(x => x.Score)
-            .ThenByDescending(x => x.LastVisit)
-            .Take(Math.Max(1, maxResults))
-            .Select(
-                x => new HistorySuggestion(
-                    x.DisplayText,
-                    x.TargetUri,
-                    x.Title,
-                    x.Score))
-            .ToArray();
+        return candidates.ToArray();
+    }
+
+    private static IReadOnlyList<HistorySuggestion> RankCandidates(
+        HistorySuggestionCandidate[] candidates,
+        string query,
+        int maxResults,
+        CancellationToken cancellationToken)
+    {
+        string normalizedQuery = Normalize(query);
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        var bestByDisplay = new Dictionary<string, ScoredHistorySuggestion>(
+            Math.Min(candidates.Length, 256),
+            StringComparer.OrdinalIgnoreCase);
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return Array.Empty<HistorySuggestion>();
+
+            HistorySuggestionCandidate candidate = candidates[i];
+            double score = ScoreCandidate(normalizedQuery, candidate, now);
+
+            if (score <= 0)
+                continue;
+
+            if (bestByDisplay.TryGetValue(
+                    candidate.DisplayText,
+                    out ScoredHistorySuggestion existing))
+            {
+                if (score <= existing.Score)
+                    continue;
+
+                bestByDisplay[candidate.DisplayText] =
+                    new ScoredHistorySuggestion(
+                        candidate,
+                        score,
+                        existing.FirstIndex);
+            }
+            else
+            {
+                bestByDisplay.Add(
+                    candidate.DisplayText,
+                    new ScoredHistorySuggestion(candidate, score, i));
+            }
+        }
+
+        if (bestByDisplay.Count == 0)
+            return Array.Empty<HistorySuggestion>();
+
+        var ranked = new List<ScoredHistorySuggestion>(bestByDisplay.Values);
+
+        ranked.Sort(static (left, right) =>
+        {
+            int scoreComparison = right.Score.CompareTo(left.Score);
+
+            if (scoreComparison != 0)
+                return scoreComparison;
+
+            int visitComparison =
+                right.Candidate.LastVisit.CompareTo(left.Candidate.LastVisit);
+
+            return visitComparison != 0
+                ? visitComparison
+                : left.FirstIndex.CompareTo(right.FirstIndex);
+        });
+
+        int resultCount = Math.Min(
+            Math.Max(1, maxResults),
+            ranked.Count);
+
+        var results = new HistorySuggestion[resultCount];
+
+        for (int i = 0; i < resultCount; i++)
+        {
+            ScoredHistorySuggestion item = ranked[i];
+
+            results[i] = new HistorySuggestion(
+                item.Candidate.DisplayText,
+                item.Candidate.TargetUri,
+                item.Candidate.Title,
+                item.Score);
+        }
+
+        return results;
     }
 
     private static double ScoreCandidate(
         string query,
-        Uri uri,
-        string display,
-        string title,
-        string? searchQuery,
-        int visitCount,
-        int typedCount,
-        double frecency,
-        double typedFrecency,
-        DateTimeOffset lastVisit)
+        HistorySuggestionCandidate candidate,
+        DateTimeOffset now)
     {
-        string q = Normalize(query);
-        string normalizedDisplay = Normalize(display);
-        string normalizedUri = Normalize(uri.AbsoluteUri);
-        string normalizedHost = Normalize(uri.Host);
-        string normalizedTitle = Normalize(title);
-
-        string normalizedSearch =
-            searchQuery is null
-                ? string.Empty
-                : Normalize(searchQuery);
+        string normalizedDisplay = candidate.NormalizedDisplay;
+        string normalizedUri = candidate.NormalizedUri;
+        string normalizedHost = candidate.NormalizedHost;
+        string normalizedTitle = candidate.NormalizedTitle;
+        string normalizedSearch = candidate.NormalizedSearch;
 
         bool exact =
             normalizedDisplay.Equals(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool hostExact =
             normalizedHost.Equals(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool hostPrefix =
             normalizedHost.StartsWith(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool displayPrefix =
             normalizedDisplay.StartsWith(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool uriPrefix =
             normalizedUri.StartsWith(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool titlePrefix =
             normalizedTitle.StartsWith(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool titleContains =
             normalizedTitle.Contains(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool searchExact =
-            !string.IsNullOrEmpty(normalizedSearch) &&
+            normalizedSearch.Length > 0 &&
             normalizedSearch.Equals(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool searchPrefix =
-            !string.IsNullOrEmpty(normalizedSearch) &&
+            normalizedSearch.Length > 0 &&
             normalizedSearch.StartsWith(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         bool searchContains =
-            !string.IsNullOrEmpty(normalizedSearch) &&
+            normalizedSearch.Length > 0 &&
             normalizedSearch.Contains(
-                q,
+                query,
                 StringComparison.OrdinalIgnoreCase);
 
         if (!exact &&
@@ -541,16 +616,16 @@ internal sealed class HistorySuggestionProvider
         if (searchContains)
             score += 350;
 
-        score += typedFrecency * 140;
-        score += frecency * 45;
+        score += candidate.TypedFrecency * 140;
+        score += candidate.Frecency * 45;
 
-        score += Math.Min(typedCount, 100) * 4;
-        score += Math.Min(visitCount, 500) * 0.5;
+        score += Math.Min(candidate.TypedCount, 100) * 4;
+        score += Math.Min(candidate.VisitCount, 500) * 0.5;
 
         double ageDays =
             Math.Max(
                 0,
-                (DateTimeOffset.UtcNow - lastVisit).TotalDays);
+                (now - candidate.LastVisit).TotalDays);
 
         score += Math.Max(
             0,
@@ -564,7 +639,20 @@ internal sealed class HistorySuggestionProvider
         Uri TargetUri,
         string Title,
         DateTimeOffset LastVisit,
-        double Score);
+        int VisitCount,
+        int TypedCount,
+        double Frecency,
+        double TypedFrecency,
+        string NormalizedDisplay,
+        string NormalizedUri,
+        string NormalizedHost,
+        string NormalizedTitle,
+        string NormalizedSearch);
+
+    private readonly record struct ScoredHistorySuggestion(
+        HistorySuggestionCandidate Candidate,
+        double Score,
+        int FirstIndex);
 
     private static string? ExtractSearchQuery(Uri uri)
     {
