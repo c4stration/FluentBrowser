@@ -3,12 +3,15 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Web.WebView2.Core;
 
+using MessagePack;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Hashing;
 using System.Linq;
 using System.Text;
+using MessagePack.Resolvers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +27,9 @@ public sealed partial class MainWindow
         new(StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _faviconIndexLock = new(1, 1);
     private bool _faviconIndexLoaded;
+    private static readonly MessagePackSerializerOptions _faviconIndexOptions =
+        StandardResolver.Options.WithSecurity(
+            MessagePackSecurity.UntrustedData);
 
     public event EventHandler? FaviconCacheChanged;
 
@@ -298,16 +304,35 @@ public sealed partial class MainWindow
                 return;
 
             string path = GetFaviconIndexPath();
+            string legacyPath = GetLegacyFaviconIndexPath();
 
             if (File.Exists(path))
             {
-                string json = await File.ReadAllTextAsync(path);
+                var entries = MessagePackSerializer.Deserialize<Dictionary<string, string>>(
+                    await File.ReadAllBytesAsync(path),
+                    _faviconIndexOptions);
+
+                if (entries is not null)
+                {
+                    foreach ((string host, string faviconUri) in entries)
+                        _faviconUrisByHost[host] = faviconUri;
+                }
+
+                if (File.Exists(legacyPath))
+                    File.Delete(legacyPath);
+            }
+            else if (File.Exists(legacyPath))
+            {
+                string json = await File.ReadAllTextAsync(legacyPath);
                 var entries = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
 
                 if (entries is not null)
                 {
                     foreach ((string host, string faviconUri) in entries)
                         _faviconUrisByHost[host] = faviconUri;
+
+                    await WriteFaviconIndexAsync(path);
+                    File.Delete(legacyPath);
                 }
             }
 
@@ -329,9 +354,7 @@ public sealed partial class MainWindow
 
         try
         {
-            await File.WriteAllTextAsync(
-                GetFaviconIndexPath(),
-                JsonSerializer.Serialize(_faviconUrisByHost));
+            await WriteFaviconIndexAsync(GetFaviconIndexPath());
         }
         catch
         {
@@ -342,7 +365,21 @@ public sealed partial class MainWindow
         }
     }
 
+    private async Task WriteFaviconIndexAsync(string path)
+    {
+        byte[] data = MessagePackSerializer.Serialize(
+            _faviconUrisByHost,
+            _faviconIndexOptions);
+
+        string temporaryPath = path + ".tmp";
+        await File.WriteAllBytesAsync(temporaryPath, data);
+        File.Move(temporaryPath, path, overwrite: true);
+    }
+
     private string GetFaviconIndexPath() =>
+        Path.Combine(_faviconCacheDirectory, "hosts.msgpack");
+
+    private string GetLegacyFaviconIndexPath() =>
         Path.Combine(_faviconCacheDirectory, "hosts.json");
 
     private static string GetFaviconHost(Uri uri) =>
