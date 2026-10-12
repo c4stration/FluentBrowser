@@ -13,9 +13,7 @@ public static class SuggestionTrainingLogger
     private static readonly SemaphoreSlim _lock = new(1, 1);
 
     private static string GetPath(string fileName) =>
-        Path.Combine(
-            ApplicationData.Current.LocalFolder.Path,
-            fileName);
+        AppDataPaths.SuggestionsFile(fileName);
 
     public static Task LogImpressionAsync(SuggestionImpression impression) =>
         AppendAsync(
