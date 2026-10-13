@@ -546,4 +546,16 @@
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>ซอร์สโค้ด</value>
   </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>บันทึกรูปภาพเป็น...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>คัดลอกรูปภาพ</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>คัดลอกลิงก์รูปภาพ</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>เปิดรูปภาพในแท็บใหม่</value>
+  </data>
 </root>

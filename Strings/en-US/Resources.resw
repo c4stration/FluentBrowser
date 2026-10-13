@@ -548,4 +548,16 @@
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>Source code</value>
   </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>Save image as...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>Copy image</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>Copy image link</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>Open image in new tab</value>
+  </data>
 </root>

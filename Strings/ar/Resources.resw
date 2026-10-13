@@ -540,4 +540,16 @@
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>الكود المصدري</value>
   </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>حفظ الصورة باسم...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>نسخ الصورة</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>نسخ رابط الصورة</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>فتح الصورة في علامة تبويب جديدة</value>
+  </data>
 </root>

@@ -16,14 +16,35 @@ public sealed partial class MainWindow
         WebView2 webView,
         CoreWebView2ContextMenuRequestedEventArgs args)
     {
+        var deferral = args.GetDeferral();
         args.Handled = true;
 
         var menu = new MenuFlyout();
+        menu.Closed += (_, _) => deferral.Complete();
+
+        CoreWebView2ContextMenuItem? pasteCommand = null;
+
+        foreach (var item in args.MenuItems)
+        {
+            if (item.Name == "paste")
+            {
+                pasteCommand = item;
+                break;
+            }
+        }
+
         var target = args.ContextMenuTarget;
         var core = webView.CoreWebView2;
         bool hasTextToSelect = false;
 
         bool hasSelection = target.HasSelection;
+
+        if (target.Kind == CoreWebView2ContextMenuTargetKind.Image &&
+            target.HasSourceUri)
+        {
+            AddImageContextMenuItems(menu, args, target.SourceUri);
+            menu.Items.Add(new MenuFlyoutSeparator());
+        }
 
         if (target.IsEditable)
         {
@@ -75,22 +96,18 @@ public sealed partial class MainWindow
 
             hasTextToSelect = bool.TryParse(result, out bool hasText) && hasText;
 
-            menu.Items.Add(
-                Helpers.CreateContextMenuItem(
-                    LocalizerExtensions.GetLocalizedString("Paste"),
-                    "\uE77F",
-                    async (_, _) =>
-                    {
-                        string text = await Windows.ApplicationModel.DataTransfer.Clipboard
-                            .GetContent()
-                            .GetTextAsync();
+            var pasteItem = Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("Paste"),
+                "\uE77F",
+                (_, _) =>
+                {
+                    if (pasteCommand is not null)
+                        args.SelectedCommandId = pasteCommand.CommandId;
+                },
+                "Ctrl+V");
 
-                        string escaped = JsonSerializer.Serialize(text);
-
-                        await core.ExecuteScriptAsync(
-                            $"document.execCommand('insertText', false, {escaped});");
-                    },
-                    "Ctrl+V"));
+            pasteItem.IsEnabled = pasteCommand is not null;
+            menu.Items.Add(pasteItem);
 
             var deleteItem = Helpers.CreateContextMenuItem(
                 LocalizerExtensions.GetLocalizedString("Delete"),
@@ -134,6 +151,8 @@ public sealed partial class MainWindow
 
         if (menu.Items.Count > 0)
             menu.ShowAt(webView, args.Location);
+        else
+            deferral.Complete();
     }
 
     private void AddNavigationContextMenuItems(
@@ -165,5 +184,80 @@ public sealed partial class MainWindow
                         OpenNewTab($"view-source:{uri}");
                 },
                 webView.Source is not null));
+    }
+
+    private void AddImageContextMenuItems(
+        MenuFlyout menu,
+        CoreWebView2ContextMenuRequestedEventArgs args,
+        string imageUri)
+    {
+        var saveImageCommand =
+            FindContextMenuCommand(args, "saveImageAs");
+
+        var copyImageCommand =
+            FindContextMenuCommand(args, "copyImage");
+
+        var saveImageItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("SaveImageAs"),
+            "\uE792",
+            (_, _) =>
+            {
+                if (saveImageCommand is not null)
+                    args.SelectedCommandId = saveImageCommand.CommandId;
+            });
+
+        saveImageItem.IsEnabled = saveImageCommand is not null;
+        menu.Items.Add(saveImageItem);
+
+        var copyImageItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("CopyImage"),
+            "\uE8C8",
+            (_, _) =>
+            {
+                if (copyImageCommand is not null)
+                    args.SelectedCommandId = copyImageCommand.CommandId;
+            });
+
+        copyImageItem.IsEnabled = copyImageCommand is not null;
+        menu.Items.Add(copyImageItem);
+
+        menu.Items.Add(
+            Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("CopyImageLink"),
+                (string)Application.Current.Resources["CopyPath"],
+                (_, _) =>
+                {
+                    var package =
+                        new Windows.ApplicationModel.DataTransfer.DataPackage();
+
+                    package.SetText(imageUri);
+
+                    Windows.ApplicationModel.DataTransfer.Clipboard
+                        .SetContent(package);
+                }));
+
+        menu.Items.Add(
+            Helpers.CreateContextMenuItem(
+                LocalizerExtensions.GetLocalizedString("OpenImageInNewTab"),
+                string.Empty,
+                (_, _) => OpenNewTab(imageUri)));
+    }
+
+    private static CoreWebView2ContextMenuItem? FindContextMenuCommand(
+        CoreWebView2ContextMenuRequestedEventArgs args,
+        string name)
+    {
+        foreach (CoreWebView2ContextMenuItem item in args.MenuItems)
+        {
+            if (string.Equals(
+                    item.Name,
+                    name,
+                    StringComparison.Ordinal))
+            {
+                return item;
+            }
+        }
+
+        return null;
     }
 }

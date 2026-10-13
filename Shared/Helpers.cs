@@ -1,6 +1,8 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Globalization;
 using WinUI3Localizer;
@@ -77,7 +79,7 @@ public static class Helpers
 
     public static MenuFlyoutItem CreateContextMenuItem(
         string text,
-        string glyph,
+        string? icon,
         RoutedEventHandler click,
         string keyboardShortcut = "")
     {
@@ -87,12 +89,24 @@ public static class Helpers
             KeyboardAcceleratorTextOverride = keyboardShortcut
         };
 
-        if (!string.IsNullOrEmpty(glyph))
+        if (!string.IsNullOrEmpty(icon))
         {
-            item.Icon = new FontIcon
+            if (icon.Length == 1)
             {
-                Glyph = glyph
-            };
+                item.Icon = new FontIcon
+                {
+                    Glyph = icon
+                };
+            }
+            else
+            {
+                item.Icon = new PathIcon
+                {
+                    Data = (Geometry)XamlBindingHelper.ConvertValue(
+                        typeof(Geometry),
+                        icon)
+                };
+            }
         }
 
         item.Click += click;

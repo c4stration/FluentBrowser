@@ -532,4 +532,16 @@
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>源代码</value>
   </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>图片另存为...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>复制图像</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>复制图像链接</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>在新标签页中打开图像</value>
+  </data>
 </root>

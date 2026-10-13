@@ -528,4 +528,16 @@
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>Cod sursă</value>
   </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>Salvează imaginea ca...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>Copiază imaginea</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>Copiază linkul imaginii</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>Deschide imaginea într-o filă nouă</value>
+  </data>
 </root>
