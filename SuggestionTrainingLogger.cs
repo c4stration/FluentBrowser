@@ -1,5 +1,6 @@
-﻿using MessagePack;
+using MessagePack;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
@@ -39,6 +40,15 @@ public static class SuggestionTrainingLogger
             await MigrateJsonLinesAsync<SuggestionClick>(
                 "SuggestionClicks.jsonl",
                 "SuggestionClicks.msgpack");
+
+            string impressionsPath = GetPath("SuggestionImpressions.msgpack");
+            string clicksPath = GetPath("SuggestionClicks.msgpack");
+
+            await EnsureFramedAsync<SuggestionImpression>(impressionsPath);
+            await EnsureFramedAsync<SuggestionClick>(clicksPath);
+
+            await CompactIfNeededAsync<SuggestionImpression>(impressionsPath);
+            await CompactIfNeededAsync<SuggestionClick>(clicksPath);
         }
         finally
         {
@@ -59,23 +69,193 @@ public static class SuggestionTrainingLogger
                 legacyFileName,
                 fileName);
 
+            string path = GetPath(fileName);
+
+            await EnsureFramedAsync<T>(path);
+            await CompactIfNeededAsync<T>(path);
+
             byte[] data = MessagePackSerializer.Serialize(
                 value,
                 MessagePackData.Options);
 
-            await using var stream = new FileStream(
-                GetPath(fileName),
+            await using (var stream = new FileStream(
+                path,
                 FileMode.Append,
                 FileAccess.Write,
                 FileShare.Read,
                 4096,
-                useAsync: true);
+                useAsync: true))
+            {
+                if (stream.Length == 0)
+                    await SuggestionTrainingLogFormat.WriteHeaderAsync(stream);
 
-            await stream.WriteAsync(data);
+                await SuggestionTrainingLogFormat.WriteRecordAsync(
+                    stream,
+                    data);
+            }
+
+            await CompactIfNeededAsync<T>(path);
         }
         finally
         {
             _lock.Release();
+        }
+    }
+
+    private static async Task EnsureFramedAsync<T>(string path)
+    {
+        if (!File.Exists(path))
+            return;
+
+        byte[] data = await File.ReadAllBytesAsync(path);
+
+        if (SuggestionTrainingLogFormat.HasHeader(data))
+        {
+            _ = SuggestionTrainingLogFormat.Deserialize<T>(
+                data,
+                out int validLength);
+
+            if (validLength < data.Length)
+            {
+                await using var stream = new FileStream(
+                    path,
+                    FileMode.Open,
+                    FileAccess.Write,
+                    FileShare.None,
+                    4096,
+                    useAsync: true);
+
+                stream.SetLength(validLength);
+                await stream.FlushAsync();
+            }
+
+            return;
+        }
+
+        List<T> records = SuggestionTrainingLogFormat.Deserialize<T>(data);
+
+        await RewriteFramedAsync(path, records);
+    }
+
+    private static async Task RewriteFramedAsync<T>(
+        string path,
+        IEnumerable<T> records)
+    {
+        string temporaryPath = path + ".tmp";
+
+        try
+        {
+            await using (var stream = new FileStream(
+                temporaryPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None,
+                4096,
+                useAsync: true))
+            {
+                await SuggestionTrainingLogFormat.WriteHeaderAsync(stream);
+
+                foreach (T record in records)
+                {
+                    byte[] data = MessagePackSerializer.Serialize(
+                        record,
+                        MessagePackData.Options);
+
+                    await SuggestionTrainingLogFormat.WriteRecordAsync(
+                        stream,
+                        data);
+                }
+
+                await stream.FlushAsync();
+            }
+
+            File.Move(temporaryPath, path, overwrite: true);
+        }
+        catch
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+
+            throw;
+        }
+    }
+
+    private static async Task CompactIfNeededAsync<T>(string path)
+    {
+        if (!File.Exists(path) ||
+            new FileInfo(path).Length <=
+                SuggestionTrainingLogFormat.MaximumFileSizeBytes)
+        {
+            return;
+        }
+
+        byte[] data = await File.ReadAllBytesAsync(path);
+        List<T> records = SuggestionTrainingLogFormat.Deserialize<T>(data);
+
+        var retainedRecords = new List<byte[]>();
+        long retainedSize = SuggestionTrainingLogFormat.HeaderLength;
+
+        for (int i = records.Count - 1; i >= 0; i--)
+        {
+            byte[] recordData = MessagePackSerializer.Serialize(
+                records[i],
+                MessagePackData.Options);
+
+            long recordSize =
+                SuggestionTrainingLogFormat.LengthPrefixSize +
+                recordData.Length;
+
+            if (retainedRecords.Count > 0 &&
+                retainedSize + recordSize >
+                    SuggestionTrainingLogFormat.CompactedFileSizeBytes)
+            {
+                break;
+            }
+
+            retainedRecords.Add(recordData);
+            retainedSize += recordSize;
+
+            if (retainedSize >=
+                SuggestionTrainingLogFormat.CompactedFileSizeBytes)
+            {
+                break;
+            }
+        }
+
+        retainedRecords.Reverse();
+
+        string temporaryPath = path + ".tmp";
+
+        try
+        {
+            await using (var stream = new FileStream(
+                temporaryPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None,
+                4096,
+                useAsync: true))
+            {
+                await SuggestionTrainingLogFormat.WriteHeaderAsync(stream);
+
+                foreach (byte[] recordData in retainedRecords)
+                {
+                    await SuggestionTrainingLogFormat.WriteRecordAsync(
+                        stream,
+                        recordData);
+                }
+
+                await stream.FlushAsync();
+            }
+
+            File.Move(temporaryPath, path, overwrite: true);
+        }
+        catch
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+
+            throw;
         }
     }
 
@@ -111,6 +291,8 @@ public static class SuggestionTrainingLogger
                 4096,
                 useAsync: true))
             {
+                await SuggestionTrainingLogFormat.WriteHeaderAsync(stream);
+
                 foreach (string line in lines)
                 {
                     if (string.IsNullOrWhiteSpace(line))
@@ -125,8 +307,12 @@ public static class SuggestionTrainingLogger
                         value,
                         MessagePackData.Options);
 
-                    await stream.WriteAsync(data);
+                    await SuggestionTrainingLogFormat.WriteRecordAsync(
+                        stream,
+                        data);
                 }
+
+                await stream.FlushAsync();
             }
 
             File.Move(temporaryPath, path);

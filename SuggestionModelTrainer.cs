@@ -1,7 +1,5 @@
-﻿using MessagePack;
 using Microsoft.ML;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -191,25 +189,6 @@ public static class SuggestionModelTrainer
     private static async Task<List<T>> ReadMessagePackAsync<T>(string path)
     {
         byte[] data = await File.ReadAllBytesAsync(path);
-        return DeserializeMessagePack<T>(data);
-    }
-
-    private static List<T> DeserializeMessagePack<T>(byte[] data)
-    {
-        var reader = new MessagePackReader(
-            new ReadOnlySequence<byte>(data.AsMemory()));
-        var result = new List<T>();
-
-        while (!reader.End)
-        {
-            T? value = MessagePackSerializer.Deserialize<T>(
-                ref reader,
-                MessagePackData.Options);
-
-            if (value is not null)
-                result.Add(value);
-        }
-
-        return result;
+        return SuggestionTrainingLogFormat.Deserialize<T>(data);
     }
 }
