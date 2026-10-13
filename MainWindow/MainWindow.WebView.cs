@@ -48,9 +48,6 @@ public sealed partial class MainWindow
 
     private readonly ObservableCollection<ExtensionListItem> _extensionItems = [];
 
-    // WinUI keyboard accelerators do not receive input while WebView2 owns focus.
-    // Each WebView gets a unique token so that only its document-start bridge can
-    // invoke browser commands through WebMessageReceived.
     private readonly Dictionary<WebView2, string>
         _webViewShortcutTokens = [];
 
@@ -315,8 +312,6 @@ public sealed partial class MainWindow
             return;
         }
 
-        // Apply the display value before subscribing. Programmatic refreshes
-        // must never be interpreted as a user request to change an extension.
         toggle.Toggled -= ExtensionToggle_Toggled;
         toggle.Tag = item.ExtensionId;
         toggle.IsOn = item.IsEnabled;
@@ -554,6 +549,7 @@ public sealed partial class MainWindow
         ConfigureDiagnostics(core);
         ConfigureStatusBarHandling(core);
         ConfigureScriptDialogHandling(core, webView);
+        ConfigureScreenCaptureHandling(core, webView);
         ConfigureNewWindowHandling(core);
         ConfigureMediaAndPageHandlers(
             tab,
@@ -865,8 +861,8 @@ public sealed partial class MainWindow
     }
 
     private static string? GetBestExtensionIconPath(
-    string extensionPath,
-    JsonElement manifest)
+        string extensionPath,
+        JsonElement manifest)
     {
         int[] preferredSizes = { 32, 48, 16, 64, 128, 24, 20 };
 

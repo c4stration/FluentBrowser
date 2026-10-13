@@ -128,14 +128,6 @@ public sealed partial class MainWindow
     {
         core.ScriptDialogOpening += async (_, args) =>
         {
-            if (args.Kind !=
-                    CoreWebView2ScriptDialogKind.Prompt &&
-                args.Kind !=
-                    CoreWebView2ScriptDialogKind.Alert)
-            {
-                return;
-            }
-
             var deferral = args.GetDeferral();
 
             try
@@ -169,15 +161,13 @@ public sealed partial class MainWindow
                             : null,
 
                     Content =
-                        args.Kind ==
-                        CoreWebView2ScriptDialogKind.Alert
-                            ? new TextBlock
+                        args.Kind == CoreWebView2ScriptDialogKind.Prompt
+                            ? textBox
+                            : new TextBlock
                             {
                                 Text = args.Message,
-                                TextWrapping =
-                                    TextWrapping.Wrap
-                            }
-                            : textBox,
+                                TextWrapping = TextWrapping.Wrap
+                            },
 
                     PrimaryButtonText = "OK",
 
@@ -189,8 +179,8 @@ public sealed partial class MainWindow
                     Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
                 };
 
-                if (args.Kind ==
-                    CoreWebView2ScriptDialogKind.Prompt)
+                if (args.Kind is CoreWebView2ScriptDialogKind.Confirm
+                    or CoreWebView2ScriptDialogKind.Prompt)
                 {
                     dialog.CloseButtonText = "Cancel";
                 }
@@ -215,6 +205,16 @@ public sealed partial class MainWindow
             {
                 deferral.Complete();
             }
+        };
+    }
+
+    private void ConfigureScreenCaptureHandling(
+        CoreWebView2 core,
+        WebView2 webView)
+    {
+        core.ScreenCaptureStarting += async (_, args) =>
+        {
+            System.Diagnostics.Debug.WriteLine("We have to wait for the WebView2 angels to implement a feature for hiding the native picker so that we could implement our own! We can only pray.");
         };
     }
 }
