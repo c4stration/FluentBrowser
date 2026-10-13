@@ -384,6 +384,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>A apărut o eroare necunoscută la deschiderea „{0}”.</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>Redeschide fila închisă</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>Nu există descărcări în curs</value>
   </data>
@@ -521,5 +524,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>Șterge</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>Cod sursă</value>
   </data>
 </root>

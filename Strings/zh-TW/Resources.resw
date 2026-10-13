@@ -384,6 +384,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>開啟「{0}」時發生未知錯誤。</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>重新開啟已關閉的分頁</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>沒有正在進行的下載</value>
   </data>
@@ -521,5 +524,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>刪除</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>原始碼</value>
   </data>
 </root>

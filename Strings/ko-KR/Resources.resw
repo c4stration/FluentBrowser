@@ -384,6 +384,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>"{0}"을(를) 여는 중 알 수 없는 오류가 발생했습니다.</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>닫은 탭 다시 열기</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>진행 중인 다운로드가 없습니다</value>
   </data>
@@ -521,5 +524,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>삭제</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>소스 코드</value>
   </data>
 </root>

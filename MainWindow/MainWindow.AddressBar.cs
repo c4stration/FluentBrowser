@@ -826,6 +826,9 @@ public sealed partial class MainWindow
     {
         FindAddressBarTextHost();
 
+        if (_addressBarFocused == focused)
+            return;
+
         if (_addressTextBox is null || _addressTextHost is null)
             return;
 

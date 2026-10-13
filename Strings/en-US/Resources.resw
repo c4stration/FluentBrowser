@@ -545,4 +545,7 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>Source code</value>
+  </data>
 </root>

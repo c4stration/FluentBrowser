@@ -396,6 +396,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>حدث خطأ غير معروف أثناء فتح «{0}».</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>إعادة فتح علامة التبويب المغلقة</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>لا توجد تنزيلات جارية</value>
   </data>
@@ -533,5 +536,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>الكود المصدري</value>
   </data>
 </root>

@@ -388,6 +388,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>「{0}」を開く際に不明なエラーが発生しました。</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>閉じたタブを再度開く</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>進行中のダウンロードはありません</value>
   </data>
@@ -525,5 +528,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>削除</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>ソースコード</value>
   </data>
 </root>

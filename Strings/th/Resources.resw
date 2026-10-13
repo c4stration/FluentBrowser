@@ -402,6 +402,9 @@
   <data name="CantOpenPageUnknownError" xml:space="preserve">
     <value>เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุขณะเปิด “{0}”</value>
   </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>เปิดแท็บที่ปิดไปอีกครั้ง</value>
+  </data>
   <data name="NoDownloadsText.Text" xml:space="preserve">
     <value>ไม่มีการดาวน์โหลดที่กำลังดำเนินอยู่</value>
   </data>
@@ -539,5 +542,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>ลบ</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>ซอร์สโค้ด</value>
   </data>
 </root>
