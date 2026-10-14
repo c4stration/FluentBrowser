@@ -231,15 +231,18 @@ namespace FluentBrowser
 
         public static void ApplyTheme(string theme)
         {
-            if (ThemeRoot is null)
-                return;
-
-            ThemeRoot.RequestedTheme = theme switch
+            if (ThemeRoot is not null)
             {
-                "Light" => ElementTheme.Light,
-                "Dark" => ElementTheme.Dark,
-                _ => ElementTheme.Default
-            };
+                ThemeRoot.RequestedTheme = theme switch
+                {
+                    "Light" => ElementTheme.Light,
+                    "Dark" => ElementTheme.Dark,
+                    _ => ElementTheme.Default
+                };
+            }
+
+            if (MainWindow is MainWindow window)
+                window.ApplyTitleBarTheme(theme);
         }
     }
 }

@@ -27,8 +27,6 @@ public sealed partial class MainWindow
 
     public void ApplyBackdropMaterial(string material)
     {
-        // The window backdrop is visible behind pages such as Settings, while
-        // the chrome element needs its own backdrop instance for the toolbar
         SystemBackdrop = CreateSystemBackdrop(material);
         BrowserChromeMica.SystemBackdrop = CreateSystemBackdrop(material);
     }
@@ -53,6 +51,16 @@ public sealed partial class MainWindow
             {
                 Kind = MicaKind.Base
             }
+        };
+    }
+
+    public void ApplyTitleBarTheme(string theme)
+    {
+        _appWindow.TitleBar.PreferredTheme = theme switch
+        {
+            "Light" => TitleBarTheme.Light,
+            "Dark" => TitleBarTheme.Dark,
+            _ => TitleBarTheme.UseDefaultAppMode
         };
     }
 

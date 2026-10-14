@@ -21,8 +21,6 @@ public sealed partial class MainWindow : Window
 
     private readonly HashSet<WebView2> _loadingWebViews = new();
     private readonly Dictionary<TabViewItem, BrowserTab> _browserTabs = new();
-    private readonly Dictionary<WebView2, CoreWebView2Certificate>
-        _serverCertificates = [];
 
     private readonly string _faviconCacheDirectory = Path.Combine(
         ApplicationData.Current.LocalFolder.Path,
@@ -100,10 +98,12 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(DragRegion);
 
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
 
         _appWindow = AppWindow.GetFromWindowId(windowId);
+        ApplyTitleBarTheme(
+            _settings.Values["Theme"] as string ?? "System");
         InitializeFullscreenPointerTracking();
 
         Closed += MainWindow_Closed;
