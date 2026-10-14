@@ -544,4 +544,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>画像を新しいタブで開く</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>リンクを新しいタブで開く</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>リンクをコピー</value>
+  </data>
 </root>

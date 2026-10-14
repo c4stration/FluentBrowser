@@ -540,4 +540,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>Deschide imaginea într-o filă nouă</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>Deschide linkul într-o filă nouă</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>Copiază linkul</value>
+  </data>
 </root>

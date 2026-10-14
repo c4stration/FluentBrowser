@@ -552,4 +552,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>فتح الصورة في علامة تبويب جديدة</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>فتح الرابط في علامة تبويب جديدة</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>نسخ الرابط</value>
+  </data>
 </root>

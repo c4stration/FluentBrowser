@@ -558,4 +558,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>פתיחת תמונה בכרטיסייה חדשה</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>פתיחת קישור בכרטיסייה חדשה</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>העתקת קישור</value>
+  </data>
 </root>

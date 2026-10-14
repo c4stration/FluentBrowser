@@ -558,4 +558,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>เปิดรูปภาพในแท็บใหม่</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>เปิดลิงก์ในแท็บใหม่</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>คัดลอกลิงก์</value>
+  </data>
 </root>

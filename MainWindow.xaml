@@ -176,13 +176,10 @@
                                         Margin="32,12,32,0"
                                         AllowDrop="True"
                                         CanDragItems="True"
-                                        DragItemsCompleted="AvailableToolbarListView_DragItemsCompleted"
                                         DragItemsStarting="Toolbar_DragItemsStarting"
                                         DragOver="Toolbar_DragOver"
                                         Drop="Toolbar_Drop"
                                         IsItemClickEnabled="False"
-                                        PointerPressed="AvailableToolbarListView_PointerPressed"
-                                        PointerReleased="AvailableToolbarListView_PointerReleased"
                                         SelectionMode="None">
 
                                         <ListView.ItemsPanel>

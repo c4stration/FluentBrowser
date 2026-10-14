@@ -560,4 +560,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>Open image in new tab</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>Open link in new tab</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
 </root>

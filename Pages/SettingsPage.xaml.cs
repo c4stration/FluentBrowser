@@ -878,12 +878,9 @@ public sealed partial class SettingsPage : Page, IDisposable
                 cards.Add(card);
             }
 
-            // A newer refresh has already started.
             if (loadVersion != _extensionLoadVersion)
                 return;
 
-            // Assign a brand-new list so the Items DP change notification fires
-            // and the internal ItemsRepeater actually refreshes.
             ExtensionsExpander.Items = cards.Cast<object>().ToList();
         }
         catch (Exception ex)
@@ -897,8 +894,8 @@ public sealed partial class SettingsPage : Page, IDisposable
     }
 
     private async void ExtensionToggle_Toggled(
-    object sender,
-    RoutedEventArgs e)
+        object sender,
+        RoutedEventArgs e)
     {
         if (sender is not ToggleSwitch toggle ||
             toggle.Tag is not string extensionId ||

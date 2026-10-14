@@ -27,8 +27,6 @@ public sealed partial class MainWindow
     private readonly Dictionary<Control, bool> _toolbarItemEnabledStates = [];
     private bool _isCustomizingToolbar;
     private string? _draggedToolbarItemId;
-    private bool _isToolbarPoolPointerPressed;
-    private bool _isToolbarPoolDragActive;
     private bool _isToolbarLanguageChangedSubscribed;
 
     private void ToolbarListView_Loaded(object sender, RoutedEventArgs e)
@@ -371,8 +369,6 @@ public sealed partial class MainWindow
         if (e.Items.Count == 0)
             return;
 
-        _isToolbarPoolDragActive = true;
-
         string? id = ResolveItemId(e.Items[0]);
         if (id is null)
         {
@@ -462,33 +458,6 @@ public sealed partial class MainWindow
 
         RebuildToolbarLists();
         e.Handled = true;
-    }
-
-    private void AvailableToolbarListView_PointerPressed(
-        object sender,
-        PointerRoutedEventArgs e)
-    {
-        _isToolbarPoolPointerPressed = true;
-    }
-
-    private void AvailableToolbarListView_PointerReleased(
-        object sender,
-        PointerRoutedEventArgs e)
-    {
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            _isToolbarPoolPointerPressed = false;
-        });
-    }
-
-    private void AvailableToolbarListView_DragItemsCompleted(
-        ListViewBase sender,
-        DragItemsCompletedEventArgs e)
-    {
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            _isToolbarPoolDragActive = false;
-        });
     }
 
     private static async Task<string?> ResolveDraggedItemId(DragEventArgs e)

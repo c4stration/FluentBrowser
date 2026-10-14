@@ -83,34 +83,70 @@ public static class Helpers
         RoutedEventHandler click,
         string keyboardShortcut = "")
     {
-        var item = new MenuFlyoutItem
-        {
-            Text = text,
-            KeyboardAcceleratorTextOverride = keyboardShortcut
-        };
+        return CreateContextMenuItem<MenuFlyoutItem>(
+            text, icon, click, keyboardShortcut);
+    }
 
-        if (!string.IsNullOrEmpty(icon))
+    public static T CreateContextMenuItem<T>(
+        string text,
+        string? icon = null,
+        RoutedEventHandler? click = null,
+        string keyboardShortcut = "")
+        where T : MenuFlyoutItemBase, new()
+    {
+        var item = new T();
+        var iconElement = CreateContextMenuIcon(icon);
+
+        switch (item)
         {
-            if (icon.Length == 1)
-            {
-                item.Icon = new FontIcon
+            case MenuFlyoutItem menuItem:
+                menuItem.Text = text;
+                menuItem.Icon = iconElement;
+                menuItem.KeyboardAcceleratorTextOverride = keyboardShortcut;
+
+                if (click is not null)
+                    menuItem.Click += click;
+
+                break;
+
+            case MenuFlyoutSubItem subItem:
+                if (click is not null || !string.IsNullOrEmpty(keyboardShortcut))
                 {
-                    Glyph = icon
-                };
-            }
-            else
-            {
-                item.Icon = new PathIcon
-                {
-                    Data = (Geometry)XamlBindingHelper.ConvertValue(
-                        typeof(Geometry),
-                        icon)
-                };
-            }
+                    throw new ArgumentException(
+                        "Submenu items cannot have click handlers or keyboard shortcut overrides.");
+                }
+
+                subItem.Text = text;
+                subItem.Icon = iconElement;
+                break;
+
+            default:
+                throw new NotSupportedException(
+                    $"Unsupported menu item type: {typeof(T).Name}");
         }
 
-        item.Click += click;
         return item;
+    }
+
+    private static IconElement? CreateContextMenuIcon(string? icon)
+    {
+        if (string.IsNullOrEmpty(icon))
+            return null;
+
+        if (icon.Length == 1)
+        {
+            return new FontIcon
+            {
+                Glyph = icon
+            };
+        }
+
+        return new PathIcon
+        {
+            Data = (Geometry)XamlBindingHelper.ConvertValue(
+                typeof(Geometry),
+                icon)
+        };
     }
 
     public static MenuFlyoutItem CreateMenuItem(

@@ -540,4 +540,10 @@
   <data name="OpenImageInNewTab" xml:space="preserve">
     <value>在新分頁中開啟圖片</value>
   </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>在新分頁中開啟連結</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>複製連結</value>
+  </data>
 </root>
