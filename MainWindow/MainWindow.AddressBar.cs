@@ -569,7 +569,9 @@ public sealed partial class MainWindow
     }
 
     private static bool LooksLikeWebsiteSuggestion(string display) =>
-        TryCreateAddressUri(display, out Uri? uri) && uri is not null;
+        TryCreateAddressUri(display, out Uri? uri) &&
+        uri is not null &&
+        IsHttpUri(uri);
 
     private void CancelSuggestionRequest()
     {
@@ -970,7 +972,7 @@ public sealed partial class MainWindow
         bool fullWebAddress =
             _settings.Values["FullWebAddress"] as bool? ?? false;
 
-        if (fullWebAddress)
+        if (fullWebAddress || !IsHttpUri(uri))
             return uri.AbsoluteUri;
 
         string host = uri.Host;
@@ -986,6 +988,10 @@ public sealed partial class MainWindow
         uri.Scheme == Uri.UriSchemeHttp ||
         uri.Scheme == Uri.UriSchemeHttps;
 
+    private static bool IsSupportedAddressUri(Uri uri) =>
+        IsHttpUri(uri) ||
+        uri.IsFile;
+
     private static bool TryCreateAddressUri(string text, out Uri? uri)
     {
         uri = null;
@@ -997,7 +1003,7 @@ public sealed partial class MainWindow
 
         if (Uri.TryCreate(text, UriKind.Absolute, out Uri? absolute) &&
             absolute is not null &&
-            IsHttpUri(absolute))
+            IsSupportedAddressUri(absolute))
         {
             uri = absolute;
             return true;
