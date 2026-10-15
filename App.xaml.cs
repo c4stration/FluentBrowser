@@ -132,37 +132,79 @@ namespace FluentBrowser
             if (language != "System")
                 return language;
 
-            string[] preferredLanguages = ApplicationLanguages.Languages.ToArray();
+            string[] preferredLanguages =
+                ApplicationLanguages.Languages.ToArray();
 
+            string[] availableLanguages =
+                Localizer.Get().GetAvailableLanguages().ToArray();
+
+            static bool IsPseudoLocale(string candidate) =>
+                candidate.Equals(
+                    "en-UWU",
+                    StringComparison.OrdinalIgnoreCase) ||
+                candidate.Equals(
+                    "en-LOL",
+                    StringComparison.OrdinalIgnoreCase);
+
+            // Prefer exact locale matches before attempting fallbacks.
             foreach (string preferred in preferredLanguages)
             {
-                foreach (string available in Localizer.Get().GetAvailableLanguages())
+                foreach (string available in availableLanguages)
                 {
-                    if (string.Equals(
-                        preferred,
-                        available,
-                        StringComparison.OrdinalIgnoreCase))
-                    {
-                        return available;
-                    }
-
-                    string preferredBase =
-                        preferred.Split('-')[0];
-
-                    string availableBase =
-                        available.Split('-')[0];
+                    if (IsPseudoLocale(available))
+                        continue;
 
                     if (string.Equals(
-                        preferredBase,
-                        availableBase,
-                        StringComparison.OrdinalIgnoreCase))
+                            preferred,
+                            available,
+                            StringComparison.OrdinalIgnoreCase))
                     {
                         return available;
                     }
                 }
             }
 
-            return "en-US";
+            foreach (string preferred in preferredLanguages)
+            {
+                string preferredBase = preferred.Split('-')[0];
+
+                if (preferredBase.Equals(
+                        "en",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    string? english = availableLanguages.FirstOrDefault(
+                        available => string.Equals(
+                            available,
+                            "en-US",
+                            StringComparison.OrdinalIgnoreCase));
+
+                    if (english is not null)
+                        return english;
+                }
+
+                foreach (string available in availableLanguages)
+                {
+                    if (IsPseudoLocale(available))
+                        continue;
+
+                    string availableBase = available.Split('-')[0];
+
+                    if (string.Equals(
+                            preferredBase,
+                            availableBase,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return available;
+                    }
+                }
+            }
+
+            return availableLanguages.FirstOrDefault(
+                available => string.Equals(
+                    available,
+                    "en-US",
+                    StringComparison.OrdinalIgnoreCase))
+                ?? "en-US";
         }
 
         public static bool IsRtlLanguage(string language)

@@ -30,6 +30,7 @@ public sealed partial class MainWindow
     private bool _addressBarFocused;
     private bool _addressBarAnimating;
     private bool _addressBarUserEditing;
+    private bool _addressBarContextFlyoutOpen;
     private CancellationTokenSource? _addressBarBlurCancellation;
     private Popup? _addressSuggestionPopup;
     private FrameworkElement? _addressSuggestionContainer;
@@ -737,7 +738,8 @@ public sealed partial class MainWindow
                 return;
             }
 
-            if (AddressBar.FocusState != FocusState.Unfocused ||
+            if (_addressBarContextFlyoutOpen ||
+                AddressBar.FocusState != FocusState.Unfocused ||
                 AddressBar.IsSuggestionListOpen)
             {
                 return;
@@ -774,6 +776,15 @@ public sealed partial class MainWindow
 
         if (_addressTextBox is null)
             return;
+
+        if (_addressTextBox.ContextFlyout is { } contextFlyout)
+        {
+            contextFlyout.Opening += (_, _) =>
+                _addressBarContextFlyoutOpen = true;
+
+            contextFlyout.Closed += (_, _) =>
+                _addressBarContextFlyoutOpen = false;
+        }
 
         _addressTextBox.TextAlignment = TextAlignment.Left;
 
