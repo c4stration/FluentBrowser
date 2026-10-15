@@ -380,7 +380,7 @@
     <value>与“{0}”的连接已中断。</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}" 使用了已过期的证书。其安全证书已于{1}过期。这可能是由于配置错误，或攻击者正在拦截您的连接。您的计算机时钟当前设置为{2}。这看起来正确吗？如果不正确，您应该校正系统时钟，然后刷新此页面。</value>
+    <value>"{0}" 使用了已过期的证书。它的安全证书在{1}就过期了。这可能是设置错误，也可能有人正在拦截你的连接。你的电脑时钟现在显示为{2}。日期和时间对吗？如果不对，请调整系统时钟，然后刷新此页面。</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>“{0}”的安全证书无效。</value>

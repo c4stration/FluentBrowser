@@ -1358,7 +1358,7 @@ public sealed partial class SettingsPage : Page, IDisposable
             {
                 foreach (string file in Directory.EnumerateFiles(
                     faviconCachePath,
-                    "*",
+                    "*.png",
                     SearchOption.AllDirectories))
                 {
                     try

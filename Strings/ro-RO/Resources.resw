@@ -376,7 +376,7 @@
     <value>Conexiunea la „{0}” a fost întreruptă.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat {1}. Acest lucru poate fi cauzat de o configurare incorectă sau de un atacator care interceptează conexiunea. Ceasul computerului este setat în prezent la {2}. Este corect? Dacă nu, ar trebui să corectezi ceasul sistemului și apoi să reîmprospătezi această pagină.</value>
+    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat acum {1}. Se poate întâmpla din cauza unei configurări greșite sau pentru că cineva încearcă să-ți intercepteze conexiunea. Ceasul computerului arată acum {2}. Ți se pare corect? Dacă nu, corectează ceasul sistemului și apoi reîncarcă pagina.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>Certificatul de securitate pentru „{0}” este invalid.</value>
