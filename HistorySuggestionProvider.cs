@@ -17,14 +17,57 @@ internal sealed record HistorySuggestion(
 
 internal sealed class HistorySuggestionProvider
 {
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
 
     private readonly SemaphoreSlim _queryGate = new(1, 1);
 
     private string? _cachedHistoryPath;
+    private HistoryFileStamp? _cachedHistoryStamp;
     private DateTimeOffset _cacheExpiresAt;
+
     private HistorySuggestionCandidate[] _cachedCandidates =
         Array.Empty<HistorySuggestionCandidate>();
+
+    private readonly record struct HistoryFileStamp(
+        long HistoryLength,
+        long HistoryLastWriteTicks,
+        bool WalExists,
+        long WalLength,
+        long WalLastWriteTicks);
+
+    private static HistoryFileStamp? GetHistoryFileStamp(
+        string historyPath)
+    {
+        try
+        {
+            var historyFile = new FileInfo(historyPath);
+            historyFile.Refresh();
+
+            var walFile = new FileInfo(historyPath + "-wal");
+            walFile.Refresh();
+
+            bool walExists = walFile.Exists;
+
+            return new HistoryFileStamp(
+                historyFile.Exists ? historyFile.Length : 0,
+                historyFile.Exists
+                    ? historyFile.LastWriteTimeUtc.Ticks
+                    : 0,
+                walExists,
+                walExists ? walFile.Length : 0,
+                walExists
+                    ? walFile.LastWriteTimeUtc.Ticks
+                    : 0);
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
 
     public async Task<IReadOnlyList<HistorySuggestion>> GetSuggestionsAsync(
         CoreWebView2 core,
@@ -52,14 +95,17 @@ internal sealed class HistorySuggestionProvider
             if (cancellationToken.IsCancellationRequested)
                 return Array.Empty<HistorySuggestion>();
 
+            HistoryFileStamp? historyStamp =
+                GetHistoryFileStamp(historyPath);
+
             if (!string.Equals(
                     _cachedHistoryPath,
                     historyPath,
                     StringComparison.OrdinalIgnoreCase) ||
+                historyStamp is null ||
+                _cachedHistoryStamp != historyStamp ||
                 DateTimeOffset.UtcNow >= _cacheExpiresAt)
             {
-                // Complete the refresh even if this keystroke becomes stale.
-                // The next request can then reuse the populated cache.
                 HistorySuggestionCandidate[] candidates = await Task.Run(
                     () => QueryHistorySnapshotWithRetry(
                         historyPath,
@@ -67,6 +113,7 @@ internal sealed class HistorySuggestionProvider
                     CancellationToken.None);
 
                 _cachedHistoryPath = historyPath;
+                _cachedHistoryStamp = historyStamp;
                 _cachedCandidates = candidates;
                 _cacheExpiresAt = DateTimeOffset.UtcNow + CacheDuration;
             }
