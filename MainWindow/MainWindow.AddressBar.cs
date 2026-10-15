@@ -12,11 +12,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Numerics;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.System;
+using WinUI3Localizer;
+using FluentBrowser.Shared;
 
 namespace FluentBrowser;
 
@@ -792,6 +793,60 @@ public sealed partial class MainWindow
 
         if (_addressTextHost is null)
             return;
+
+        var textBox = _addressTextBox;
+        var menu = new MenuFlyout();
+
+        var cutItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("Cut"),
+            "\uE8C6",
+            (_, _) => textBox.CutSelectionToClipboard(),
+            "Ctrl+X");
+
+        var copyItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("Copy"),
+            "\uE8C8",
+            (_, _) => textBox.CopySelectionToClipboard(),
+            "Ctrl+C");
+
+        var pasteItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("Paste"),
+            "\uE77F",
+            (_, _) => textBox.PasteFromClipboard(),
+            "Ctrl+V");
+
+        var selectAllItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("SelectAll"),
+            "",
+            (_, _) => textBox.SelectAll(),
+            "Ctrl+A");
+
+        menu.Items.Add(cutItem);
+        menu.Items.Add(copyItem);
+        menu.Items.Add(pasteItem);
+        menu.Items.Add(new MenuFlyoutSeparator());
+        menu.Items.Add(selectAllItem);
+
+        menu.Opening += (_, _) =>
+        {
+            cutItem.Text = LocalizerExtensions.GetLocalizedString("Cut");
+            copyItem.Text = LocalizerExtensions.GetLocalizedString("Copy");
+            pasteItem.Text = LocalizerExtensions.GetLocalizedString("Paste");
+            selectAllItem.Text = LocalizerExtensions.GetLocalizedString("SelectAll");
+
+            cutItem.IsEnabled = textBox.SelectionLength > 0;
+            copyItem.IsEnabled = textBox.SelectionLength > 0;
+            selectAllItem.IsEnabled = textBox.Text.Length > 0;
+
+            _addressBarContextFlyoutOpen = true;
+        };
+
+        menu.Closed += (_, _) =>
+        {
+            _addressBarContextFlyoutOpen = false;
+        };
+
+        textBox.ContextFlyout = menu;
 
         ElementCompositionPreview.SetIsTranslationEnabled(
             _addressTextHost,

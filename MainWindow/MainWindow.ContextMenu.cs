@@ -200,9 +200,36 @@ public sealed partial class MainWindow
         }
 
         if (menu.Items.Count > 0)
+        {
+            foreach (MenuFlyoutItemBase item in menu.Items)
+                SetContextMenuItemFlowDirection(item, App.CurrentFlowDirection);
+
+            menu.MenuFlyoutPresenterStyle = new Style(typeof(MenuFlyoutPresenter));
+            menu.MenuFlyoutPresenterStyle.Setters.Add(
+                new Setter(
+                    FrameworkElement.FlowDirectionProperty,
+                    App.CurrentFlowDirection));
+
             menu.ShowAt(webView, args.Location);
+        }
         else
+        {
             deferral.Complete();
+        }
+    }
+
+    private static void SetContextMenuItemFlowDirection(
+        MenuFlyoutItemBase item,
+        FlowDirection direction)
+    {
+        if (item is FrameworkElement element)
+            element.FlowDirection = direction;
+
+        if (item is MenuFlyoutSubItem submenu)
+        {
+            foreach (MenuFlyoutItemBase child in submenu.Items)
+                SetContextMenuItemFlowDirection(child, direction);
+        }
     }
 
     private void AddNavigationContextMenuItems(
