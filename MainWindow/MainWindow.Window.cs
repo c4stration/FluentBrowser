@@ -156,7 +156,7 @@ public sealed partial class MainWindow
         {
             To = offset,
             Duration = new Duration(
-                TimeSpan.FromMilliseconds(180)),
+                TimeSpan.FromMilliseconds(167)),
             EasingFunction = new CubicEase
             {
                 EasingMode = EasingMode.EaseOut

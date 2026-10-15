@@ -94,6 +94,7 @@ public sealed partial class MainWindow : Window
         ToolbarFlyout.OverlayInputPassThroughElement = RootGrid;
 
         Directory.CreateDirectory(_faviconCacheDirectory);
+        TrimFaviconDiskCache();
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(DragRegion);

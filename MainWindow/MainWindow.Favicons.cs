@@ -23,6 +23,13 @@ public sealed partial class MainWindow
 {
     private readonly Dictionary<string, BitmapImage> _faviconCache =
         new(StringComparer.OrdinalIgnoreCase);
+    private const int MaxInMemoryFavicons = 128;
+    private const int MaxDiskFavicons = 512; // Or whatever.
+    private const long MaxDiskFaviconBytes = 32L * 1024 * 1024;
+
+    private readonly LinkedList<string> _faviconLru = new();
+    private readonly Dictionary<string, LinkedListNode<string>>
+        _faviconLruNodes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, string> _faviconUrisByHost =
         new(StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _faviconIndexLock = new(1, 1);
@@ -62,6 +69,52 @@ public sealed partial class MainWindow
             : Visibility.Collapsed;
     }
 
+    private bool TryGetCachedFavicon(
+    string faviconUri,
+    out BitmapImage? bitmap)
+    {
+        if (!_faviconCache.TryGetValue(faviconUri, out bitmap))
+            return false;
+
+        if (_faviconLruNodes.TryGetValue(faviconUri, out var node))
+        {
+            _faviconLru.Remove(node);
+            _faviconLru.AddFirst(node);
+        }
+
+        return true;
+    }
+
+    private void CacheFavicon(
+        string faviconUri,
+        BitmapImage bitmap)
+    {
+        _faviconCache[faviconUri] = bitmap;
+
+        if (_faviconLruNodes.TryGetValue(faviconUri, out var node))
+        {
+            _faviconLru.Remove(node);
+            _faviconLru.AddFirst(node);
+        }
+        else
+        {
+            _faviconLruNodes[faviconUri] =
+                _faviconLru.AddFirst(faviconUri);
+        }
+
+        while (_faviconCache.Count > MaxInMemoryFavicons)
+        {
+            var oldest = _faviconLru.Last;
+
+            if (oldest is null)
+                break;
+
+            _faviconLru.RemoveLast();
+            _faviconLruNodes.Remove(oldest.Value);
+            _faviconCache.Remove(oldest.Value);
+        }
+    }
+
     private async Task UpdateFaviconAsync(BrowserTab tab)
     {
         try
@@ -89,7 +142,8 @@ public sealed partial class MainWindow
 
             await RememberFaviconForHostAsync(webView.Source, faviconUri);
 
-            if (_faviconCache.TryGetValue(faviconUri, out var cached))
+            if (TryGetCachedFavicon(faviconUri, out var cached) &&
+                cached is not null)
             {
                 if (tab.IsClosed ||
                     tab.WebView is not { } cachedWebView ||
@@ -118,7 +172,7 @@ public sealed partial class MainWindow
 
             if (diskFavicon is not null)
             {
-                _faviconCache[faviconUri] = diskFavicon;
+                CacheFavicon(faviconUri, diskFavicon);
                 tab.Favicon.Source = diskFavicon;
                 UpdateDefaultFavicon(tab, false);
 
@@ -173,7 +227,7 @@ public sealed partial class MainWindow
                 return;
             }
 
-            _faviconCache[faviconUri] = bitmap;
+            CacheFavicon(faviconUri, bitmap);
 
             await SaveFaviconToDiskAsync(faviconUri, bytes);
 
@@ -211,6 +265,12 @@ public sealed partial class MainWindow
             byte[] bytes = await File.ReadAllBytesAsync(path);
             var bitmap = new BitmapImage();
 
+            try
+            {
+                File.SetLastAccessTimeUtc(path, DateTime.UtcNow);
+            }
+            catch { }
+
             using var stream = new MemoryStream(bytes);
 
             await bitmap.SetSourceAsync(
@@ -230,14 +290,21 @@ public sealed partial class MainWindow
     {
         try
         {
-            await File.WriteAllBytesAsync(
-                GetFaviconPath(faviconUri),
-                bytes);
+            string path = GetFaviconPath(faviconUri);
+
+            await File.WriteAllBytesAsync(path, bytes);
+
+            try
+            {
+                File.SetLastAccessTimeUtc(path, DateTime.UtcNow);
+            }
+            catch
+            {
+            }
+
+            TrimFaviconDiskCache();
         }
-        catch
-        {
-            // All the things she said, all the things she said, running through my head, running through my head, running through my head
-        }
+        catch { }
     }
 
     private string GetFaviconPath(string faviconUri)
@@ -259,15 +326,60 @@ public sealed partial class MainWindow
                 out string? faviconUri))
             return null;
 
-        if (_faviconCache.TryGetValue(faviconUri, out BitmapImage? cached))
+        if (TryGetCachedFavicon(faviconUri, out var cached) &&
+            cached is not null)
+        {
             return cached;
+        }
 
         BitmapImage? diskFavicon = await LoadFaviconFromDiskAsync(faviconUri);
 
         if (diskFavicon is not null)
-            _faviconCache[faviconUri] = diskFavicon;
+            CacheFavicon(faviconUri, diskFavicon);
 
         return diskFavicon;
+    }
+
+    private void TrimFaviconDiskCache()
+    {
+        try
+        {
+            var files = new DirectoryInfo(_faviconCacheDirectory)
+                .EnumerateFiles("*.png")
+                .Select(file => new
+                {
+                    File = file,
+                    Size = file.Length,
+                    LastAccess = file.LastAccessTimeUtc
+                })
+                .OrderBy(file => file.LastAccess)
+                .ToList();
+
+            long totalBytes = files.Sum(file => file.Size);
+            int count = files.Count;
+
+            foreach (var item in files)
+            {
+                if (count <= MaxDiskFavicons &&
+                    totalBytes <= MaxDiskFaviconBytes)
+                {
+                    break;
+                }
+
+                try
+                {
+                    item.File.Delete();
+                    totalBytes -= item.Size;
+                    count--;
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"failed to trim favicon cache {ex}");
+        }
     }
 
     private async Task RememberFaviconForHostAsync(
@@ -390,6 +502,8 @@ public sealed partial class MainWindow
     public void ClearFaviconCache()
     {
         _faviconCache.Clear();
+        _faviconLru.Clear();
+        _faviconLruNodes.Clear();
         _faviconUrisByHost.Clear();
         _faviconIndexLoaded = true;
 
