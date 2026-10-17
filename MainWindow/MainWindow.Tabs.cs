@@ -146,8 +146,8 @@ public sealed partial class MainWindow
     }
 
     private void MainTabView_SelectionChanged(
-        object sender,
-        SelectionChangedEventArgs e)
+    object sender,
+    SelectionChangedEventArgs e)
     {
         if (SelectedTab is not BrowserTab tab)
             return;
@@ -173,6 +173,19 @@ public sealed partial class MainWindow
             {
                 RestoreDefaultToolbarBackground();
             }
+
+            if (tab.ErrorPage is null)
+            {
+                _ = DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (ReferenceEquals(SelectedTab, tab) &&
+                        ReferenceEquals(tab.WebView, webView) &&
+                        tab.ErrorPage is null)
+                    {
+                        webView.Focus(FocusState.Programmatic);
+                    }
+                });
+            }
         }
         else
         {
@@ -184,23 +197,6 @@ public sealed partial class MainWindow
 
             RestoreDefaultToolbarBackground();
         }
-    }
-
-    private static Grid CreateWebViewContent(
-        WebView2 webView,
-        out Frame errorFrame)
-    {
-        var grid = new Grid();
-
-        errorFrame = new Frame
-        {
-            Visibility = Visibility.Collapsed
-        };
-
-        grid.Children.Add(webView);
-        grid.Children.Add(errorFrame);
-
-        return grid;
     }
 
     private TabViewItem CreateNewTab(

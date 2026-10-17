@@ -308,7 +308,7 @@ public sealed partial class MainWindow
                     true);
 
                 UpdateNavigationButtons();
-                UpdateAddressBar(webView);
+                UpdateAddressBar(webView, force: true);
             }
             catch (TaskCanceledException)
             {

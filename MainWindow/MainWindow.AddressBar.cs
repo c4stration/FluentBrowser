@@ -31,12 +31,14 @@ public sealed partial class MainWindow
     private bool _addressBarFocused;
     private bool _addressBarAnimating;
     private bool _addressBarUserEditing;
+    private bool _addressBarSubmitting;
     private bool _addressBarContextFlyoutOpen;
     private CancellationTokenSource? _addressBarBlurCancellation;
     private Popup? _addressSuggestionPopup;
     private FrameworkElement? _addressSuggestionContainer;
     private ListView? _addressSuggestionList;
     private Storyboard? _addressSuggestionHeightStoryboard;
+    private Uri? _pendingAddressBarUri;
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
@@ -119,8 +121,11 @@ public sealed partial class MainWindow
         AutoSuggestBox sender,
         AutoSuggestBoxTextChangedEventArgs args)
     {
-        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
+        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput ||
+            _addressBarSubmitting)
+        {
             return;
+        }
 
         _addressBarUserEditing = true;
 
@@ -622,8 +627,8 @@ public sealed partial class MainWindow
     }
 
     private void AddressBar_QuerySubmitted(
-        AutoSuggestBox sender,
-        AutoSuggestBoxQuerySubmittedEventArgs args)
+    AutoSuggestBox sender,
+    AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         string text = args.QueryText.Trim();
 
@@ -666,8 +671,8 @@ public sealed partial class MainWindow
         if (_suggestionWasChosen &&
             args.ChosenSuggestion is AddressBarSuggestion chosenSuggestion &&
             _suggestionTrainingIds.TryGetValue(
-        chosenSuggestion.Display,
-        out var trainingId))
+                chosenSuggestion.Display,
+                out var trainingId))
         {
             _ = SuggestionTrainingLogger.LogClickAsync(
                 new SuggestionClick
@@ -678,6 +683,12 @@ public sealed partial class MainWindow
                 });
         }
 
+        ++_addressBarFocusVersion;
+
+        _addressBarBlurCancellation?.Cancel();
+        _addressBarBlurCancellation = null;
+
+        _addressBarSubmitting = true;
         _suggestionWasChosen = false;
         _selectedSuggestionTarget = null;
 
@@ -685,19 +696,51 @@ public sealed partial class MainWindow
         ClearSuggestions(sender);
         _suggestionTargets.Clear();
         _suggestionTrainingIds.Clear();
-        _addressBarUserEditing = false;
 
         if (SelectedTab is not BrowserTab tab)
+        {
+            _addressBarUserEditing = false;
+            _addressBarSubmitting = false;
             return;
+        }
 
         if (tab.WebView is WebView2 webView)
+        {
+            _addressBarUserEditing = false;
+
+            UpdateAddressBar(target, force: true);
+            _pendingAddressBarUri = target;
+
             Navigate(webView, target);
+
+            webView.DispatcherQueue.TryEnqueue(() =>
+            {
+                CancelSuggestionRequest();
+                ClearSuggestions(AddressBar);
+
+                if (ReferenceEquals(SelectedWebView, webView))
+                {
+                    webView.Focus(FocusState.Programmatic);
+                    AnimateAddressBar(false);
+                }
+
+                _addressBarSubmitting = false;
+            });
+        }
         else
+        {
+            _addressBarUserEditing = false;
+            _addressBarSubmitting = false;
+
             ConvertInternalTabToWeb(tab, target);
+        }
     }
 
     private void AddressBar_GotFocus(object sender, RoutedEventArgs e)
     {
+        if (_addressBarSubmitting)
+            return;
+
         ++_addressBarFocusVersion;
 
         _addressBarBlurCancellation?.Cancel();
@@ -722,6 +765,9 @@ public sealed partial class MainWindow
 
     private async void AddressBar_LostFocus(object sender, RoutedEventArgs e)
     {
+        if (_addressBarSubmitting)
+            return;
+
         _addressBarBlurCancellation?.Cancel();
 
         var cancellation = new CancellationTokenSource();
@@ -741,7 +787,7 @@ public sealed partial class MainWindow
 
             if (_addressBarContextFlyoutOpen ||
                 AddressBar.FocusState != FocusState.Unfocused ||
-                AddressBar.IsSuggestionListOpen)
+                (!_addressBarSubmitting && AddressBar.IsSuggestionListOpen))
             {
                 return;
             }
@@ -752,7 +798,12 @@ public sealed partial class MainWindow
             ClearSuggestions(AddressBar);
 
             if (SelectedWebView is WebView2 webView)
-                UpdateAddressBar(webView);
+            {
+                if (_pendingAddressBarUri is not null)
+                    UpdateAddressBar(_pendingAddressBarUri);
+                else
+                    UpdateAddressBar(webView);
+            }
 
             AnimateAddressBar(false);
         }
@@ -912,7 +963,28 @@ public sealed partial class MainWindow
 
         int version = ++_addressBarAnimationVersion;
 
+        AddressBar.UpdateLayout();
+        _addressTextBox.UpdateLayout();
         _addressTextHost.UpdateLayout();
+
+        double available =
+            _addressTextHost.ActualWidth -
+            _addressTextBox.Padding.Left -
+            _addressTextBox.Padding.Right;
+
+        double textWidth = MeasureAddressTextWidth();
+
+        if (available <= 0 || textWidth >= available - 8)
+        {
+            visual.StopAnimation("Translation");
+            visual.Properties.InsertVector3("Translation", Vector3.Zero);
+
+            _addressTextHost.ChangeView(0, null, null, true);
+            _addressTextHost.IsHitTestVisible = focused;
+            _addressBarAnimating = false;
+
+            return;
+        }
 
         float center = (float)CalculateCenterOffset();
         float startX = focused ? center : 0;
@@ -954,6 +1026,12 @@ public sealed partial class MainWindow
 
             _addressTextHost.IsHitTestVisible = focused;
             _addressBarAnimating = false;
+
+            if (!focused)
+            {
+                _addressTextHost.ChangeView(0, null, null, true);
+                UpdateUnfocusedTranslation();
+            }
         };
 
         batch.End();
@@ -1016,19 +1094,23 @@ public sealed partial class MainWindow
         return measurer.DesiredSize.Width;
     }
 
-    private void UpdateAddressBar(WebView2 webView)
+    private void UpdateAddressBar(WebView2 webView, bool force = false)
     {
         if (webView.Source is Uri uri)
-            UpdateAddressBar(uri);
+            UpdateAddressBar(uri, force);
     }
 
-    private void UpdateAddressBar(Uri uri)
+    private void UpdateAddressBar(Uri uri, bool force = false)
     {
-        if (_addressBarUserEditing ||
-            AddressBar.FocusState != FocusState.Unfocused)
+        if (!force &&
+            (_addressBarUserEditing ||
+             AddressBar.FocusState != FocusState.Unfocused))
         {
             return;
         }
+
+        if (force || _pendingAddressBarUri is not null)
+            _pendingAddressBarUri = null;
 
         AddressBar.Text = GetAddressName(uri);
     }
@@ -1055,8 +1137,7 @@ public sealed partial class MainWindow
         uri.Scheme == Uri.UriSchemeHttps;
 
     private static bool IsSupportedAddressUri(Uri uri) =>
-        IsHttpUri(uri) ||
-        uri.IsFile;
+        uri.IsAbsoluteUri;
 
     private static bool TryCreateAddressUri(string text, out Uri? uri)
     {

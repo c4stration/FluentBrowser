@@ -145,34 +145,37 @@ public sealed partial class MainWindow
 
                     textBox.Loaded += (_, _) =>
                     {
-                        textBox.Focus(
-                            FocusState.Programmatic);
-
+                        textBox.Focus(FocusState.Programmatic);
                         textBox.SelectAll();
                     };
                 }
 
+                var messageBlock = new TextBlock
+                {
+                    Text = args.Message,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
                 var dialog = new ContentDialog
                 {
-                    Title =
-                        args.Kind ==
-                        CoreWebView2ScriptDialogKind.Prompt
-                            ? args.Message
-                            : null,
+                    Title = null,
 
                     Content =
                         args.Kind == CoreWebView2ScriptDialogKind.Prompt
-                            ? textBox
-                            : new TextBlock
+                            ? new StackPanel
                             {
-                                Text = args.Message,
-                                TextWrapping = TextWrapping.Wrap
-                            },
+                                Spacing = 12,
+                                Children =
+                                {
+                                messageBlock,
+                                textBox!
+                                }
+                            }
+                            : messageBlock,
 
                     PrimaryButtonText = "OK",
 
-                    DefaultButton =
-                        ContentDialogButton.Primary,
+                    DefaultButton = ContentDialogButton.Primary,
 
                     XamlRoot = webView.XamlRoot,
 
@@ -185,17 +188,14 @@ public sealed partial class MainWindow
                     dialog.CloseButtonText = "Cancel";
                 }
 
-                var result =
-                    await dialog.ShowAsync();
+                var result = await dialog.ShowAsync();
 
-                if (result ==
-                    ContentDialogResult.Primary)
+                if (result == ContentDialogResult.Primary)
                 {
                     if (args.Kind ==
                         CoreWebView2ScriptDialogKind.Prompt)
                     {
-                        args.ResultText =
-                            textBox!.Text;
+                        args.ResultText = textBox!.Text;
                     }
 
                     args.Accept();
