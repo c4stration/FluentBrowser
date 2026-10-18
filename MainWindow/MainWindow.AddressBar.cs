@@ -39,6 +39,7 @@ public sealed partial class MainWindow
     private ListView? _addressSuggestionList;
     private Storyboard? _addressSuggestionHeightStoryboard;
     private Uri? _pendingAddressBarUri;
+    private WebView2? _pendingAddressBarFocusWebView;
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
@@ -385,6 +386,32 @@ public sealed partial class MainWindow
 
         if (_addressSuggestionContainer is { } container)
             container.Height = double.NaN;
+
+        if (_pendingAddressBarFocusWebView is { } webView)
+        {
+            _pendingAddressBarFocusWebView = null;
+            QueueAddressBarSubmissionFocus(webView);
+        }
+    }
+
+    private void QueueAddressBarSubmissionFocus(WebView2 webView)
+    {
+        webView.DispatcherQueue.TryEnqueue(() =>
+        {
+            CancelSuggestionRequest();
+            ClearSuggestions(AddressBar);
+
+            _suggestionTargets.Clear();
+            _suggestionTrainingIds.Clear();
+
+            if (ReferenceEquals(SelectedWebView, webView))
+            {
+                webView.Focus(FocusState.Programmatic);
+                AnimateAddressBar(false);
+            }
+
+            _addressBarSubmitting = false;
+        });
     }
 
     private void AddressSuggestionList_ContainerContentChanging(
@@ -627,8 +654,8 @@ public sealed partial class MainWindow
     }
 
     private void AddressBar_QuerySubmitted(
-    AutoSuggestBox sender,
-    AutoSuggestBoxQuerySubmittedEventArgs args)
+        AutoSuggestBox sender,
+        AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         string text = args.QueryText.Trim();
 
@@ -692,6 +719,16 @@ public sealed partial class MainWindow
         _suggestionWasChosen = false;
         _selectedSuggestionTarget = null;
 
+        WebView2? webViewToFocus =
+            (SelectedTab)?.WebView;
+
+        bool waitForSuggestionPopupClose =
+            webViewToFocus is not null &&
+            _addressSuggestionPopup?.IsOpen == true;
+
+        _pendingAddressBarFocusWebView =
+            waitForSuggestionPopupClose ? webViewToFocus : null;
+
         CancelSuggestionRequest();
         ClearSuggestions(sender);
         _suggestionTargets.Clear();
@@ -713,19 +750,8 @@ public sealed partial class MainWindow
 
             Navigate(webView, target);
 
-            webView.DispatcherQueue.TryEnqueue(() =>
-            {
-                CancelSuggestionRequest();
-                ClearSuggestions(AddressBar);
-
-                if (ReferenceEquals(SelectedWebView, webView))
-                {
-                    webView.Focus(FocusState.Programmatic);
-                    AnimateAddressBar(false);
-                }
-
-                _addressBarSubmitting = false;
-            });
+            if (!waitForSuggestionPopupClose)
+                QueueAddressBarSubmissionFocus(webView);
         }
         else
         {

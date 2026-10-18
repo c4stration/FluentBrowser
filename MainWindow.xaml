@@ -430,7 +430,7 @@
                     x:Name="ToolbarListView"
                     Grid.Column="2"
                     MinHeight="36"
-                    Margin="16,2,5,0"
+                    Margin="16,2,0,0"
                     Padding="0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -438,6 +438,7 @@
                     Background="Transparent"
                     CanDragItems="True"
                     CanReorderItems="True"
+                    CornerRadius="{ThemeResource OverlayCornerRadius}"
                     DragItemsStarting="Toolbar_DragItemsStarting"
                     DragOver="Toolbar_DragOver"
                     Drop="Toolbar_Drop"
@@ -474,6 +475,20 @@
                                 Click="CustomizeToolbar_Click" />
                         </MenuFlyout>
                     </ListView.ContextFlyout>
+
+                    <ListViewItem>
+                        <Button Padding="12,8" CornerRadius="{ThemeResource ControlCornerRadius}" Style="{ThemeResource AppBarButtonStyle}">
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="14"
+                                Glyph="&#xE710;"
+                                Translation="0,0,0">
+                                <FontIcon.TranslationTransition>
+                                    <Vector3Transition />
+                                </FontIcon.TranslationTransition>
+                            </FontIcon>
+                        </Button>
+                    </ListViewItem>
 
                     <ListViewItem>
                         <Button
@@ -811,6 +826,7 @@
                         <Button
                             x:Name="MoreButton"
                             Padding="6"
+                            Margin="0,0,6,0"
                             ClickMode="Release"
                             CornerRadius="{ThemeResource ControlCornerRadius}"
                             Style="{StaticResource AppBarButtonStyle}">
