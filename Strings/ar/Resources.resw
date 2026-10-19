@@ -558,4 +558,19 @@
   <data name="CopyLink" xml:space="preserve">
     <value>نسخ الرابط</value>
   </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>العناصر</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>تجاهل</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>إزالة التثبيت</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>لقد أضفت جميع العناصر إلى شريط الأدوات!</value>
+  </data>
 </root>

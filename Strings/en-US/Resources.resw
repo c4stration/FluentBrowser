@@ -566,4 +566,19 @@
   <data name="CopyLink" xml:space="preserve">
     <value>Copy link</value>
   </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>Unpin</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>You've put all the items into the toolbar!</value>
+  </data>
 </root>

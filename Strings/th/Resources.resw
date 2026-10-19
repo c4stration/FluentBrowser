@@ -564,4 +564,19 @@
   <data name="CopyLink" xml:space="preserve">
     <value>คัดลอกลิงก์</value>
   </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>รายการ</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>บันทึก</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>ละทิ้ง</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>เลิกปักหมุด</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>คุณเพิ่มรายการทั้งหมดลงในแถบเครื่องมือแล้ว!</value>
+  </data>
 </root>

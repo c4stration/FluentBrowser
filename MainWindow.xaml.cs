@@ -91,8 +91,6 @@ public sealed partial class MainWindow : Window
             new KeyEventHandler(FindOnPageBox_KeyDownHandled),
             true);
 
-        ToolbarFlyout.OverlayInputPassThroughElement = RootGrid;
-
         Directory.CreateDirectory(_faviconCacheDirectory);
         TrimFaviconDiskCache();
 

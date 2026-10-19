@@ -546,4 +546,19 @@
   <data name="CopyLink" xml:space="preserve">
     <value>링크 복사</value>
   </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>항목</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>저장</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>취소</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>고정 해제</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>모든 항목을 도구 모음에 추가했습니다!</value>
+  </data>
 </root>

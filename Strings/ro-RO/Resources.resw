@@ -546,4 +546,19 @@
   <data name="CopyLink" xml:space="preserve">
     <value>Copiază linkul</value>
   </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>Elemente</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>Salvează</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>Renunță</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>Anulați fixarea</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>Ai adăugat toate elementele în bara de instrumente!</value>
+  </data>
 </root>

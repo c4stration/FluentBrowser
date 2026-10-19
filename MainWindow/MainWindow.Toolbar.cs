@@ -1,3 +1,5 @@
+using FluentBrowser.Shared;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -11,6 +13,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.UI;
 using WinUI3Localizer;
 
 // TODO: move every toolbar button handlers to this file and add every toolbar item to the pool
@@ -25,6 +28,7 @@ public sealed partial class MainWindow
     private readonly List<ToolbarItem> _allToolbarItems = [];
     private readonly List<string> _activeToolbarIds = [];
     private readonly Dictionary<Control, bool> _toolbarItemEnabledStates = [];
+    private List<string> _toolbarLayoutBeforeCustomization = [];
     private bool _isCustomizingToolbar;
     private string? _draggedToolbarItemId;
     private bool _isToolbarLanguageChangedSubscribed;
@@ -72,6 +76,12 @@ public sealed partial class MainWindow
 
             if (container.Content is not UIElement content)
                 continue;
+
+            if (ReferenceEquals(content, AddToolbarItemButton))
+            {
+                container.Content = null;
+                continue;
+            }
 
             string id = content switch
             {
@@ -147,13 +157,21 @@ public sealed partial class MainWindow
 
         ClearListView(ToolbarListView);
 
+        AddToolbarItemButton.Visibility = _isCustomizingToolbar
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
         foreach (string id in _activeToolbarIds)
         {
             var item = FindToolbarItem(id);
             if (item is null)
                 continue;
 
-            ToolbarListView.Items.Add(WrapInListViewItem(item.Content));
+            var container = WrapInListViewItem(item.Content);
+            if (_isCustomizingToolbar)
+                container.ContextFlyout = CreateToolbarItemContextFlyout(item.Id);
+
+            ToolbarListView.Items.Add(container);
         }
     }
 
@@ -162,16 +180,16 @@ public sealed partial class MainWindow
         if (AvailableToolbarListView is null)
             return;
 
-        ClearListView(AvailableToolbarListView);
+        var availableItems = _allToolbarItems
+            .Where(item => !_activeToolbarIds.Contains(item.Id))
+            .ToList();
 
-        foreach (var item in _allToolbarItems)
-        {
-            if (_activeToolbarIds.Contains(item.Id))
-                continue;
+        AvailableToolbarListView.ItemsSource = null;
+        AvailableToolbarListView.ItemsSource = availableItems;
 
-            AvailableToolbarListView.Items.Add(
-                CreateAvailableToolbarItem(item));
-        }
+        NoToolbarItemText.Visibility = availableItems.Count == 0
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     private static string GetToolbarItemDisplayName(string id) => id switch
@@ -194,7 +212,7 @@ public sealed partial class MainWindow
             RebuildAvailableToolbar();
     }
 
-    private static string GetToolbarItemGlyph(string id) => id switch
+    internal static string GetToolbarItemGlyph(string id) => id switch
     {
         "BackButton" => "\uE72B",
         "ForwardButton" => "\uE72A",
@@ -205,43 +223,48 @@ public sealed partial class MainWindow
         _ => "\uE71C"
     };
 
-    private Grid CreateAvailableToolbarItem(ToolbarItem item)
+    private void AvailableToolbarItem_Click(object sender, RoutedEventArgs e)
     {
-        var grid = new Grid
+        if (!_isCustomizingToolbar ||
+            sender is not Button button ||
+            button.Tag is not string id ||
+            FindToolbarItem(id) is null ||
+            _activeToolbarIds.Contains(id))
         {
-            Tag = item.Id,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+            return;
+        }
 
-        var stack = new StackPanel
+        _activeToolbarIds.Insert(0, id);
+
+        RebuildToolbarLists();
+    }
+
+    private MenuFlyout CreateToolbarItemContextFlyout(string id)
+    {
+        var flyout = new MenuFlyout();
+
+        var unpinItem = Helpers.CreateContextMenuItem(
+            LocalizerExtensions.GetLocalizedString("Unpin"),
+            "\uE77A",
+            UnpinToolbarItem_Click);
+
+        unpinItem.Tag = id;
+        flyout.Items.Add(unpinItem);
+
+        return flyout;
+    }
+
+    private void UnpinToolbarItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_isCustomizingToolbar ||
+            sender is not MenuFlyoutItem menuItem ||
+            menuItem.Tag is not string id ||
+            !_activeToolbarIds.Remove(id))
         {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Spacing = 4,
-            IsHitTestVisible = false
-        };
+            return;
+        }
 
-        var icon = new FontIcon
-        {
-            FontFamily = new FontFamily("Segoe Fluent Icons"),
-            FontSize = 18,
-            Glyph = GetToolbarItemGlyph(item.Id),
-            IsHitTestVisible = false
-        };
-
-        var label = new TextBlock
-        {
-            Text = item.DisplayName,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-            IsHitTestVisible = false
-        };
-
-        stack.Children.Add(icon);
-        stack.Children.Add(label);
-        grid.Children.Add(stack);
-
-        return grid;
+        RebuildToolbarLists();
     }
 
     private ToolbarItem? FindToolbarItem(string id) =>
@@ -264,10 +287,14 @@ public sealed partial class MainWindow
 
     private static void ClearListView(ListView listView)
     {
-        foreach (var item in listView.Items.OfType<ListViewItem>())
+        if (listView.ItemsSource is not null)
         {
-            item.Content = null;
+            listView.ItemsSource = null;
+            return;
         }
+
+        foreach (var item in listView.Items.OfType<ListViewItem>())
+            item.Content = null;
 
         listView.Items.Clear();
     }
@@ -277,8 +304,15 @@ public sealed partial class MainWindow
 
     private void EnterToolbarCustomizeMode()
     {
+        _toolbarLayoutBeforeCustomization = _activeToolbarIds.ToList();
         _isCustomizingToolbar = true;
         _draggedToolbarItemId = null;
+
+        ToolbarBackground.Background = new SolidColorBrush(
+            (Color)Application.Current.Resources["ControlOnImageFillColorDefault"]);
+        ToolbarStroke.BorderThickness = new Thickness(1);
+
+        AddToolbarItemButton.Visibility = Visibility.Visible;
 
         foreach (var item in _allToolbarItems)
         {
@@ -292,7 +326,7 @@ public sealed partial class MainWindow
         }
 
         RebuildToolbarLists();
-        FlyoutBase.ShowAttachedFlyout(Toolbar);
+        ToolbarFlyout.IsOpen = true;
     }
 
     private void SyncActiveToolbarIdsFromListView()
@@ -310,39 +344,59 @@ public sealed partial class MainWindow
         _activeToolbarIds.AddRange(ids);
     }
 
-    private void ExitToolbarCustomizeMode()
+    private void ExitToolbarCustomizeMode(bool saveChanges)
     {
         if (!_isCustomizingToolbar)
             return;
 
-        SyncActiveToolbarIdsFromListView();
+        if (saveChanges)
+        {
+            SyncActiveToolbarIdsFromListView();
+        }
+        else
+        {
+            _activeToolbarIds.Clear();
+            _activeToolbarIds.AddRange(_toolbarLayoutBeforeCustomization);
+        }
 
         _isCustomizingToolbar = false;
+        AddToolbarItemButton.Visibility = Visibility.Collapsed;
         _draggedToolbarItemId = null;
-        ToolbarFlyout.CloseExplicitly();
+        ToolbarFlyout.IsOpen = false;
+
+        ToolbarBackground.Background = new SolidColorBrush(Colors.Transparent);
+        ToolbarStroke.BorderThickness = new Thickness(0);
 
         ClearListView(ToolbarListView);
         ClearListView(AvailableToolbarListView);
 
-        SaveToolbarLayout();
+        if (saveChanges)
+            SaveToolbarLayout();
 
         foreach (var (element, wasEnabled) in _toolbarItemEnabledStates)
             element.IsEnabled = wasEnabled;
 
         _toolbarItemEnabledStates.Clear();
+        _toolbarLayoutBeforeCustomization.Clear();
 
         RebuildActiveToolbar();
     }
 
+    private void SaveToolbarCustomize_Click(object sender, RoutedEventArgs e) =>
+        ExitToolbarCustomizeMode(saveChanges: true);
+
+    private void DiscardToolbarCustomize_Click(object sender, RoutedEventArgs e) =>
+        ExitToolbarCustomizeMode(saveChanges: false);
+
     private void FinishToolbarCustomize_Click(object sender, RoutedEventArgs e) =>
-        ExitToolbarCustomizeMode();
+        ExitToolbarCustomizeMode(saveChanges: true);
 
     private void CustomizeToolbarTeachingTip_Closed(
         TeachingTip sender,
         TeachingTipClosedEventArgs args)
     {
         if (_isCustomizingToolbar)
-            ExitToolbarCustomizeMode();
+            ExitToolbarCustomizeMode(saveChanges: false);
     }
 
     private void ToolbarItem_DragStarting(
@@ -477,8 +531,11 @@ public sealed partial class MainWindow
             _ => null
         };
 
-        if (content is null)
+        if (content is null ||
+            ReferenceEquals(content, AddToolbarItemButton))
+        {
             return null;
+        }
 
         var match = _allToolbarItems.FirstOrDefault(t =>
             ReferenceEquals(t.Content, content));
@@ -530,4 +587,5 @@ public sealed class ToolbarItem
     public required string Id { get; init; }
     public required string DisplayName { get; set; }
     public required UIElement Content { get; init; }
+    public string Glyph => MainWindow.GetToolbarItemGlyph(Id);
 }
