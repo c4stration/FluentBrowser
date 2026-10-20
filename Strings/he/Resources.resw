@@ -368,7 +368,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>מטמון סמלי אתרים</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>לא הצלחתי לפתוח את דף האינטרנט הזה!</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

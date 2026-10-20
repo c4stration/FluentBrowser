@@ -244,12 +244,12 @@
     <value>Compact mode will shrink unfocused tabs to the size of an icon</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>Backdrop material</value>
-    <comment>مادة الخلفية</comment>
+    <value>Material</value>
+    <comment>المادة</comment>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>System backdrop material for window background</value>
-    <comment>مادة الخلفية للنظام لخلفية النافذة</comment>
+    <value>Select the backdrop material for window background</value>
+    <comment>حدد مادة الخلفية لنافذة التطبيق</comment>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>
@@ -370,7 +370,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>Favicon cache</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>I couldn't open the page!</value>
     <comment>Make it kinda cute</comment>
   </data>

@@ -244,10 +244,10 @@
     <value>精簡模式會將未聚焦的分頁縮小至圖示大小</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>背景材質</value>
+    <value>材質</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>用於視窗背景的系統背景材質</value>
+    <value>選擇視窗背景所使用的材質</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>雲母</value>
@@ -351,7 +351,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>網站圖示快取</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>我打不開這個網頁喔！</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

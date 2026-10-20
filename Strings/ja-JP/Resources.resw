@@ -244,10 +244,10 @@
     <value>コンパクト モードでは、フォーカスされていないタブをアイコンのサイズまで縮小します</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>背景素材</value>
+    <value>素材</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>ウィンドウの背景に使用するシステム背景素材</value>
+    <value>ウィンドウの背景に使用する素材を選択します</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>マイカ</value>
@@ -355,7 +355,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>ファビコンキャッシュ</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>このウェブページを開けませんでしたよ！</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

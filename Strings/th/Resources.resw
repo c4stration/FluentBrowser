@@ -244,12 +244,10 @@
     <value>โหมดกะทัดรัดจะย่อแท็บที่ไม่ได้โฟกัสให้มีขนาดเท่ากับไอคอน</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>วัสดุพื้นหลัง</value>
-    <comment>วัสดุพื้นหลัง</comment>
+    <value>วัสดุ</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>วัสดุพื้นหลังของระบบสำหรับพื้นหลังหน้าต่าง</value>
-    <comment>วัสดุพื้นหลังของระบบสำหรับพื้นหลังหน้าต่าง</comment>
+    <value>เลือกวัสดุพื้นหลังของหน้าต่าง</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>
@@ -369,7 +367,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>แคชไอคอนเว็บไซต์</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>เปิดหน้าเว็บนี้ไม่ได้เลย!</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

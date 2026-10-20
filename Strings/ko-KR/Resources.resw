@@ -244,10 +244,10 @@
     <value>축소 모드는 포커스가 없는 탭을 아이콘 크기로 축소합니다</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>배경 재질</value>
+    <value>재질</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>창 배경에 사용할 시스템 배경 재질</value>
+    <value>창 배경에 사용할 재질을 선택합니다</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>마이카</value>
@@ -351,7 +351,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>파비콘 캐시</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>이 웹페이지를 열 수 없었어요!</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

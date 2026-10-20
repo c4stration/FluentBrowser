@@ -53,7 +53,7 @@
                     </controls:SettingsCard>
                     <controls:SettingsCard l:Uids.Uid="BackdropMaterial">
                         <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xEF1F;" />
+                            <FontIcon Glyph="&#xF5EF;" />
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="BackdropMaterialComboBox" SelectionChanged="BackdropMaterialComboBox_SelectionChanged">
                             <ComboBoxItem l:Uids.Uid="Mica" />
@@ -124,7 +124,7 @@
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
                     <controls:SettingsCard l:Uids.Uid="TabWidth">
                         <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xF57C;" />
+                            <FontIcon Glyph="&#xE799;" />
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="TabWidthComboBox" SelectionChanged="TabWidthComboBox_SelectionChanged">
                             <ComboBoxItem l:Uids.Uid="EqualTabWidth" />

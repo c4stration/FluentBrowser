@@ -244,10 +244,10 @@
     <value>紧凑模式会将未聚焦的标签页缩小至图标大小</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>背景材料</value>
+    <value>材质</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>用于窗口背景的系统背景材料</value>
+    <value>选择窗口背景所用的材质</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>云母</value>
@@ -355,7 +355,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>网站图标缓存</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>我打不开这个网页啊！</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">

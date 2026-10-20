@@ -244,10 +244,10 @@
     <value>سيقوم الوضع المضغوط بتقليص علامات التبويب غير المركّز عليها إلى حجم أيقونة</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>مادة الخلفية</value>
+    <value>חומר</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>مادة الخلفية للنظام لخلفية النافذة</value>
+    <value>בחר את חומר הרקע של חלון היישום</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>
@@ -363,7 +363,7 @@
   <data name="FaviconCache.Header" xml:space="preserve">
     <value>ذاكرة التخزين المؤقت لأيقونات المواقع</value>
   </data>
-  <data name="CantOpenPageTitle.Text" xml:space="preserve">
+  <data name="CantOpenPageTitle" xml:space="preserve">
     <value>لم أتمكن من فتح صفحة الويب هذه!</value>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
