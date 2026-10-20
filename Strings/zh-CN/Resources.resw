@@ -565,4 +565,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>你已将所有项目添加到工具栏！</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>互联网不可用！</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>请先连接到互联网！点击{0}获取帮助。</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>此处</value>
+  </data>
 </root>

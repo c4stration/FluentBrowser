@@ -107,6 +107,8 @@ public sealed partial class MainWindow : Window
 
         Closed += MainWindow_Closed;
 
+        InitializeTabMemoryManagement();
+
         InitializeStartup();
     }
 

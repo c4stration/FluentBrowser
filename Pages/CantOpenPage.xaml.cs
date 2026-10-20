@@ -1,8 +1,11 @@
 ﻿using FluentBrowser.Shared;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 using Microsoft.Web.WebView2.Core;
 using System;
+using Windows.Networking.Connectivity;
+using Windows.System;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Pages;
@@ -43,8 +46,7 @@ public sealed partial class CantOpenPage : Page
         _url = url;
         _certificate = certificate;
 
-        ContinueButton.Visibility =
-            Visibility.Visible;
+        ContinueButton.Visibility = Visibility.Visible;
 
         UpdateTexts();
     }
@@ -55,7 +57,6 @@ public sealed partial class CantOpenPage : Page
     {
         ContinueRequested?.Invoke(this, EventArgs.Empty);
 
-        // Prevents multiple clicks
         ContinueButton.IsEnabled = false;
     }
 
@@ -68,47 +69,115 @@ public sealed partial class CantOpenPage : Page
 
     private void UpdateTexts()
     {
-        string messageKey =
-            GetErrorMessageKey(_errorStatus);
+        var profile = NetworkInformation.GetInternetConnectionProfile();
 
-        string message =
-            LocalizerExtensions.GetLocalizedString(messageKey);
+        bool internetAvailable =
+            profile?.GetNetworkConnectivityLevel() ==
+            NetworkConnectivityLevel.InternetAccess;
 
-        string expiredTime = string.Empty;
+        ErrorTitle.Text = internetAvailable
+            ? LocalizerExtensions.GetLocalizedString("CantOpenPageTitle")
+            : LocalizerExtensions.GetLocalizedString("InternetNotAvailableTitle");
 
-        if (_errorStatus == CoreWebView2WebErrorStatus.CertificateExpired &&
-            _certificate is not null)
+        if (!internetAvailable)
         {
-            DateTime expirationDate =
-                DateTimeOffset.FromUnixTimeSeconds(
-                    (long)_certificate.ValidTo)
-                .LocalDateTime;
+            SetErrorMessageWithHyperlink(
+                LocalizerExtensions.GetLocalizedString(
+                    "InternetNotAvailableMessage"),
+                LocalizerExtensions.GetLocalizedString(
+                    "InternetHelpLink"));
+        }
+        else
+        {
+            string messageKey =
+                GetErrorMessageKey(_errorStatus);
 
-            int daysExpired =
-                Math.Max(
-                    0,
-                    (DateTime.Now.Date - expirationDate.Date).Days);
+            string message =
+                LocalizerExtensions.GetLocalizedString(messageKey);
 
-            expiredTime =
-                Helpers.FormatDaysAgo(daysExpired);
+            string expiredTime = string.Empty;
+
+            if (_errorStatus == CoreWebView2WebErrorStatus.CertificateExpired &&
+                _certificate is not null)
+            {
+                DateTime expirationDate =
+                    DateTimeOffset.FromUnixTimeSeconds(
+                        (long)_certificate.ValidTo)
+                    .LocalDateTime;
+
+                int daysExpired =
+                    Math.Max(
+                        0,
+                        (DateTime.Now.Date - expirationDate.Date).Days);
+
+                expiredTime =
+                    Helpers.FormatDaysAgo(daysExpired);
+            }
+
+            string currentDate =
+                DateTime.Now.ToString(
+                    "D",
+                    Helpers.GetCurrentCulture());
+
+            ErrorMessageText.Text =
+                string.Format(
+                    message,
+                    _url,
+                    expiredTime,
+                    currentDate);
         }
 
-        string language = Localizer.Get().GetCurrentLanguage();
+        ErrorStatusText.Text = $"{_errorStatus}";
+    }
 
-        string currentDate =
-             DateTime.Now.ToString(
-                 "D",
-                 Helpers.GetCurrentCulture());
+    private void SetErrorMessageWithHyperlink(
+        string message,
+        string linkText)
+    {
+        ErrorMessageText.Inlines.Clear();
 
-        ErrorMessageText.Text =
-            string.Format(
-                message,
-                _url,
-                expiredTime,
-                currentDate);
+        int placeholderIndex =
+            message.IndexOf("{0}", StringComparison.Ordinal);
 
-        ErrorStatusText.Text =
-            $"{_errorStatus}";
+        if (placeholderIndex < 0)
+        {
+            ErrorMessageText.Inlines.Add(
+                new Run { Text = message });
+
+            return;
+        }
+
+        ErrorMessageText.Inlines.Add(
+            new Run
+            {
+                Text = message[..placeholderIndex]
+            });
+
+        var hyperlink = new Hyperlink();
+
+        hyperlink.Inlines.Add(
+            new Run
+            {
+                Text = linkText
+            });
+
+        hyperlink.Click += GetHelp_Click;
+
+        ErrorMessageText.Inlines.Add(hyperlink);
+
+        ErrorMessageText.Inlines.Add(
+            new Run
+            {
+                Text = message[(placeholderIndex + 3)..]
+            });
+    }
+
+    private async void GetHelp_Click(
+        Hyperlink sender,
+        HyperlinkClickEventArgs args)
+    {
+        await Launcher.LaunchUriAsync(
+            new Uri("ms-contact-support:"));
     }
 
     private static string GetErrorMessageKey(
@@ -151,8 +220,7 @@ public sealed partial class CantOpenPage : Page
     protected override void OnNavigatedFrom(
         Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
-        Localizer.Get().LanguageChanged -=
-            OnLanguageChanged;
+        Localizer.Get().LanguageChanged -= OnLanguageChanged;
 
         base.OnNavigatedFrom(e);
     }

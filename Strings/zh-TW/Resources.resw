@@ -561,4 +561,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>你已將所有項目新增至工具列！</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>無法使用網際網路！</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>請先連線至網際網路！點擊{0}取得協助。</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>這裡</value>
+  </data>
 </root>

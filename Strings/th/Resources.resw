@@ -577,4 +577,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>คุณเพิ่มรายการทั้งหมดลงในแถบเครื่องมือแล้ว!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>ไม่มีการเชื่อมต่ออินเทอร์เน็ต!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>คุณควรเชื่อมต่ออินเทอร์เน็ตก่อน! รับความช่วยเหลือ{0}</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>ที่นี่</value>
+  </data>
 </root>

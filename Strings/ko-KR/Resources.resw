@@ -561,4 +561,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>모든 항목을 도구 모음에 추가했습니다!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>인터넷을 사용할 수 없습니다!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>먼저 인터넷에 연결하세요! 도움말은 {0}에서 확인하세요.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>여기</value>
+  </data>
 </root>

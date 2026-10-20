@@ -28,6 +28,9 @@ public sealed partial class MainWindow
         public Button AudioButton { get; }
         public Image Favicon { get; }
         public bool IsClosed { get; set; }
+        public bool IsInitializing { get; set; } = true;
+        public bool WasDiscarded { get; set; }
+        public string LastKnownUrl { get; set; } = string.Empty;
         public int ExtensionTabId { get; }
 
         public BrowserTab(
@@ -91,35 +94,19 @@ public sealed partial class MainWindow
 
         browserTab.IsClosed = true;
 
-        if (browserTab.WebView is WebView2 webView)
+        string closedUrl = browserTab.LastKnownUrl;
+
+        if (string.IsNullOrWhiteSpace(closedUrl) &&
+            browserTab.WebView?.Source is Uri source)
         {
-            if (webView.Source is Uri source)
-            {
-                _closedTabs.Push(new ClosedTab(
-                    source.AbsoluteUri,
-                    MainTabView.TabItems.IndexOf(tab)));
-            }
+            closedUrl = source.AbsoluteUri;
+        }
 
-            CancelTabAudio(webView);
-            _loadingWebViews.Remove(webView);
-            RemoveLoadProgressTracking(webView);
-            _zoomFactors.Remove(webView);
-            _webViewShortcutTokens.Remove(webView);
-
-            if (ReferenceEquals(CurrentTabContent.Content, browserTab.Content) ||
-                ReferenceEquals(CurrentTabContent.Content, browserTab.ErrorPage))
-            {
-                CurrentTabContent.Content = null;
-            }
-
-            browserTab.WebView = null;
-
-            _extensionTabMap.Remove(browserTab.ExtensionTabId);
-            _browserTabs.Remove(tab);
-            MainTabView.TabItems.Remove(tab);
-
-            webView.Close();
-            return;
+        if (!string.IsNullOrWhiteSpace(closedUrl))
+        {
+            _closedTabs.Push(new ClosedTab(
+                closedUrl,
+                MainTabView.TabItems.IndexOf(tab)));
         }
 
         if (ReferenceEquals(CurrentTabContent.Content, browserTab.Content) ||
@@ -128,8 +115,18 @@ public sealed partial class MainWindow
             CurrentTabContent.Content = null;
         }
 
-        if (browserTab.Content is IDisposable disposable)
+        if (browserTab.WebView is WebView2 webView)
+        {
+            CleanupWebViewTracking(webView);
+
+            browserTab.WebView = null;
+            webView.Tag = null;
+            webView.Close();
+        }
+        else if (browserTab.Content is IDisposable disposable)
+        {
             disposable.Dispose();
+        }
 
         _extensionTabMap.Remove(browserTab.ExtensionTabId);
         _browserTabs.Remove(tab);
@@ -149,24 +146,47 @@ public sealed partial class MainWindow
     object sender,
     SelectionChangedEventArgs e)
     {
+        foreach (TabViewItem removedTab in e.RemovedItems.OfType<TabViewItem>())
+        {
+            if (removedTab.Tag is not BrowserTab previousTab ||
+                previousTab.WebView is not WebView2 previousWebView ||
+                ReferenceEquals(SelectedTab, previousTab))
+            {
+                continue;
+            }
+
+            previousWebView.Visibility = Visibility.Collapsed;
+            _ = SuspendBackgroundTabAsync(previousTab);
+        }
+
         if (SelectedTab is not BrowserTab tab)
             return;
 
-        CurrentTabContent.Content =
-            tab.ErrorPage ?? tab.Content;
+        if (tab.WasDiscarded)
+            RestoreDiscardedTab(tab);
 
         if (tab.WebView is WebView2 webView)
         {
-            UpdateAddressBar(webView);
-            UpdateLoadingUI(webView);
+            if (webView.CoreWebView2 is { IsSuspended: true } core)
+                core.Resume();
+
+            webView.Visibility = Visibility.Visible;
+        }
+
+        CurrentTabContent.Content = tab.ErrorPage ?? tab.Content;
+
+        if (tab.WebView is WebView2 selectedWebView)
+        {
+            UpdateAddressBar(selectedWebView);
+            UpdateLoadingUI(selectedWebView);
             UpdateAudioButton();
             UpdateNavigationButtons();
 
             if (tab.ErrorPage is null &&
-                webView.CoreWebView2 is { } core)
+                selectedWebView.CoreWebView2 is { } core)
             {
                 _ = UpdateThemeColorFromPageAsync(
-                    webView,
+                    selectedWebView,
                     core);
             }
             else
@@ -179,10 +199,10 @@ public sealed partial class MainWindow
                 _ = DispatcherQueue.TryEnqueue(() =>
                 {
                     if (ReferenceEquals(SelectedTab, tab) &&
-                        ReferenceEquals(tab.WebView, webView) &&
+                        ReferenceEquals(tab.WebView, selectedWebView) &&
                         tab.ErrorPage is null)
                     {
-                        webView.Focus(FocusState.Programmatic);
+                        selectedWebView.Focus(FocusState.Programmatic);
                     }
                 });
             }
@@ -231,6 +251,8 @@ public sealed partial class MainWindow
             webView);
 
         tab.Tag = browserTab;
+        browserTab.LastKnownUrl = url;
+
         _browserTabs[tab] = browserTab;
         _extensionTabMap[extensionTabId] = browserTab;
 
@@ -249,6 +271,42 @@ public sealed partial class MainWindow
             initializeNavigation);
 
         return tab;
+    }
+
+    private void RestoreDiscardedTab(BrowserTab tab)
+    {
+        if (!tab.WasDiscarded ||
+            string.IsNullOrWhiteSpace(tab.LastKnownUrl))
+        {
+            return;
+        }
+
+        string url = tab.LastKnownUrl;
+        var webView = new WebView2();
+
+        tab.Content = webView;
+        tab.WebView = webView;
+        tab.ErrorPage = null;
+        tab.WasDiscarded = false;
+        tab.IsInitializing = true;
+
+        webView.Tag = tab;
+
+        ConfigureTabAudioButton(
+            webView,
+            tab.AudioButton);
+
+        ConfigureWebView(
+            tab,
+            webView,
+            tab.Title,
+            tab.ProgressRing,
+            tab.AudioButton,
+            tab.Favicon,
+            url);
+
+        Debug.WriteLine(
+            $"restoring discarded tab {tab.ExtensionTabId}: {url}");
     }
 
     private void AddNewTab(

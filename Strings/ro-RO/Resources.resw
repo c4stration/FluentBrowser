@@ -561,4 +561,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>Ai adăugat toate elementele în bara de instrumente!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>Internetul nu este disponibil!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>Ar trebui să te conectezi mai întâi la internet! Primește ajutor {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>aici</value>
+  </data>
 </root>

@@ -579,4 +579,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>הוספת את כל הפריטים לסרגל הכלים!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>האינטרנט אינו זמין!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>מומלץ להתחבר לאינטרנט תחילה! לקבלת עזרה, לחצו {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>כאן</value>
+  </data>
 </root>

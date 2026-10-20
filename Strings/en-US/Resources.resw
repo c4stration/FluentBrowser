@@ -581,4 +581,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>You've put all the items into the toolbar!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>Internet not available!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>You should really connect to the internet first! Get help {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>here</value>
+  </data>
 </root>

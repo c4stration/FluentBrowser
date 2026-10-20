@@ -158,23 +158,25 @@ public sealed partial class MainWindow
             foreach (object item in MainTabView.TabItems)
             {
                 if (item is not TabViewItem tab ||
-                    tab.Tag is not BrowserTab browserTab ||
-                    browserTab.WebView is not WebView2 webView)
+                    tab.Tag is not BrowserTab browserTab)
                 {
                     continue;
                 }
 
-                string? url = null;
+                string? url = browserTab.LastKnownUrl;
 
-                if (_navigationUris.TryGetValue(
-                        webView,
-                        out string? navigationUrl))
+                if (browserTab.WebView is WebView2 webView)
                 {
-                    url = navigationUrl;
-                }
-                else if (webView.Source is Uri source)
-                {
-                    url = source.AbsoluteUri;
+                    if (_navigationUris.TryGetValue(
+                            webView,
+                            out string? navigationUrl))
+                    {
+                        url = navigationUrl;
+                    }
+                    else if (webView.Source is Uri source)
+                    {
+                        url = source.AbsoluteUri;
+                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(url) ||
@@ -241,6 +243,7 @@ public sealed partial class MainWindow
         object sender,
         WindowEventArgs args)
     {
+        ShutdownTabMemoryManagement();
         SaveBrowserSession();
     }
 }

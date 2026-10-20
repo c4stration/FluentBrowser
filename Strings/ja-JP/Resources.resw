@@ -565,4 +565,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>すべての項目をツールバーに追加しました！</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>インターネットに接続できません！</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>まずインターネットに接続してください！ヘルプは{0}。</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>こちら</value>
+  </data>
 </root>

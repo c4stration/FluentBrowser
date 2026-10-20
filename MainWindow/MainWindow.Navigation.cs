@@ -116,6 +116,9 @@ public sealed partial class MainWindow
             Debug.WriteLine(
                 $"Tab {tab.ExtensionTabId} navigation starting: {args.Uri}");
 
+            tab.LastKnownUrl = args.Uri;
+            tab.IsInitializing = false;
+
             _navigationUris[webView] = args.Uri;
             _downloadNavigations[webView] = new DownloadNavigation(
                 args.NavigationId);
@@ -242,10 +245,18 @@ public sealed partial class MainWindow
                         args.NavigationId);
 
                     tab.ErrorPage = null;
-                    webView.Visibility = Visibility.Visible;
 
-                    if (ReferenceEquals(SelectedWebView, webView))
+                    bool isSelected = ReferenceEquals(SelectedWebView, webView);
+
+                    webView.Visibility = isSelected
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+
+                    if (isSelected)
                         CurrentTabContent.Content = tab.Content;
+
+                    if (!string.IsNullOrWhiteSpace(core.Source))
+                        tab.LastKnownUrl = core.Source;
 
                     title.Text = core.DocumentTitle;
 
@@ -300,7 +311,10 @@ public sealed partial class MainWindow
                 }
 
                 if (!ReferenceEquals(SelectedWebView, webView))
+                {
+                    Task suspensionTask = SuspendBackgroundTabAsync(tab);
                     return;
+                }
 
                 VisualStateManager.GoToState(
                     RefreshButton,

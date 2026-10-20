@@ -573,4 +573,13 @@
   <data name="NoToolbarItemText.Text" xml:space="preserve">
     <value>لقد أضفت جميع العناصر إلى شريط الأدوات!</value>
   </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>الإنترنت غير متاح!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>يجب عليك الاتصال بالإنترنت أولاً! احصل على المساعدة {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>هنا</value>
+  </data>
 </root>
