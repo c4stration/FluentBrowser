@@ -480,7 +480,7 @@
   <data name="DayAgo" xml:space="preserve">
     <value>לפני יום</value>
   </data>
-  <data name="ContinueToPageButton.Content" xml:space="preserve">
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
     <value>המשך לדף</value>
   </data>
   <data name="StartupBehavior.Header" xml:space="preserve">
@@ -587,5 +587,8 @@
   </data>
   <data name="InternetHelpLink" xml:space="preserve">
     <value>כאן</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>ממתין לחיבור לאינטרנט...</value>
   </data>
 </root>

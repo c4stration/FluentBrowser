@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.Web.WebView2.Core;
 using System;
+using System.Threading.Tasks;
 using Windows.Networking.Connectivity;
 using Windows.System;
 using WinUI3Localizer;
@@ -15,6 +16,7 @@ public sealed partial class CantOpenPage : Page
     private CoreWebView2WebErrorStatus _errorStatus;
     private string _url;
     private CoreWebView2Certificate? _certificate;
+    private bool _waitingForInternet;
 
     public event EventHandler? ContinueRequested;
 
@@ -29,8 +31,9 @@ public sealed partial class CantOpenPage : Page
         _url = url;
         _certificate = certificate;
 
-        if (_certificate is not null)
-            ContinueButton.Visibility = Visibility.Visible;
+        ContinueButton.Visibility = Visibility.Visible;
+
+        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
 
         UpdateTexts();
 
@@ -55,9 +58,49 @@ public sealed partial class CantOpenPage : Page
         object sender,
         RoutedEventArgs e)
     {
-        ContinueRequested?.Invoke(this, EventArgs.Empty);
+        if (!IsInternetAvailable())
+        {
+            _waitingForInternet = true;
+            ContinueButton.IsEnabled = false;
+            UpdateContinueButtonContent();
 
+            if (IsInternetAvailable())
+                ContinueToPage();
+
+            return;
+        }
+
+        ContinueToPage();
+    }
+
+    private void ContinueToPage()
+    {
+        _waitingForInternet = false;
         ContinueButton.IsEnabled = false;
+        UpdateContinueButtonContent();
+
+        ContinueRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnNetworkStatusChanged(object sender)
+    {
+        DispatcherQueue.TryEnqueue(async () =>
+        {
+            UpdateTexts();
+
+            await Task.Delay(1000); // idk
+
+            if (_waitingForInternet && IsInternetAvailable())
+                ContinueToPage();
+        });
+    }
+
+    private static bool IsInternetAvailable()
+    {
+        var profile = NetworkInformation.GetInternetConnectionProfile();
+
+        return profile?.GetNetworkConnectivityLevel()
+            == NetworkConnectivityLevel.InternetAccess;
     }
 
     private void OnLanguageChanged(
@@ -69,15 +112,13 @@ public sealed partial class CantOpenPage : Page
 
     private void UpdateTexts()
     {
-        var profile = NetworkInformation.GetInternetConnectionProfile();
-
-        bool internetAvailable =
-            profile?.GetNetworkConnectivityLevel() ==
-            NetworkConnectivityLevel.InternetAccess;
+        bool internetAvailable = IsInternetAvailable();
 
         ErrorTitle.Text = internetAvailable
             ? LocalizerExtensions.GetLocalizedString("CantOpenPageTitle")
             : LocalizerExtensions.GetLocalizedString("InternetNotAvailableTitle");
+
+        UpdateContinueButtonContent();
 
         if (!internetAvailable)
         {
@@ -130,6 +171,15 @@ public sealed partial class CantOpenPage : Page
         ErrorStatusText.Text = $"{_errorStatus}";
     }
 
+    private void UpdateContinueButtonContent()
+    {
+        ContinueButton.Content =
+            LocalizerExtensions.GetLocalizedString(
+                _waitingForInternet
+                    ? "WaitingForInternet"
+                    : "ContinueToPageButtonContent");
+    }
+
     private void SetErrorMessageWithHyperlink(
         string message,
         string linkText)
@@ -153,7 +203,10 @@ public sealed partial class CantOpenPage : Page
                 Text = message[..placeholderIndex]
             });
 
-        var hyperlink = new Hyperlink();
+        var hyperlink = new Hyperlink
+        {
+            UnderlineStyle = UnderlineStyle.None
+        };
 
         hyperlink.Inlines.Add(
             new Run
@@ -221,6 +274,7 @@ public sealed partial class CantOpenPage : Page
         Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         Localizer.Get().LanguageChanged -= OnLanguageChanged;
+        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
 
         base.OnNavigatedFrom(e);
     }

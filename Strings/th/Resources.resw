@@ -478,7 +478,7 @@
   <data name="DayAgo" xml:space="preserve">
     <value>1 วันที่แล้ว</value>
   </data>
-  <data name="ContinueToPageButton.Content" xml:space="preserve">
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
     <value>ไปยังหน้าเว็บต่อ</value>
   </data>
   <data name="StartupBehavior.Header" xml:space="preserve">
@@ -585,5 +585,8 @@
   </data>
   <data name="InternetHelpLink" xml:space="preserve">
     <value>ที่นี่</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>กำลังรอการเชื่อมต่ออินเทอร์เน็ต...</value>
   </data>
 </root>

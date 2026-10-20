@@ -462,7 +462,7 @@
   <data name="DayAgo" xml:space="preserve">
     <value>1天前</value>
   </data>
-  <data name="ContinueToPageButton.Content" xml:space="preserve">
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
     <value>繼續前往頁面</value>
   </data>
   <data name="StartupBehavior.Header" xml:space="preserve">
@@ -569,5 +569,8 @@
   </data>
   <data name="InternetHelpLink" xml:space="preserve">
     <value>這裡</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>正在等待網際網路連線…</value>
   </data>
 </root>

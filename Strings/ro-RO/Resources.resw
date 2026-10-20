@@ -462,7 +462,7 @@
   <data name="DayAgo" xml:space="preserve">
     <value>acum o zi</value>
   </data>
-  <data name="ContinueToPageButton.Content" xml:space="preserve">
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
     <value>Continuă la pagină</value>
   </data>
   <data name="StartupBehavior.Header" xml:space="preserve">
@@ -569,5 +569,8 @@
   </data>
   <data name="InternetHelpLink" xml:space="preserve">
     <value>aici</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>Se așteaptă conexiunea la internet...</value>
   </data>
 </root>
