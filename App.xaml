@@ -1108,6 +1108,11 @@
                 <Setter Property="FlowDirection" Value="RightToLeft" />
             </Style>
 
+            <Style x:Key="CompactComboBoxStyle" TargetType="ComboBox">
+                <Setter Property="MinHeight" Value="24" />
+                <Setter Property="Padding" Value="12,1,0,3" />
+            </Style>
+
             <!--  Converters  -->
             <c:ValueToVisibilityConverter x:Key="ValueToVisibilityConverter" />
         </ResourceDictionary>

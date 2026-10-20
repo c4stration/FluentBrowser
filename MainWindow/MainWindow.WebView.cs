@@ -417,7 +417,7 @@ public sealed partial class MainWindow
             progressRing,
             favicon);
 
-        webView.CoreWebView2Initialized += (_, _) =>
+        webView.CoreWebView2Initialized += async (_, _) =>
         {
             if (webView.CoreWebView2 is not { } core)
                 return;
@@ -458,12 +458,14 @@ public sealed partial class MainWindow
                     audioButton,
                     favicon);
             }
+
+            await InitializeZoomHandlingAsync(webView);
         };
 
         webView.PointerPressed += (_, args) =>
         {
             if (args.Pointer.PointerDeviceType !=
-                Microsoft.UI.Input.PointerDeviceType.Mouse)
+                PointerDeviceType.Mouse)
             {
                 return;
             }

@@ -352,6 +352,21 @@
                         Content="&#xE767;"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Opacity="0"
+                        Style="{StaticResource AddressBarButtonStyle}">
+                        <Button.OpacityTransition>
+                            <ScalarTransition />
+                        </Button.OpacityTransition>
+                    </Button>
+
+                    <Button
+                        x:Name="ZoomButton"
+                        l:Uids.Uid="ZoomButton"
+                        Click="ZoomButton_Click"
+                        Content="&#xE8A3;"
+                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                        Foreground="{ThemeResource TextControlButtonForeground}"
+                        Opacity="0"
                         Style="{StaticResource AddressBarButtonStyle}">
                         <Button.OpacityTransition>
                             <ScalarTransition />
@@ -367,6 +382,72 @@
                         Foreground="{ThemeResource TextControlButtonForeground}"
                         Style="{StaticResource AddressBarButtonStyle}" />
                 </StackPanel>
+
+                <TeachingTip
+                    x:Name="ZoomTeachingTip"
+                    Closed="ZoomTeachingTip_Closed"
+                    IsLightDismissEnabled="True"
+                    Style="{ThemeResource TeachingTipStyleWithoutCloseButton}"
+                    Target="{x:Bind ZoomButton}">
+                    <StackPanel
+                        Loaded="ZoomControls_Loaded"
+                        Orientation="Horizontal"
+                        Spacing="10">
+
+                        <ComboBox
+                            x:Name="ZoomComboBox"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            IsEditable="True"
+                            SelectedIndex="9"
+                            SelectionChanged="ZoomComboBox_SelectionChanged"
+                            TextSubmitted="ZoomComboBox_TextSubmitted">
+
+                            <ComboBoxItem Content="500%" />
+                            <ComboBoxItem Content="400%" />
+                            <ComboBoxItem Content="300%" />
+                            <ComboBoxItem Content="250%" />
+                            <ComboBoxItem Content="200%" />
+                            <ComboBoxItem Content="175%" />
+                            <ComboBoxItem Content="150%" />
+                            <ComboBoxItem Content="125%" />
+                            <ComboBoxItem Content="110%" />
+                            <ComboBoxItem Content="100%" />
+                            <ComboBoxItem Content="75%" />
+                            <ComboBoxItem Content="50%" />
+                            <ComboBoxItem Content="25%" />
+                        </ComboBox>
+
+                        <Button
+                            Width="28"
+                            Height="28"
+                            Margin="4,0,0,0"
+                            Padding="0"
+                            Click="ZoomOut_Click"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{ThemeResource AppBarButtonStyle}">
+                            <FontIcon FontSize="16" Glyph="&#xE71F;" />
+                        </Button>
+
+                        <Slider
+                            x:Name="ZoomSlider"
+                            Width="130"
+                            Maximum="500"
+                            Minimum="25"
+                            ValueChanged="ZoomSlider_ValueChanged"
+                            Value="100" />
+
+                        <Button
+                            Width="28"
+                            Height="28"
+                            Margin="4,0,0,0"
+                            Padding="0"
+                            Click="ZoomIn_Click"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{ThemeResource AppBarButtonStyle}">
+                            <FontIcon FontSize="16" Glyph="&#xE8A3;" />
+                        </Button>
+                    </StackPanel>
+                </TeachingTip>
 
                 <Border
                     Grid.Column="1"
@@ -391,7 +472,7 @@
                     Margin="16,2,0,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Stretch">
-                    
+
                     <Border
                         x:Name="ToolbarBackground"
                         Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
