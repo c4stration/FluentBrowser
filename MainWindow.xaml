@@ -391,6 +391,13 @@
                     Margin="16,2,0,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Stretch">
+                    
+                    <Border
+                        x:Name="ToolbarBackground"
+                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                        CornerRadius="{ThemeResource OverlayCornerRadius}"
+                        Visibility="Collapsed" />
+
                     <Border
                         x:Name="ToolbarStroke"
                         Margin="-1"
@@ -398,7 +405,6 @@
                         CornerRadius="{ThemeResource OverlayCornerRadius}" />
 
                     <StackPanel
-                        x:Name="ToolbarBackground"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Stretch"
                         CornerRadius="{ThemeResource OverlayCornerRadius}"
@@ -483,10 +489,10 @@
                                             <TextBlock
                                                 x:Name="NoToolbarItemText"
                                                 Margin="0,42,0,18"
-                                                Visibility="Collapsed"
                                                 HorizontalAlignment="Center"
                                                 l:Uids.Uid="NoToolbarItemText"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Visibility="Collapsed" />
                                         </Grid>
                                     </my:ContentMenuFlyoutItem>
                                 </MenuFlyout>

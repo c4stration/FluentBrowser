@@ -308,8 +308,7 @@ public sealed partial class MainWindow
         _isCustomizingToolbar = true;
         _draggedToolbarItemId = null;
 
-        ToolbarBackground.Background = new SolidColorBrush(
-            (Color)Application.Current.Resources["ControlOnImageFillColorDefault"]);
+        ToolbarBackground.Visibility = Visibility.Visible;
         ToolbarStroke.BorderThickness = new Thickness(1);
 
         AddToolbarItemButton.Visibility = Visibility.Visible;
@@ -364,7 +363,7 @@ public sealed partial class MainWindow
         _draggedToolbarItemId = null;
         ToolbarFlyout.IsOpen = false;
 
-        ToolbarBackground.Background = new SolidColorBrush(Colors.Transparent);
+        ToolbarBackground.Visibility = Visibility.Collapsed;
         ToolbarStroke.BorderThickness = new Thickness(0);
 
         ClearListView(ToolbarListView);
