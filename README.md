@@ -11,7 +11,7 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Feature                                                     | Status | Note                                                                                                  |
 |:------------------------------------------------------------|:------:|:------------------------------------------------------------------------------------------------------|
 | Add MenuFlyout context menus                                |   ✅   | The context menus when you right click on the web view
-| Add every option to the new context menu                    |   🚧   | I don't know what to add to the context menu, but it just seems unfinished.
+| Add every option to the new context menu                    |   ✅   |
 | Make it unfocus after pressing Enter on the address bar     |   ✅   |
 | Add every navigation option                                 |   ✅   | Add tab, close tab, reopen closed tab
 | Add extension support                                       |   ✅   |
@@ -24,7 +24,7 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Add settings                                                |   ✅   |
 | Add fullscreen support                                      |   ✅   | F11 and website requests
 | Add toolbar managing                                        |   ✅   | Still haven't added the other toolbar items (i.e. address bar, back/forward) but it works!
-| Add zoom controls                                           |   🚧   | Works, but unpolished. Planning to add a TeachingTip like Find on Page
+| Add zoom controls                                           |   ✅   |
 | Add a native "Find on Page" feature                         |   ✅   |
 | Add keyboard shortcuts                                      |   ✅   | I don't think EVERY keyboard shortcut is implemented yet, but I don't want to deal with this anymore...
 | Add a context menu for tabs                                 |   ✅   | "Reopen closed tab" "Add tab" "Close tab", you know, like the ones in "Add every navigation option"
