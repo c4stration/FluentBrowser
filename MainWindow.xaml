@@ -339,49 +339,90 @@
                     </AutoSuggestBox.ItemTemplate>
                 </AutoSuggestBox>
 
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
+                <Grid Grid.Column="1" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                    <Button
-                        x:Name="AudioToggleButton"
-                        l:Uids.Uid="AudioToggleButton"
-                        Click="AudioToggleButton_Click"
-                        Content="&#xE767;"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                        Opacity="0"
-                        Style="{StaticResource AddressBarButtonStyle}">
-                        <Button.OpacityTransition>
-                            <ScalarTransition />
-                        </Button.OpacityTransition>
-                    </Button>
+                    <ListView
+                        x:Name="AddressBarTrailingButtons"
+                        Grid.Column="0"
+                        Margin="0,0,32,0"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        IsItemClickEnabled="False"
+                        SelectionMode="None">
 
-                    <Button
-                        x:Name="ZoomButton"
-                        l:Uids.Uid="ZoomButton"
-                        Click="ZoomButton_Click"
-                        Content="&#xE8A3;"
-                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Foreground="{ThemeResource TextControlButtonForeground}"
-                        Opacity="0"
-                        Style="{StaticResource AddressBarButtonStyle}">
-                        <Button.OpacityTransition>
-                            <ScalarTransition />
-                        </Button.OpacityTransition>
-                    </Button>
+                        <ListView.ItemContainerTransitions>
+                            <TransitionCollection>
+                                <AddDeleteThemeTransition />
+                                <RepositionThemeTransition />
+                                <ReorderThemeTransition />
+                            </TransitionCollection>
+                        </ListView.ItemContainerTransitions>
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="FlowDirection" Value="LeftToRight" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="MinWidth" Value="0" />
+                                <Setter Property="MinHeight" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <ContentPresenter
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Content="{TemplateBinding Content}"
+                                                ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <Button
+                            x:Name="AudioToggleButton"
+                            l:Uids.Uid="AudioToggleButton"
+                            Click="AudioToggleButton_Click"
+                            Content="&#xE767;"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                            Style="{StaticResource AddressBarButtonStyle}" />
+
+                        <Button
+                            x:Name="ZoomButton"
+                            l:Uids.Uid="ZoomButton"
+                            Click="ZoomButton_Click"
+                            Content="&#xE8A3;"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Foreground="{ThemeResource TextControlButtonForeground}"
+                            Style="{StaticResource AddressBarButtonStyle}" />
+                    </ListView>
 
                     <Button
                         x:Name="RefreshButton"
+                        HorizontalAlignment="Right"
                         l:Uids.Uid="RefreshButton"
                         Click="RefreshButton_Click"
                         Content="&#xE72C;"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Foreground="{ThemeResource TextControlButtonForeground}"
                         Style="{StaticResource AddressBarButtonStyle}" />
-                </StackPanel>
+                </Grid>
 
                 <TeachingTip
                     x:Name="ZoomTeachingTip"

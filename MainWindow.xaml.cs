@@ -82,6 +82,9 @@ public sealed partial class MainWindow : Window
         AudioToggleButton.PointerCanceled += AudioToggleButton_PointerCanceled;
         AudioToggleButton.PointerCaptureLost += AudioToggleButton_PointerCaptureLost;
 
+        AddressBarTrailingButtons.Items.Remove(AudioToggleButton);
+        AddressBarTrailingButtons.Items.Remove(ZoomButton);
+
         FindOnPageBox.RegisterPropertyChangedCallback(
             AutoSuggestBox.TextProperty,
             FindOnPageBox_TextPropertyChanged);
@@ -118,8 +121,8 @@ public sealed partial class MainWindow : Window
     }
 
     private void OnLanguageChanged(
-    object? sender,
-    LanguageChangedEventArgs e)
+        object? sender,
+        LanguageChangedEventArgs e)
     {
         foreach (DownloadItem item in Downloads)
             item.UpdateLocalizedStatus();

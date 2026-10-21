@@ -116,6 +116,8 @@ public sealed partial class MainWindow
 
         if (deleteButton?.Parent is Grid parent)
             parent.Children.Remove(deleteButton);
+
+        Helpers.RemoveListViewTransitions(AddressBarTrailingButtons, typeof(RepositionThemeTransition));
     }
 
     private async void AddressBar_TextChanged(
@@ -1128,17 +1130,19 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(Uri uri, bool force = false)
     {
-        if (!force &&
-            (_addressBarUserEditing ||
-             AddressBar.FocusState != FocusState.Unfocused))
-        {
+        bool addressBarFocused =
+            _addressBarUserEditing ||
+            AddressBar.FocusState != FocusState.Unfocused;
+
+        if (!force && addressBarFocused)
             return;
-        }
 
         if (force || _pendingAddressBarUri is not null)
             _pendingAddressBarUri = null;
 
-        AddressBar.Text = GetAddressName(uri);
+        AddressBar.Text = addressBarFocused
+            ? uri.AbsoluteUri
+            : GetAddressName(uri);
     }
 
     private string GetAddressName(Uri uri)
@@ -1208,5 +1212,27 @@ public sealed partial class MainWindow
 
         uri = domainUri;
         return true;
+    }
+
+    private void SetAddressBarTrailingButtonVisible(Button button, bool visible)
+    {
+        var items = AddressBarTrailingButtons.Items;
+        bool inList = items.Contains(button);
+
+        if (visible)
+        {
+            if (inList)
+                return;
+
+            int refreshIndex = items.IndexOf(RefreshButton);
+            if (refreshIndex >= 0)
+                items.Insert(refreshIndex, button);
+            else
+                items.Add(button);
+        }
+        else if (inList)
+        {
+            items.Remove(button);
+        }
     }
 }

@@ -2,9 +2,11 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Globalization;
+using System.Linq;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Shared;
@@ -158,5 +160,16 @@ public static class Helpers
         var item = CreateContextMenuItem(text, glyph, click);
         item.IsEnabled = isEnabled;
         return item;
+    }
+
+    public static void RemoveListViewTransitions(ListView listView, params Type[] transitionTypes)
+    {
+        var transitions = listView.ItemContainerTransitions;
+
+        for (int i = transitions.Count - 1; i >= 0; i--)
+        {
+            if (transitionTypes.Any(type => type.IsInstanceOfType(transitions[i])))
+                transitions.RemoveAt(i);
+        }
     }
 }

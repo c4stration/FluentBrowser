@@ -312,7 +312,7 @@ public sealed partial class MainWindow
     {
         if (SelectedWebView?.CoreWebView2 is not { } currentCore)
         {
-            AudioToggleButton.Opacity = 0;
+            SetAddressBarTrailingButtonVisible(AudioToggleButton, visible: false);
             return;
         }
 
@@ -320,13 +320,14 @@ public sealed partial class MainWindow
             .Any(x => x.Core.IsDocumentPlayingAudio);
 
         bool muted = currentCore.IsMuted;
+        bool show = anyPlaying || muted;
 
-        AudioToggleButton.Opacity =
-            anyPlaying || muted ? 1 : 0;
+        SetAddressBarTrailingButtonVisible(AudioToggleButton, show);
 
-        AudioToggleButton.Content =
-            muted ? "\uE74F" : "\uE767";
+        if (!show)
+            return;
 
+        AudioToggleButton.Content = muted ? "\uE74F" : "\uE767";
         AudioToggleButton.Foreground =
             (Brush)Application.Current.Resources[
                 muted

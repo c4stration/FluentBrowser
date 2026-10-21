@@ -169,12 +169,10 @@ public sealed partial class MainWindow
             return;
 
         percentage = NormalizeZoomPercentage(percentage);
-        ZoomButton.Opacity = percentage == 100 ? 0 : 1;
 
         _ = UpdateZoomButtonVisibilityAsync(percentage);
 
         _isUpdatingZoomControls = true;
-
         try
         {
             ZoomSlider.Value = percentage;
@@ -195,22 +193,16 @@ public sealed partial class MainWindow
         }
     }
 
-    private async Task UpdateZoomButtonVisibilityAsync(double percentage)
+    private Task UpdateZoomButtonVisibilityAsync(double percentage)
     {
         bool shouldShow = percentage != 100 || ZoomTeachingTip.IsOpen;
 
+        SetAddressBarTrailingButtonVisible(ZoomButton, shouldShow);
+
         if (shouldShow)
-        {
-            ZoomButton.Visibility = Visibility.Visible;
-            ZoomButton.Opacity = 1;
-            return;
-        }
+            ZoomTeachingTip.Target = ZoomButton;
 
-        ZoomButton.Opacity = 0;
-        await Task.Delay(350); // it should be 200 but i don't want the next button to immediately take over its place
-
-        if (ZoomButton.Opacity == 0 && !ZoomTeachingTip.IsOpen)
-            ZoomButton.Visibility = Visibility.Collapsed;
+        return Task.CompletedTask;
     }
 
     private async void ZoomComboBox_SelectionChanged(
@@ -297,6 +289,7 @@ public sealed partial class MainWindow
 
     private void ZoomButton_Click(object sender, RoutedEventArgs e)
     {
+        ZoomTeachingTip.Target = ZoomButton;
         ZoomTeachingTip.IsOpen = !ZoomTeachingTip.IsOpen;
 
         if (ZoomTeachingTip.IsOpen)

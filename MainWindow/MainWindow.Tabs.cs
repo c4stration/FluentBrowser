@@ -211,7 +211,7 @@ public sealed partial class MainWindow
         {
             AddressBar.Text = string.Empty;
             LoadingProgressBar.Visibility = Visibility.Collapsed;
-            AudioToggleButton.Opacity = 0;
+            SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
             BackButton.IsEnabled = false;
             ForwardButton.IsEnabled = false;
 

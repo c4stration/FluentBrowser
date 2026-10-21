@@ -44,7 +44,7 @@ public sealed partial class MainWindow
             _isToolbarLanguageChangedSubscribed = true;
         }
 
-        RemoveListViewTransitions(listView);
+        Helpers.RemoveListViewTransitions(listView, typeof(ReorderThemeTransition), typeof(ContentThemeTransition));
 
         if (_allToolbarItems.Count > 0)
             return;
@@ -52,17 +52,6 @@ public sealed partial class MainWindow
         CaptureExistingToolbarButtons(listView);
         LoadToolbarLayout();
         RebuildToolbarLists();
-    }
-
-    private static void RemoveListViewTransitions(ListView listView)
-    {
-        var transitions = listView.ItemContainerTransitions;
-
-        for (int i = transitions.Count - 1; i >= 0; i--)
-        {
-            if (transitions[i] is ReorderThemeTransition or ContentThemeTransition)
-                transitions.RemoveAt(i);
-        }
     }
 
     private void CaptureExistingToolbarButtons(ListView listView)
