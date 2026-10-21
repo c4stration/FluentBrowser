@@ -24,6 +24,7 @@ namespace FluentBrowser;
 public sealed partial class MainWindow
 {
     private TextBox? _addressTextBox;
+    private Thickness _addressTextBoxBasePadding;
     private ScrollViewer? _addressTextHost;
 
     private int _addressBarAnimationVersion;
@@ -112,12 +113,13 @@ public sealed partial class MainWindow
         if (_addressTextBox is null)
             return;
 
+        _addressTextBoxBasePadding = _addressTextBox.Padding;
+        UpdateAddressBarTextPadding();
+
         var deleteButton = _addressTextBox.FindDescendant<Button>(x => x.Name == "DeleteButton");
 
         if (deleteButton?.Parent is Grid parent)
             parent.Children.Remove(deleteButton);
-
-        Helpers.RemoveListViewTransitions(AddressBarTrailingButtons, typeof(RepositionThemeTransition));
     }
 
     private async void AddressBar_TextChanged(
@@ -996,9 +998,9 @@ public sealed partial class MainWindow
         _addressTextHost.UpdateLayout();
 
         double available =
-            _addressTextHost.ActualWidth -
-            _addressTextBox.Padding.Left -
-            _addressTextBox.Padding.Right;
+            _addressTextBox.ActualWidth -
+            _addressTextBoxBasePadding.Left -
+            _addressTextBoxBasePadding.Right;
 
         double textWidth = MeasureAddressTextWidth();
 
@@ -1088,15 +1090,15 @@ public sealed partial class MainWindow
 
     private double CalculateCenterOffset()
     {
-        if (_addressTextBox is null || _addressTextHost is null)
+        if (_addressTextBox is null)
             return 0;
 
-        double available =
-            _addressTextHost.ActualWidth -
-            _addressTextBox.Padding.Left -
-            _addressTextBox.Padding.Right;
+        double textWidth = MeasureAddressTextWidth();
 
-        return Math.Max(0, (available - MeasureAddressTextWidth()) / 2);
+        return Math.Max(
+            0,
+            (_addressTextBox.ActualWidth - textWidth) / 2 -
+            _addressTextBoxBasePadding.Left);
     }
 
     private double MeasureAddressTextWidth()
@@ -1234,5 +1236,24 @@ public sealed partial class MainWindow
         {
             items.Remove(button);
         }
+
+        UpdateAddressBarTextPadding();
+    }
+
+    private void UpdateAddressBarTextPadding()
+    {
+        if (_addressTextBox is null)
+            return;
+
+        Thickness padding = _addressTextBoxBasePadding;
+
+        double rightPadding =
+            padding.Right + AddressBarTrailingButtons.Items.Count * 32;
+
+        _addressTextBox.Padding = new Thickness(
+            padding.Left,
+            padding.Top,
+            rightPadding,
+            padding.Bottom);
     }
 }

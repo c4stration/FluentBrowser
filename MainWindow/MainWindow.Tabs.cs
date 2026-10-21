@@ -143,8 +143,8 @@ public sealed partial class MainWindow
     }
 
     private void MainTabView_SelectionChanged(
-    object sender,
-    SelectionChangedEventArgs e)
+        object sender,
+        SelectionChangedEventArgs e)
     {
         foreach (TabViewItem removedTab in e.RemovedItems.OfType<TabViewItem>())
         {
@@ -175,12 +175,16 @@ public sealed partial class MainWindow
 
         CurrentTabContent.Content = tab.ErrorPage ?? tab.Content;
 
+        if (ZoomTeachingTip.IsOpen)
+            ZoomTeachingTip.IsOpen = false;
+
         if (tab.WebView is WebView2 selectedWebView)
         {
             UpdateAddressBar(selectedWebView);
             UpdateLoadingUI(selectedWebView);
             UpdateAudioButton();
             UpdateNavigationButtons();
+            UpdateZoomControls(GetZoomPercentage(selectedWebView));
 
             if (tab.ErrorPage is null &&
                 selectedWebView.CoreWebView2 is { } core)
@@ -209,6 +213,8 @@ public sealed partial class MainWindow
         }
         else
         {
+            UpdateZoomControls(100);
+
             AddressBar.Text = string.Empty;
             LoadingProgressBar.Visibility = Visibility.Collapsed;
             SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
