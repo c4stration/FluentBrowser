@@ -588,6 +588,126 @@ public sealed partial class MainWindow
 
         await core.AddScriptToExecuteOnDocumentCreatedAsync(
             BuildWebViewShortcutBridgeScript(token));
+
+        Windows.UI.Color accentColor =
+            ((Microsoft.UI.Xaml.Media.SolidColorBrush)
+                Application.Current.Resources[
+                    "AccentFillColorSelectedTextBackgroundBrush"])
+            .Color;
+
+        await core.AddScriptToExecuteOnDocumentCreatedAsync(
+            BuildSelectionColorScript(accentColor));
+    }
+
+    private static string BuildSelectionColorScript(
+        Windows.UI.Color accentColor)
+    {
+        string background =
+            $"rgba({accentColor.R}, {accentColor.G}, {accentColor.B}, 1)";
+
+        return $$"""
+        (() => {
+            const styleId = "__fluentbrowser_selection_fallback";
+            const background = "{{background}}";
+
+            function hasSelectionBackground(rules) {
+                for (const rule of rules) {
+                    if (rule.selectorText &&
+                        /::(?:-moz-)?selection/i.test(rule.selectorText) &&
+                        (rule.style?.getPropertyValue("background") ||
+                         rule.style?.getPropertyValue("background-color"))) {
+                        return true;
+                    }
+
+                    if (rule.cssRules) {
+                        try {
+                            if (hasSelectionBackground(rule.cssRules))
+                                return true;
+                        } catch {}
+                    }
+                }
+
+                return false;
+            }
+
+            function siteHasSelectionBackground() {
+                for (const sheet of document.styleSheets) {
+                    if (sheet.ownerNode?.id === styleId)
+                        continue;
+
+                    try {
+                        if (hasSelectionBackground(sheet.cssRules))
+                            return true;
+                    } catch {}
+                }
+
+                return false;
+            }
+
+            function apply() {
+                const root =
+                    document.head || document.documentElement;
+
+                if (!root)
+                    return;
+
+                const existing =
+                    document.getElementById(styleId);
+
+                if (siteHasSelectionBackground()) {
+                    existing?.remove();
+                    return;
+                }
+
+                const style =
+                    existing || document.createElement("style");
+
+                style.id = styleId;
+
+                const css = `
+                    ::selection {
+                        background-color: ${background} !important;
+                        color: #fff !important;
+                    }
+                `;
+
+                if (style.textContent !== css)
+                    style.textContent = css;
+
+                if (!existing)
+                    root.appendChild(style);
+            }
+
+            function start() {
+                apply();
+
+                if (!document.documentElement)
+                    return;
+
+                const observer = new MutationObserver(apply);
+
+                observer.observe(document.documentElement, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true,
+                    attributes: true,
+                    attributeFilter: ["href", "media", "disabled"]
+                });
+
+                document.addEventListener("load", apply, true);
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    start,
+                    { once: true }
+                );
+            } else {
+                start();
+            }
+        })();
+        """;
     }
 
     private bool TryHandleWebViewShortcut(string shortcut)
