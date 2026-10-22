@@ -220,7 +220,7 @@
                             <FontIcon Glyph="&#xE8E3;" />
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="AddressBarAlignmentComboBox" SelectionChanged="AddressBarAlignmentComboBox_SelectionChanged">
-                            <ComboBoxItem x:Name="LeftOrRightAlignment"/>
+                            <ComboBoxItem x:Name="LeftOrRightAlignment" />
                             <ComboBoxItem l:Uids.Uid="CenterAlignment" />
                         </ComboBox>
                     </controls:SettingsCard>

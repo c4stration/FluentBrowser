@@ -347,8 +347,6 @@
 
                     <ListView
                         x:Name="AddressBarTrailingButtons"
-                        Grid.Column="0"
-                        Margin="0,0,32,0"
                         Padding="0"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"

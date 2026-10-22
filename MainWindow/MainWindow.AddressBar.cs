@@ -96,12 +96,6 @@ public sealed partial class MainWindow
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 
-    /*private sealed record SuggestionCandidate(
-        string Display,
-        Uri Target,
-        double Score,
-        bool IsHistory);*/
-
     private bool AreSearchSuggestionsEnabled() =>
         _settings.Values["SearchSuggestions"] as bool? ?? true;
 
@@ -235,7 +229,7 @@ public sealed partial class MainWindow
                     }
                     catch
                     {
-                        // Nothing!
+                        // Keep search suggestions available if history lookup fails.
                     }
                 }
                 else
@@ -272,7 +266,7 @@ public sealed partial class MainWindow
                     }
                     catch
                     {
-                        // Nothing again!
+                        // Keep history suggestions available if search lookup fails.
                     }
                 }
             }
@@ -853,24 +847,25 @@ public sealed partial class MainWindow
 
     private void FindAddressBarTextHost()
     {
-        if (_addressTextBox is not null)
-            return;
-
-        _addressTextBox = AddressBar.FindDescendant<TextBox>();
-
         if (_addressTextBox is null)
-            return;
-
-        if (_addressTextBox.ContextFlyout is { } contextFlyout)
         {
-            contextFlyout.Opening += (_, _) =>
-                _addressBarContextFlyoutOpen = true;
+            _addressTextBox = AddressBar.FindDescendant<TextBox>();
 
-            contextFlyout.Closed += (_, _) =>
-                _addressBarContextFlyoutOpen = false;
+            if (_addressTextBox is null)
+                return;
+
+            if (_addressTextBox.ContextFlyout is { } contextFlyout)
+            {
+                contextFlyout.Opening += (_, _) =>
+                    _addressBarContextFlyoutOpen = true;
+
+                contextFlyout.Closed += (_, _) =>
+                    _addressBarContextFlyoutOpen = false;
+            }
         }
 
-        _addressTextBox.TextAlignment = TextAlignment.Left;
+        if (_addressTextHost is not null)
+            return;
 
         _addressTextHost = _addressTextBox.FindDescendant<ScrollViewer>();
 
@@ -950,24 +945,16 @@ public sealed partial class MainWindow
     {
         FindAddressBarTextHost();
 
-        if (_addressTextBox is null || _addressTextHost is null)
+        if (_addressTextBox is null)
             return;
 
-        bool centered = IsAddressBarCenterAligned();
+        ApplyAddressBarTextDirection();
+        UpdateAddressBarTextPadding();
 
-        FlowDirection textDirection = App.CurrentFlowDirection;
+        if (_addressTextHost is null)
+            return;
 
-        AddressBar.FlowDirection = textDirection;
-        _addressTextBox.FlowDirection = textDirection;
-        _addressTextHost.FlowDirection = textDirection;
-
-        _addressTextBox.TextAlignment = centered
-            ? TextAlignment.Left
-            : textDirection == FlowDirection.RightToLeft
-                ? TextAlignment.Right
-                : TextAlignment.Left;
-
-        if (centered)
+        if (IsAddressBarCenterAligned())
         {
             UpdateUnfocusedTranslation();
             return;
@@ -975,15 +962,48 @@ public sealed partial class MainWindow
 
         ++_addressBarAnimationVersion;
         _addressBarAnimating = false;
+        ResetAddressBarTextTranslation(_addressBarFocused);
+    }
 
-        var visual = ElementCompositionPreview.GetElementVisual(
-            _addressTextHost);
+    private FlowDirection GetAddressBarTextFlowDirection()
+    {
+        // This value is updated whenever the language or text-direction setting changes.
+        // Reading it directly keeps the input aligned with the live application flow.
+        return App.CurrentFlowDirection;
+    }
 
+    private void ApplyAddressBarTextDirection()
+    {
+        FlowDirection direction = GetAddressBarTextFlowDirection();
+
+        if (_addressTextBox is not null)
+        {
+            _addressTextBox.FlowDirection = direction;
+            // Left is the logical Start alias. With the TextBox flowing RTL it
+            // renders at the physical right edge; with LTR it renders at the left.
+            TextAlignment alignment = TextAlignment.Left;
+
+            // HorizontalTextAlignment is the WinUI 3 text-input property. Set both
+            // aliases so the explicit value also wins over the TextBoxStyle setter.
+            _addressTextBox.TextAlignment = alignment;
+            _addressTextBox.HorizontalTextAlignment = alignment;
+        }
+
+        if (_addressTextHost is not null)
+            _addressTextHost.FlowDirection = direction;
+    }
+
+    private void ResetAddressBarTextTranslation(bool isHitTestVisible)
+    {
+        if (_addressTextHost is null)
+            return;
+
+        var visual = ElementCompositionPreview.GetElementVisual(_addressTextHost);
         visual.StopAnimation("Translation");
         visual.Properties.InsertVector3("Translation", Vector3.Zero);
 
         _addressTextHost.ChangeView(0, null, null, true);
-        _addressTextHost.IsHitTestVisible = _addressBarFocused;
+        _addressTextHost.IsHitTestVisible = isHitTestVisible;
     }
 
     private bool IsAddressBarCenterAligned() =>
@@ -1031,19 +1051,7 @@ public sealed partial class MainWindow
             _addressBarFocused = focused;
             ++_addressBarAnimationVersion;
             _addressBarAnimating = false;
-
-            var textHostVisual = ElementCompositionPreview.GetElementVisual(
-                _addressTextHost);
-
-            textHostVisual.StopAnimation("Translation");
-            textHostVisual.Properties.InsertVector3("Translation", Vector3.Zero);
-
-            textHostVisual.StopAnimation("Translation");
-            textHostVisual.Properties.InsertVector3("Translation", Vector3.Zero);
-
-            _addressTextHost.ChangeView(0, null, null, true);
-            _addressTextHost.IsHitTestVisible = focused;
-
+            ResetAddressBarTextTranslation(focused);
             return;
         }
 
@@ -1082,17 +1090,12 @@ public sealed partial class MainWindow
 
         if (available <= 0 || textWidth >= available - 8)
         {
-            visual.StopAnimation("Translation");
-            visual.Properties.InsertVector3("Translation", Vector3.Zero);
-
-            _addressTextHost.ChangeView(0, null, null, true);
-            _addressTextHost.IsHitTestVisible = focused;
+            ResetAddressBarTextTranslation(focused);
             _addressBarAnimating = false;
-
             return;
         }
 
-        float center = (float)CalculateCenterOffset();
+        float center = CalculateAddressBarCenterTranslation();
         float startX = focused ? center : 0;
         float targetX = focused ? 0 : center;
 
@@ -1154,10 +1157,7 @@ public sealed partial class MainWindow
         if (string.IsNullOrEmpty(_addressTextBox.Text))
         {
             ++_addressBarAnimationVersion;
-            visual.StopAnimation("Translation");
-            visual.Properties.InsertVector3("Translation", Vector3.Zero);
-            _addressTextHost.ChangeView(0, null, null, true);
-            _addressTextHost.IsHitTestVisible = _addressBarFocused;
+            ResetAddressBarTextTranslation(_addressBarFocused);
             _addressBarAnimating = false;
             return;
         }
@@ -1165,21 +1165,28 @@ public sealed partial class MainWindow
         if (_addressBarFocused || _addressBarAnimating)
             return;
 
-        visual.StopAnimation("Translation");
-
         if (!IsAddressBarCenterAligned())
         {
-            visual.Properties.InsertVector3("Translation", Vector3.Zero);
-            _addressTextHost.ChangeView(0, null, null, true);
-            _addressTextHost.IsHitTestVisible = false;
+            ResetAddressBarTextTranslation(false);
             return;
         }
 
+        visual.StopAnimation("Translation");
         visual.Properties.InsertVector3(
             "Translation",
-            new Vector3((float)CalculateCenterOffset(), 0, 0));
+            new Vector3(CalculateAddressBarCenterTranslation(), 0, 0));
 
         _addressTextHost.IsHitTestVisible = false;
+    }
+
+    private float CalculateAddressBarCenterTranslation()
+    {
+        float offset = (float)CalculateCenterOffset();
+
+        // Text begins at the left in LTR and at the right in RTL.
+        return GetAddressBarTextFlowDirection() == FlowDirection.RightToLeft
+            ? -offset
+            : offset;
     }
 
     private double CalculateCenterOffset()
@@ -1188,11 +1195,12 @@ public sealed partial class MainWindow
             return 0;
 
         double textWidth = MeasureAddressTextWidth();
+        double available =
+            _addressTextBox.ActualWidth
+            - _addressTextBoxBasePadding.Left
+            - _addressTextBoxBasePadding.Right;
 
-        return Math.Max(
-            0,
-            (_addressTextBox.ActualWidth - textWidth) / 2 -
-            _addressTextBoxBasePadding.Left);
+        return Math.Max(0, (available - textWidth) / 2);
     }
 
     private double MeasureAddressTextWidth()
@@ -1340,14 +1348,19 @@ public sealed partial class MainWindow
             return;
 
         Thickness padding = _addressTextBoxBasePadding;
-
-        double rightPadding =
+        double trailingPadding =
             padding.Right + AddressBarTrailingButtons.Items.Count * 32;
 
-        _addressTextBox.Padding = new Thickness(
-            padding.Left,
-            padding.Top,
-            rightPadding,
-            padding.Bottom);
+        _addressTextBox.Padding = GetAddressBarTextFlowDirection() == FlowDirection.RightToLeft
+            ? new Thickness(
+                trailingPadding,
+                padding.Top,
+                padding.Left,
+                padding.Bottom)
+            : new Thickness(
+                padding.Left,
+                padding.Top,
+                trailingPadding,
+                padding.Bottom);
     }
 }

@@ -414,8 +414,8 @@ public sealed partial class SettingsPage : Page, IDisposable
     private void UpdateAddressBarAlignmentOptionText()
     {
         string key = TextDirComboBox.SelectedIndex == 1
-            ? "LeftAlignment"
-            : "RightAlignment";
+            ? "RightAlignment"
+            : "LeftAlignment";
 
         LeftOrRightAlignment.Content =
             LocalizerExtensions.GetLocalizedString(key);
