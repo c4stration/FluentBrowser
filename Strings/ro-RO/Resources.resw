@@ -573,4 +573,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>Se așteaptă conexiunea la internet...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>Centru</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>Alinierea adresei</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>Alegeți alinierea textului din bara de adrese</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>Stânga</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>Dreapta</value>
+  </data>
 </root>

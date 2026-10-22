@@ -573,4 +573,16 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>正在等待網際網路連線…</value>
   </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>地址對齊</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>選擇網址列文字的對齊方式</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>靠左</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>靠右</value>
+  </data>
 </root>

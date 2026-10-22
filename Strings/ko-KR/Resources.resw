@@ -573,4 +573,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>인터넷 연결 대기 중...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>가운데</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>주소 정렬</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>주소 표시줄 텍스트 정렬 선택</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>왼쪽</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>오른쪽</value>
+  </data>
 </root>

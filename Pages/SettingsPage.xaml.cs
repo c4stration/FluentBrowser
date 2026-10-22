@@ -35,9 +35,6 @@ public sealed partial class SettingsPage : Page, IDisposable
 {
     private readonly ObservableCollection<CustomSiteItem> _customSites = new();
 
-    // WebView2 exposes chrome.tabs.create and chrome.tabs.update through its
-    // browser process, but it has no tab strip for chrome.tabs.remove to close.
-    // The shim turns remove into a navigation that MainWindow closes locally.
     private const string ExtensionTabsCompatibilityShim = """
         (() => {
           const tabs = chrome.tabs;
@@ -101,6 +98,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadTextDirection(ResolveLanguage(
             _settings.Values["Language"] as string ?? "System"));
         LoadTabWidth();
+        LoadAddressBarAlignment();
         LoadNewTabPosition();
         LoadFullWebAddress();
         LoadCustomSites();
@@ -240,6 +238,20 @@ public sealed partial class SettingsPage : Page, IDisposable
         };
     }
 
+    private void LoadAddressBarAlignment()
+    {
+        string alignment =
+            _settings.Values["AddressBarAlignment"] as string
+            ?? "Center";
+
+        AddressBarAlignmentComboBox.SelectedIndex = alignment switch
+        {
+            "LeftOrRight" => 0,
+            "Center" => 1,
+            _ => 1
+        };
+    }
+
     private void LoadBackdropMaterial()
     {
         string material =
@@ -329,6 +341,8 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         _settings.Values["TextDirection"] = direction;
 
+        UpdateAddressBarAlignmentOptionText();
+
         string language =
             _settings.Values["Language"] as string
             ?? "System";
@@ -340,6 +354,9 @@ public sealed partial class SettingsPage : Page, IDisposable
             direction == "RightToLeft"
                 ? FlowDirection.RightToLeft
                 : FlowDirection.LeftToRight);
+
+        if (App.MainWindow is MainWindow window)
+            window.ApplyAddressBarAlignment();
     }
 
     private void LoadLanguage()
@@ -376,6 +393,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (!isRtlLanguage)
         {
             TextDirComboBox.SelectedIndex = 0;
+            UpdateAddressBarAlignmentOptionText();
             return;
         }
 
@@ -389,6 +407,18 @@ public sealed partial class SettingsPage : Page, IDisposable
             "RightToLeft" => 1,
             _ => 1
         };
+
+        UpdateAddressBarAlignmentOptionText();
+    }
+
+    private void UpdateAddressBarAlignmentOptionText()
+    {
+        string key = TextDirComboBox.SelectedIndex == 1
+            ? "LeftAlignment"
+            : "RightAlignment";
+
+        LeftOrRightAlignment.Content =
+            LocalizerExtensions.GetLocalizedString(key);
     }
 
     private async void LanguageComboBox_SelectionChanged(
@@ -439,6 +469,9 @@ public sealed partial class SettingsPage : Page, IDisposable
         {
             App.ApplyFlowDirection(resolvedLanguage);
         }
+
+        if (App.MainWindow is MainWindow window)
+            window.ApplyAddressBarAlignment();
 
         UpdateSystemLanguageInfoBar();
     }
@@ -1720,5 +1753,28 @@ public sealed partial class SettingsPage : Page, IDisposable
         DragItemsCompletedEventArgs args)
     {
         SaveCustomSites();
+    }
+
+    private void AddressBarAlignmentComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings ||
+            AddressBarAlignmentComboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        string alignment = AddressBarAlignmentComboBox.SelectedIndex switch
+        {
+            0 => "LeftOrRight",
+            1 => "Center",
+            _ => "Center"
+        };
+
+        _settings.Values["AddressBarAlignment"] = alignment;
+
+        if (App.MainWindow is MainWindow window)
+            window.ApplyAddressBarAlignment();
     }
 }

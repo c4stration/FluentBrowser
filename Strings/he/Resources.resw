@@ -591,4 +591,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>ממתין לחיבור לאינטרנט...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>מרכז</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>יישור הכתובת</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>בחר את יישור הטקסט בשורת הכתובת</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>שמאל</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>ימין</value>
+  </data>
 </root>

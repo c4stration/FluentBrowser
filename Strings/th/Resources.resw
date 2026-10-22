@@ -589,4 +589,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>กำลังรอการเชื่อมต่ออินเทอร์เน็ต...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>ตรงกลาง</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>การจัดแนวที่อยู่</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>เลือกการจัดแนวข้อความของแถบที่อยู่</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>ซ้าย</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>ขวา</value>
+  </data>
 </root>

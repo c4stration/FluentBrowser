@@ -593,4 +593,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>Waiting for internet...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>Address alignment</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>Choose the text alignment of the address bar</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>Right</value>
+  </data>
 </root>

@@ -215,6 +215,15 @@
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="FullWebAddressToggle_Toggled" />
                     </controls:SettingsCard>
+                    <controls:SettingsCard l:Uids.Uid="AddressBarAlignment">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE8E3;" />
+                        </controls:SettingsCard.HeaderIcon>
+                        <ComboBox x:Name="AddressBarAlignmentComboBox" SelectionChanged="AddressBarAlignmentComboBox_SelectionChanged">
+                            <ComboBoxItem x:Name="LeftOrRightAlignment"/>
+                            <ComboBoxItem l:Uids.Uid="CenterAlignment" />
+                        </ComboBox>
+                    </controls:SettingsCard>
                     <controls:SettingsCard l:Uids.Uid="SearchSuggestions">
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEA80;" />
@@ -367,12 +376,12 @@
                             <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Margin="0,0,0,5" l:Uids.Uid="LinksText" />
-                                    
+
                                     <HyperlinkButton
                                         l:Uids.Uid="TranslateHyperlink"
                                         NavigateUri="https://crowdin.com/project/fluentbrowser"
                                         Style="{ThemeResource TextBlockButtonStyle}" />
-                                    
+
                                     <HyperlinkButton
                                         l:Uids.Uid="SourceCodeHyperlink"
                                         NavigateUri="https://github.com/c4stration/FluentBrowser"

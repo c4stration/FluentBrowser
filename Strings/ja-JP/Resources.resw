@@ -577,4 +577,19 @@
   <data name="WaitingForInternet" xml:space="preserve">
     <value>インターネット接続を待機中...</value>
   </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>中央</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>アドレスの配置</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>アドレスバーのテキストの配置を選択</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>左</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>右</value>
+  </data>
 </root>

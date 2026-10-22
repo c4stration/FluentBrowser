@@ -116,6 +116,8 @@ public sealed partial class MainWindow
         _addressTextBoxBasePadding = _addressTextBox.Padding;
         UpdateAddressBarTextPadding();
 
+        ApplyAddressBarAlignment();
+
         var deleteButton = _addressTextBox.FindDescendant<Button>(x => x.Name == "DeleteButton");
 
         if (deleteButton?.Parent is Grid parent)
@@ -944,6 +946,52 @@ public sealed partial class MainWindow
         _addressTextBox.KeyDown += AddressBarTextBox_KeyDown;
     }
 
+    public void ApplyAddressBarAlignment()
+    {
+        FindAddressBarTextHost();
+
+        if (_addressTextBox is null || _addressTextHost is null)
+            return;
+
+        bool centered = IsAddressBarCenterAligned();
+
+        FlowDirection textDirection = App.CurrentFlowDirection;
+
+        AddressBar.FlowDirection = textDirection;
+        _addressTextBox.FlowDirection = textDirection;
+        _addressTextHost.FlowDirection = textDirection;
+
+        _addressTextBox.TextAlignment = centered
+            ? TextAlignment.Left
+            : textDirection == FlowDirection.RightToLeft
+                ? TextAlignment.Right
+                : TextAlignment.Left;
+
+        if (centered)
+        {
+            UpdateUnfocusedTranslation();
+            return;
+        }
+
+        ++_addressBarAnimationVersion;
+        _addressBarAnimating = false;
+
+        var visual = ElementCompositionPreview.GetElementVisual(
+            _addressTextHost);
+
+        visual.StopAnimation("Translation");
+        visual.Properties.InsertVector3("Translation", Vector3.Zero);
+
+        _addressTextHost.ChangeView(0, null, null, true);
+        _addressTextHost.IsHitTestVisible = _addressBarFocused;
+    }
+
+    private bool IsAddressBarCenterAligned() =>
+        string.Equals(
+            _settings.Values["AddressBarAlignment"] as string ?? "Center",
+            "Center",
+            StringComparison.OrdinalIgnoreCase);
+
     private void AddressBarTextBox_KeyDown(
         object sender,
         Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -975,10 +1023,38 @@ public sealed partial class MainWindow
     {
         FindAddressBarTextHost();
 
-        if (_addressBarFocused == focused)
+        if (_addressTextBox is null || _addressTextHost is null)
             return;
 
-        if (_addressTextBox is null || _addressTextHost is null)
+        if (!IsAddressBarCenterAligned())
+        {
+            _addressBarFocused = focused;
+            ++_addressBarAnimationVersion;
+            _addressBarAnimating = false;
+
+            var textHostVisual = ElementCompositionPreview.GetElementVisual(
+                _addressTextHost);
+
+            textHostVisual.StopAnimation("Translation");
+            textHostVisual.Properties.InsertVector3("Translation", Vector3.Zero);
+
+            textHostVisual.StopAnimation("Translation");
+            textHostVisual.Properties.InsertVector3("Translation", Vector3.Zero);
+
+            _addressTextHost.ChangeView(0, null, null, true);
+            _addressTextHost.IsHitTestVisible = focused;
+
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_addressTextBox.Text))
+        {
+            _addressBarFocused = focused;
+            UpdateUnfocusedTranslation();
+            return;
+        }
+
+        if (_addressBarFocused == focused)
             return;
 
         _addressBarFocused = focused;
@@ -1069,17 +1145,35 @@ public sealed partial class MainWindow
 
     private void UpdateUnfocusedTranslation()
     {
-        if (_addressBarFocused ||
-            _addressBarAnimating ||
-            _addressTextHost is null)
-        {
+        if (_addressTextHost is null || _addressTextBox is null)
             return;
-        }
 
         var visual = ElementCompositionPreview.GetElementVisual(
             _addressTextHost);
 
+        if (string.IsNullOrEmpty(_addressTextBox.Text))
+        {
+            ++_addressBarAnimationVersion;
+            visual.StopAnimation("Translation");
+            visual.Properties.InsertVector3("Translation", Vector3.Zero);
+            _addressTextHost.ChangeView(0, null, null, true);
+            _addressTextHost.IsHitTestVisible = _addressBarFocused;
+            _addressBarAnimating = false;
+            return;
+        }
+
+        if (_addressBarFocused || _addressBarAnimating)
+            return;
+
         visual.StopAnimation("Translation");
+
+        if (!IsAddressBarCenterAligned())
+        {
+            visual.Properties.InsertVector3("Translation", Vector3.Zero);
+            _addressTextHost.ChangeView(0, null, null, true);
+            _addressTextHost.IsHitTestVisible = false;
+            return;
+        }
 
         visual.Properties.InsertVector3(
             "Translation",
