@@ -339,12 +339,11 @@
                     </AutoSuggestBox.ItemTemplate>
                 </AutoSuggestBox>
 
-                <Grid Grid.Column="1" VerticalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
+                <StackPanel
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
                     <ListView
                         x:Name="AddressBarTrailingButtons"
                         Padding="0"
@@ -420,7 +419,7 @@
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Foreground="{ThemeResource TextControlButtonForeground}"
                         Style="{StaticResource AddressBarButtonStyle}" />
-                </Grid>
+                </StackPanel>
 
                 <TeachingTip
                     x:Name="ZoomTeachingTip"

@@ -227,10 +227,7 @@ public sealed partial class MainWindow
                                     item.Title));
                         }
                     }
-                    catch
-                    {
-                        // Keep search suggestions available if history lookup fails.
-                    }
+                    catch { }
                 }
                 else
                 {
@@ -264,10 +261,7 @@ public sealed partial class MainWindow
                                     false));
                         }
                     }
-                    catch
-                    {
-                        // Keep history suggestions available if search lookup fails.
-                    }
+                    catch { }
                 }
             }
 
@@ -965,26 +959,15 @@ public sealed partial class MainWindow
         ResetAddressBarTextTranslation(_addressBarFocused);
     }
 
-    private FlowDirection GetAddressBarTextFlowDirection()
-    {
-        // This value is updated whenever the language or text-direction setting changes.
-        // Reading it directly keeps the input aligned with the live application flow.
-        return App.CurrentFlowDirection;
-    }
-
     private void ApplyAddressBarTextDirection()
     {
-        FlowDirection direction = GetAddressBarTextFlowDirection();
+        FlowDirection direction = RootGrid.FlowDirection;
 
         if (_addressTextBox is not null)
         {
             _addressTextBox.FlowDirection = direction;
-            // Left is the logical Start alias. With the TextBox flowing RTL it
-            // renders at the physical right edge; with LTR it renders at the left.
             TextAlignment alignment = TextAlignment.Left;
 
-            // HorizontalTextAlignment is the WinUI 3 text-input property. Set both
-            // aliases so the explicit value also wins over the TextBoxStyle setter.
             _addressTextBox.TextAlignment = alignment;
             _addressTextBox.HorizontalTextAlignment = alignment;
         }
@@ -1082,9 +1065,9 @@ public sealed partial class MainWindow
         _addressTextHost.UpdateLayout();
 
         double available =
-            _addressTextBox.ActualWidth -
-            _addressTextBoxBasePadding.Left -
-            _addressTextBoxBasePadding.Right;
+            _addressTextBox.ActualWidth
+            - _addressTextBox.Padding.Left
+            - _addressTextBox.Padding.Right;
 
         double textWidth = MeasureAddressTextWidth();
 
@@ -1179,15 +1162,8 @@ public sealed partial class MainWindow
         _addressTextHost.IsHitTestVisible = false;
     }
 
-    private float CalculateAddressBarCenterTranslation()
-    {
-        float offset = (float)CalculateCenterOffset();
-
-        // Text begins at the left in LTR and at the right in RTL.
-        return GetAddressBarTextFlowDirection() == FlowDirection.RightToLeft
-            ? -offset
-            : offset;
-    }
+    private float CalculateAddressBarCenterTranslation() =>
+        (float)CalculateCenterOffset();
 
     private double CalculateCenterOffset()
     {
@@ -1195,12 +1171,10 @@ public sealed partial class MainWindow
             return 0;
 
         double textWidth = MeasureAddressTextWidth();
-        double available =
-            _addressTextBox.ActualWidth
-            - _addressTextBoxBasePadding.Left
-            - _addressTextBoxBasePadding.Right;
+        double centeredTextX =
+            (_addressTextBox.ActualWidth - textWidth) / 2;
 
-        return Math.Max(0, (available - textWidth) / 2);
+        return centeredTextX - _addressTextBox.Padding.Left;
     }
 
     private double MeasureAddressTextWidth()
@@ -1349,18 +1323,14 @@ public sealed partial class MainWindow
 
         Thickness padding = _addressTextBoxBasePadding;
         double trailingPadding =
-            padding.Right + AddressBarTrailingButtons.Items.Count * 32;
+            (AddressBarTrailingButtons.Items.Count + 1) * 32;
 
-        _addressTextBox.Padding = GetAddressBarTextFlowDirection() == FlowDirection.RightToLeft
-            ? new Thickness(
-                trailingPadding,
-                padding.Top,
-                padding.Left,
-                padding.Bottom)
-            : new Thickness(
-                padding.Left,
-                padding.Top,
-                trailingPadding,
-                padding.Bottom);
+        // Padding follows the TextBox's local coordinate frame. FlowDirection mirrors
+        // that frame in RTL, so local Right becomes the physical left edge there.
+        _addressTextBox.Padding = new Thickness(
+            padding.Left,
+            padding.Top,
+            trailingPadding,
+            padding.Bottom);
     }
 }

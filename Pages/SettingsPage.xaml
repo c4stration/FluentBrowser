@@ -208,7 +208,7 @@
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
                     <controls:SettingsCard l:Uids.Uid="FullWebAddress">
                         <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xEB41;" />
+                            <PathIcon Data="{StaticResource CopyPath}" />
                         </controls:SettingsCard.HeaderIcon>
                         <ToggleSwitch
                             x:Name="FullWebAddressToggle"
