@@ -37,3 +37,4 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Add a proper determinate progress bar when loading websites |   ✅   | This was hard to do
 | Polish everything                                           |   ❌   |
 | Optimize everything                                         |   ❌   |
+| Favorites/Bookmarks bar                                     |   🚧   | Should I call it a favorites bar or a bookmarks bar?
