@@ -75,6 +75,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\Testing\favicon.png" />
     <None Remove="Controls\ShortcutControl\ShortcutDialogContentControl.xaml" />
   </ItemGroup>
   <ItemGroup>

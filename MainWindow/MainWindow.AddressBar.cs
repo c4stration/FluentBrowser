@@ -1325,8 +1325,6 @@ public sealed partial class MainWindow
         double trailingPadding =
             (AddressBarTrailingButtons.Items.Count + 1) * 32;
 
-        // Padding follows the TextBox's local coordinate frame. FlowDirection mirrors
-        // that frame in RTL, so local Right becomes the physical left edge there.
         _addressTextBox.Padding = new Thickness(
             padding.Left,
             padding.Top,

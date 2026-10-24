@@ -179,6 +179,11 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
                 <StackPanel
                     Grid.Column="0"
                     Margin="0,0,8,0"
@@ -1126,10 +1131,49 @@
                         </ListView>
                     </StackPanel>
                 </Grid>
+
+                <ListView
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Margin="0,-6,0,-7"
+                    HorizontalAlignment="Stretch"
+                    SelectionMode="None">
+
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal"
+                                Spacing="8" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+
+                    <ListView.Items>
+                        <Button
+                            Padding="8,3"
+                            HorizontalContentAlignment="Center"
+                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                            Style="{StaticResource AppBarButtonStyle}">
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Grid>
+                                    <Image
+                                        Width="12"
+                                        Height="12"
+                                        
+                                        Source="ms-appx:///Assets/Testing/favicon.png" />
+
+                                    <FontIcon Visibility="Collapsed" Glyph="&#xE774;" FontSize="12" />
+                                </Grid>
+                                
+                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="yo mama" />
+                            </StackPanel>
+                        </Button>
+                    </ListView.Items>
+                </ListView>
             </Grid>
 
             <!--  smart, right?  -->
-
             <Rectangle
                 Grid.Row="1"
                 Height="1"

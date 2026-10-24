@@ -146,6 +146,8 @@ public sealed partial class MainWindow
 
     private void ShowLoadingProgress(WebView2 webView)
     {
+        LoadingProgressBar.Visibility = Visibility.Visible;
+
         bool hasTracker = _loadProgressTrackers.TryGetValue(
             webView,
             out var tracker);
