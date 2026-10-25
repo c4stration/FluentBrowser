@@ -76,6 +76,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Testing\favicon.png" />
+    <None Remove="Controls\ScrollableItemsControl.xaml" />
     <None Remove="Controls\ShortcutControl\ShortcutDialogContentControl.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +85,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Controls\ScrollableItemsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="Controls\ShortcutControl\ShortcutControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>

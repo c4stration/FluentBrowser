@@ -48,6 +48,15 @@ namespace FluentBrowser
         public App()
         {
             InitializeComponent();
+
+            UnhandledException += (sender, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"UNHANDLED EXCEPTION: {e.Message}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    e.Exception?.ToString());
+            };
         }
 
         /// <summary>
