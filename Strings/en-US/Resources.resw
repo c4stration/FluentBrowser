@@ -608,4 +608,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>Right</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Add to Favorites</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>Add this to Favorites?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>Remove from Favorites</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>Edit favorite</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
 </root>

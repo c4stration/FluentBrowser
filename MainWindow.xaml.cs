@@ -42,6 +42,9 @@ public sealed partial class MainWindow : Window
         _settings = ApplicationData.Current.LocalSettings;
         _searchSuggestionProvider = new SearchSuggestionProvider(_httpClient);
 
+        Favorites.CollectionChanged += Favorites_CollectionChanged;
+        LoadFavorites();
+
         _ = LoadDownloadHistoryAsync();
 
         ApplyBackdropMaterial(

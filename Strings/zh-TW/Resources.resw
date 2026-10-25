@@ -585,4 +585,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>靠右</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>加入我的最愛</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>要加入我的最愛嗎？</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>從我的最愛中移除</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>編輯我的最愛</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>編輯</value>
+  </data>
 </root>

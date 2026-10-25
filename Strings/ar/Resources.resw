@@ -600,4 +600,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>يمين</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>أضف إلى المفضلة</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>هل تريد إضافة هذا إلى المفضلة؟</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>إزالة من المفضلة</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>تعديل المفضلة</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
 </root>

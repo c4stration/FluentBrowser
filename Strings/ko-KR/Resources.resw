@@ -588,4 +588,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>오른쪽</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>즐겨찾기에 추가</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>즐겨찾기에 추가하시겠습니까?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>취소</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>즐겨찾기에서 제거</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>즐겨찾기 편집</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>편집</value>
+  </data>
 </root>

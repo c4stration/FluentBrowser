@@ -604,4 +604,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>ขวา</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>เพิ่มในรายการโปรด</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>ชื่อ</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>เพิ่มในรายการโปรดหรือไม่?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>ลบออกจากรายการโปรด</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>แก้ไขรายการโปรด</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>แก้ไข</value>
+  </data>
 </root>

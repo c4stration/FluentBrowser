@@ -592,4 +592,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>右</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>お気に入りに追加</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>お気に入りに追加しますか？</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>お気に入りから削除</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>お気に入りを編集</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>編集</value>
+  </data>
 </root>

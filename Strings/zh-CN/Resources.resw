@@ -592,4 +592,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>右对齐</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>添加到收藏夹</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>要添加到收藏夹吗？</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>从收藏夹中移除</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>编辑收藏夹</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>编辑</value>
+  </data>
 </root>

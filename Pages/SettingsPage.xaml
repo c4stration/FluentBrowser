@@ -383,6 +383,7 @@
                                         Style="{ThemeResource TextBlockButtonStyle}" />
 
                                     <HyperlinkButton
+                                        Margin="0,-5,0,0"
                                         l:Uids.Uid="SourceCodeHyperlink"
                                         NavigateUri="https://github.com/c4stration/FluentBrowser"
                                         Style="{ThemeResource TextBlockButtonStyle}" />

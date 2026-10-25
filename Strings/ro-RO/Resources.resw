@@ -588,4 +588,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>Dreapta</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Adaugă la favorite</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nume</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>Adăugați la favorite?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Anulare</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>Elimină din favorite</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>Editare favorit</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Editare</value>
+  </data>
 </root>

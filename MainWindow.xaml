@@ -1032,7 +1032,7 @@
                                     </FontIcon>
 
                                     <Button.Flyout>
-                                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                        <MenuFlyout Opening="MoreMenuFlyout_Opening" Placement="BottomEdgeAlignedRight">
 
                                             <!--  Navigation / Tab  -->
                                             <MenuFlyoutItem
@@ -1051,6 +1051,15 @@
                                                 Click="DuplicateTabMenuItem_Click">
                                                 <MenuFlyoutItem.Icon>
                                                     <FontIcon Glyph="&#xEB91;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+
+                                            <MenuFlyoutSeparator />
+
+                                            <!--  favorite stoof  -->
+                                            <MenuFlyoutItem x:Name="FavoriteWebsiteItem" Click="FavoriteWebsiteItem_Click">
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon x:Name="FavoriteWebsiteItemIcon" Glyph="&#xE734;" />
                                                 </MenuFlyoutItem.Icon>
                                             </MenuFlyoutItem>
 
@@ -1133,10 +1142,12 @@
                 </Grid>
 
                 <ListView
+                    x:Name="FavoritesListView"
                     Grid.Row="1"
                     Grid.Column="1"
                     Margin="0,-6,0,-7"
                     HorizontalAlignment="Stretch"
+                    ItemsSource="{x:Bind Favorites}"
                     SelectionMode="None">
 
                     <ListView.ItemsPanel>
@@ -1144,32 +1155,59 @@
                             <StackPanel
                                 HorizontalAlignment="Center"
                                 Orientation="Horizontal"
-                                Spacing="8" />
+                                Spacing="-24" />
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
 
-                    <ListView.Items>
-                        <Button
-                            Padding="8,3"
-                            HorizontalContentAlignment="Center"
-                            CornerRadius="{ThemeResource ControlCornerRadius}"
-                            Style="{StaticResource AppBarButtonStyle}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Button
+                                Padding="8,3"
+                                HorizontalContentAlignment="Center"
+                                Click="FavoritedWebsite_Click"
+                                CornerRadius="{ThemeResource ControlCornerRadius}"
+                                Style="{StaticResource AppBarButtonStyle}"
+                                ToolTipService.ToolTip="{Binding Url}">
 
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Grid>
-                                    <Image
-                                        Width="12"
-                                        Height="12"
-                                        
-                                        Source="ms-appx:///Assets/Testing/favicon.png" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Grid>
+                                        <Image
+                                            Width="12"
+                                            Height="12"
+                                            Source="{Binding Favicon}"
+                                            Visibility="{Binding Favicon, Converter={StaticResource ValueToVisibilityConverter}}" />
 
-                                    <FontIcon Visibility="Collapsed" Glyph="&#xE774;" FontSize="12" />
-                                </Grid>
-                                
-                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="yo mama" />
-                            </StackPanel>
-                        </Button>
-                    </ListView.Items>
+                                        <FontIcon
+                                            FontSize="12"
+                                            Glyph="&#xE774;"
+                                            Visibility="{Binding Favicon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" />
+                                    </Grid>
+
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{Binding Name}" />
+                                </StackPanel>
+
+                                <Button.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyout.Items>
+                                            <MenuFlyoutItem l:Uids.Uid="Edit" Click="EditFavorite_Click">
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE70F;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            
+                                            <MenuFlyoutItem l:Uids.Uid="RemoveFavorite" Click="RemoveFavorite_Click">
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE74D;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyout.Items>
+                                    </MenuFlyout>
+                                </Button.ContextFlyout>
+                            </Button>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                    <ListView.Items />
                 </ListView>
             </Grid>
 

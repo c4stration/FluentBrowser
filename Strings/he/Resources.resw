@@ -606,4 +606,25 @@
   <data name="RightAlignment" xml:space="preserve">
     <value>ימין</value>
   </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>הוסף למועדפים</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>שם</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>להוסיף למועדפים?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>ביטול</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>הסרה מהמועדפים</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>עריכת מועדף</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>עריכה</value>
+  </data>
 </root>
