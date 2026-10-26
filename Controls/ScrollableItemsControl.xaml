@@ -161,6 +161,7 @@
 
         <ItemsControl
             x:Name="ItemsList"
+            ItemContainerTransitions="{Binding ItemContainerTransitions, ElementName=Root}"
             ItemTemplate="{Binding ItemTemplate, ElementName=Root}"
             ItemsPanel="{Binding ItemsPanel, ElementName=Root}"
             ItemsSource="{Binding ItemsSource, ElementName=Root}"

@@ -1,10 +1,13 @@
-﻿using Microsoft.UI.Xaml;
+﻿using MessagePack;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -12,12 +15,14 @@ using WinUI3Localizer;
 
 namespace FluentBrowser;
 
+[MessagePackObject]
 public sealed class FavoriteWebsite : INotifyPropertyChanged
 {
     private string _name = string.Empty;
     private string _url = string.Empty;
     private ImageSource? _favicon;
 
+    [Key(0)]
     public string Name
     {
         get => _name;
@@ -32,6 +37,8 @@ public sealed class FavoriteWebsite : INotifyPropertyChanged
                 new PropertyChangedEventArgs(nameof(Name)));
         }
     }
+
+    [Key(1)]
     public string Url
     {
         get => _url;
@@ -48,6 +55,7 @@ public sealed class FavoriteWebsite : INotifyPropertyChanged
     }
 
     [JsonIgnore]
+    [IgnoreMember]
     public ImageSource? Favicon
     {
         get => _favicon;
@@ -69,11 +77,38 @@ public sealed class FavoriteWebsite : INotifyPropertyChanged
 public sealed partial class MainWindow
 {
     private const string FavoritesSettingKey = "Favorites";
+    private string FavoritesFile =>
+        AppDataPaths.DataFile("Favorites.msgpack");
 
     public ObservableCollection<FavoriteWebsite> Favorites { get; } = [];
 
     private void LoadFavorites()
     {
+        string path = FavoritesFile;
+
+        if (File.Exists(path))
+        {
+            try
+            {
+                List<FavoriteWebsite>? favorites =
+                    MessagePackSerializer.Deserialize<List<FavoriteWebsite>>(
+                        File.ReadAllBytes(path),
+                        MessagePackData.Options);
+
+                if (favorites is not null)
+                {
+                    AddLoadedFavorites(favorites);
+                    _settings.Values.Remove(FavoritesSettingKey);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Failed to load favorites: {ex}");
+            }
+        }
+
         if (_settings.Values[FavoritesSettingKey] is not string json ||
             string.IsNullOrWhiteSpace(json))
         {
@@ -82,31 +117,59 @@ public sealed partial class MainWindow
 
         try
         {
-            var favorites =
+            List<FavoriteWebsite>? favorites =
                 JsonSerializer.Deserialize<List<FavoriteWebsite>>(json);
 
             if (favorites is null)
                 return;
 
-            foreach (var favorite in favorites)
+            AddLoadedFavorites(favorites);
+            SaveFavorites();
+        }
+        catch (JsonException ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"failed to migrate favorites: {ex}");
+        }
+    }
+
+    private void AddLoadedFavorites(
+        IEnumerable<FavoriteWebsite> favorites)
+    {
+        foreach (FavoriteWebsite? favorite in favorites)
+        {
+            if (favorite is not null &&
+                !string.IsNullOrWhiteSpace(favorite.Name) &&
+                TryCreateAddressUri(favorite.Url, out Uri? uri) &&
+                uri is not null)
             {
-                if (favorite is not null &&
-                    !string.IsNullOrWhiteSpace(favorite.Name) &&
-                    TryCreateAddressUri(favorite.Url, out Uri? uri) &&
-                    uri is not null)
-                {
-                    favorite.Url = uri.AbsoluteUri;
-                    Favorites.Add(favorite);
-                }
+                favorite.Url = uri.AbsoluteUri;
+                Favorites.Add(favorite);
             }
         }
-        catch (JsonException) { }
     }
 
     private void SaveFavorites()
     {
-        _settings.Values[FavoritesSettingKey] =
-            JsonSerializer.Serialize(Favorites);
+        string path = FavoritesFile;
+        string temporaryPath = path + ".tmp";
+
+        try
+        {
+            byte[] data = MessagePackSerializer.Serialize(
+                Favorites.ToList(),
+                MessagePackData.Options);
+
+            File.WriteAllBytes(temporaryPath, data);
+            File.Move(temporaryPath, path, overwrite: true);
+
+            _settings.Values.Remove(FavoritesSettingKey);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"failed to save favorites: {ex}");
+        }
     }
 
     private void FavoritedWebsite_Click(

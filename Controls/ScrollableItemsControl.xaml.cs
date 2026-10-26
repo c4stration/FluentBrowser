@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections;
 
@@ -50,6 +51,19 @@ public sealed partial class ScrollableItemsControl : UserControl
         DependencyProperty.Register(
             nameof(ItemsPanel),
             typeof(ItemsPanelTemplate),
+            typeof(ScrollableItemsControl),
+            new PropertyMetadata(null));
+
+    public TransitionCollection ItemContainerTransitions
+    {
+        get => (TransitionCollection)GetValue(ItemContainerTransitionsProperty);
+        set => SetValue(ItemContainerTransitionsProperty, value);
+    }
+
+    public static readonly DependencyProperty ItemContainerTransitionsProperty =
+        DependencyProperty.Register(
+            nameof(ItemContainerTransitions),
+            typeof(TransitionCollection),
             typeof(ScrollableItemsControl),
             new PropertyMetadata(null));
 

@@ -1148,9 +1148,21 @@
                     Grid.ColumnSpan="3"
                     ItemsSource="{x:Bind Favorites}">
 
+                    <my:ScrollableItemsControl.ItemContainerTransitions>
+                        <TransitionCollection>
+                            <AddDeleteThemeTransition />
+                            <ContentThemeTransition />
+                            <ReorderThemeTransition />
+                            <EntranceThemeTransition IsStaggeringEnabled="False" />
+                        </TransitionCollection>
+                    </my:ScrollableItemsControl.ItemContainerTransitions>
+
                     <my:ScrollableItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8" />
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal"
+                                Spacing="4" />
                         </ItemsPanelTemplate>
                     </my:ScrollableItemsControl.ItemsPanel>
 
