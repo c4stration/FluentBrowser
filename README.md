@@ -21,7 +21,7 @@ I haven't thought of a name for this one yet, so "FluentBrowser" is just a place
 | Add "inspect element"                                       |   🟧   | You know, like the pane
 | Add search suggestions                                      |   ✅   |
 | Add personalized suggestions                                |   🚧   | This feature is currently being worked on. Planning to add ML-based ranking like how Edge does it. No, it's not expensive, I promise
-| Favorites/Bookmarks bar                                     |   🚧   | Should I call it a favorites bar or a bookmarks bar?
+| Favorites/Bookmarks bar                                     |   ✅   | Should I call it a favorites bar or a bookmarks bar?
 | Add settings                                                |   ✅   |
 | Add fullscreen support                                      |   ✅   | F11 and website requests
 | Add toolbar managing                                        |   ✅   | Still haven't added the other toolbar items (i.e. address bar, back/forward) but it works!
