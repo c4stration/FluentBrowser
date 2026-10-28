@@ -31,6 +31,10 @@ public sealed partial class MainWindow
         public bool IsInitializing { get; set; } = true;
         public bool WasDiscarded { get; set; }
         public string LastKnownUrl { get; set; } = string.Empty;
+        public FrameworkElement? StartPage { get; set; }
+        public List<string> WebHistoryAfterStartPage { get; } = [];
+        public int WebHistoryIndex { get; set; } = -1;
+        public int PendingWebHistoryMove { get; set; }
         public int ExtensionTabId { get; }
 
         public BrowserTab(
@@ -58,20 +62,21 @@ public sealed partial class MainWindow
         string Url,
         int Index);
 
+    private bool IsDisplayedWebView(WebView2 webView) =>
+        SelectedTab is BrowserTab tab &&
+        ReferenceEquals(tab.WebView, webView) &&
+        ReferenceEquals(tab.Content, webView);
+
+    private static bool IsStartPageDisplayed(BrowserTab tab) =>
+        tab.Content is StartPage;
+
     private readonly Stack<ClosedTab> _closedTabs = [];
 
     private void TabView_AddButtonClick(TabView sender, object args)
     {
-        var tab = CreateNewTab(
-            _searchSuggestionProvider.CreateHomeUri(GetSearchEngine()).AbsoluteUri);
+        var tab = CreatePageTab(typeof(StartPage));
 
         AddNewTab(tab, true);
-
-        if (tab.Tag is BrowserTab browserTab &&
-            browserTab.WebView is WebView2 webView)
-        {
-            webView.Focus(FocusState.Programmatic);
-        }
     }
 
     private void TabView_TabCloseRequested(
@@ -170,7 +175,9 @@ public sealed partial class MainWindow
             if (webView.CoreWebView2 is { IsSuspended: true } core)
                 core.Resume();
 
-            webView.Visibility = Visibility.Visible;
+            webView.Visibility = tab.Content is StartPage
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
 
         CurrentTabContent.Content = tab.ErrorPage ?? tab.Content;
@@ -180,42 +187,57 @@ public sealed partial class MainWindow
 
         if (tab.WebView is WebView2 selectedWebView)
         {
-            UpdateAddressBar(selectedWebView);
-            UpdateLoadingUI(selectedWebView);
-            UpdateAudioButton();
-            UpdateNavigationButtons();
-            UpdateZoomControls(GetZoomPercentage(selectedWebView));
-
-            if (tab.ErrorPage is null &&
-                selectedWebView.CoreWebView2 is { } core)
+            if (tab.Content is StartPage)
             {
-                _ = UpdateThemeColorFromPageAsync(
-                    selectedWebView,
-                    core);
+                ClearAddressBarForStartPage();
+                LoadingProgressBar.Visibility = Visibility.Collapsed;
+
+                SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
+
+                UpdateNavigationButtons();
+                UpdateZoomControls(100);
+                RestoreDefaultToolbarBackground();
             }
             else
             {
-                RestoreDefaultToolbarBackground();
-            }
+                UpdateAddressBar(selectedWebView);
+                UpdateLoadingUI(selectedWebView);
+                UpdateAudioButton();
+                UpdateNavigationButtons();
+                UpdateZoomControls(GetZoomPercentage(selectedWebView));
 
-            if (tab.ErrorPage is null)
-            {
-                _ = DispatcherQueue.TryEnqueue(() =>
+                if (tab.ErrorPage is null &&
+                    selectedWebView.CoreWebView2 is { } core)
                 {
-                    if (ReferenceEquals(SelectedTab, tab) &&
-                        ReferenceEquals(tab.WebView, selectedWebView) &&
-                        tab.ErrorPage is null)
+                    _ = UpdateThemeColorFromPageAsync(
+                        selectedWebView,
+                        core);
+                }
+                else
+                {
+                    RestoreDefaultToolbarBackground();
+                }
+
+                if (tab.ErrorPage is null)
+                {
+                    _ = DispatcherQueue.TryEnqueue(() =>
                     {
-                        selectedWebView.Focus(FocusState.Programmatic);
-                    }
-                });
+                        if (ReferenceEquals(SelectedTab, tab) &&
+                            ReferenceEquals(tab.WebView, selectedWebView) &&
+                            tab.ErrorPage is null &&
+                            tab.Content is not StartPage)
+                        {
+                            selectedWebView.Focus(FocusState.Programmatic);
+                        }
+                    });
+                }
             }
         }
         else
         {
             UpdateZoomControls(100);
 
-            AddressBar.Text = string.Empty;
+            ClearAddressBarForStartPage();
             LoadingProgressBar.Visibility = Visibility.Collapsed;
             SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
             BackButton.IsEnabled = false;
@@ -289,6 +311,13 @@ public sealed partial class MainWindow
 
         string url = tab.LastKnownUrl;
         var webView = new WebView2();
+
+        if (tab.StartPage is not null)
+        {
+            tab.WebHistoryAfterStartPage.Clear();
+            tab.WebHistoryIndex = -1;
+            tab.PendingWebHistoryMove = 0;
+        }
 
         tab.Content = webView;
         tab.WebView = webView;
@@ -451,11 +480,14 @@ public sealed partial class MainWindow
             out var audioButton,
             out var favicon);
 
-        title.Text = pageType == typeof(SettingsPage)
-         ? LocalizerExtensions.GetLocalizedString("SettingsTitle")
-         : pageType.Name.EndsWith("Page", StringComparison.Ordinal)
-             ? pageType.Name[..^4]
-             : pageType.Name;
+        title.Text = pageType switch
+        {
+            var t when t == typeof(SettingsPage) => LocalizerExtensions.GetLocalizedString("SettingsTitle"),
+            var t when t == typeof(StartPage) => LocalizerExtensions.GetLocalizedString("StartTitle"),
+            _ => pageType.Name.EndsWith("Page", StringComparison.Ordinal)
+                ? pageType.Name[..^4]
+                : pageType.Name
+        };
 
         progressRing.Visibility = Visibility.Collapsed;
         audioButton.Visibility = Visibility.Collapsed;
@@ -463,7 +495,12 @@ public sealed partial class MainWindow
 
         var icon = new FontIcon
         {
-            Glyph = "\uE713",
+            Glyph = pageType switch
+            {
+                var t when t == typeof(StartPage) => "\uE734",
+                var t when t == typeof(PageSelector) => "\uF196",
+                _ => "\uE713" // settings
+            },
             FontSize = 16
         };
 
@@ -681,7 +718,7 @@ public sealed partial class MainWindow
     private void NewTabMenuItem_Click(
         object sender,
         RoutedEventArgs e) =>
-        OpenNewTab("https://www.google.com");
+        AddNewTab(CreatePageTab(typeof(StartPage)), true);
 
     private void DuplicateTabMenuItem_Click(
         object sender,

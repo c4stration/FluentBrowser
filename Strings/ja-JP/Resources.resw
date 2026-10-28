@@ -634,4 +634,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>ランダムな背景画像の提供元：{0}</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>スタート</value>
+  </data>
 </root>

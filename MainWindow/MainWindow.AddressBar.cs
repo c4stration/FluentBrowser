@@ -1,4 +1,5 @@
 using CommunityToolkit.WinUI;
+using FluentBrowser.Pages;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -630,6 +631,24 @@ public sealed partial class MainWindow
             sender.IsSuggestionListOpen = false;
     }
 
+    private void ClearAddressBarForStartPage()
+    {
+        ++_addressBarFocusVersion;
+
+        _addressBarBlurCancellation?.Cancel();
+        _addressBarBlurCancellation = null;
+
+        _pendingAddressBarUri = null;
+        _addressBarUserEditing = false;
+        _addressBarSubmitting = false;
+        _addressBarFocused = false;
+        _addressBarAnimating = false;
+        ++_addressBarAnimationVersion;
+
+        AddressBar.Text = string.Empty;
+        ResetAddressBarTextTranslation(false);
+    }
+
     private string GetSearchEngine() =>
         _settings.Values["SearchEngine"] as string
         ?? "Google";
@@ -735,14 +754,15 @@ public sealed partial class MainWindow
             return;
         }
 
-        if (tab.WebView is WebView2 webView)
+        if (tab.WebView is WebView2 webView &&
+            tab.Content is not StartPage)
         {
             _addressBarUserEditing = false;
 
             UpdateAddressBar(target, force: true);
             _pendingAddressBarUri = target;
 
-            Navigate(webView, target);
+            Navigate(tab, target);
 
             if (!waitForSuggestionPopupClose)
                 QueueAddressBarSubmissionFocus(webView);
@@ -752,7 +772,7 @@ public sealed partial class MainWindow
             _addressBarUserEditing = false;
             _addressBarSubmitting = false;
 
-            ConvertInternalTabToWeb(tab, target);
+            Navigate(tab, target);
         }
     }
 
@@ -772,8 +792,11 @@ public sealed partial class MainWindow
         {
             CancelSuggestionRequest();
 
-            if (SelectedWebView?.Source is Uri uri)
+            if (SelectedTab?.Content is not StartPage &&
+                SelectedWebView?.Source is Uri uri)
+            {
                 AddressBar.Text = uri.AbsoluteUri;
+            }
 
             FindAddressBarTextHost();
             _addressTextBox?.SelectAll();
@@ -816,6 +839,12 @@ public sealed partial class MainWindow
 
             CancelSuggestionRequest();
             ClearSuggestions(AddressBar);
+
+            if (SelectedTab?.Content is StartPage)
+            {
+                ClearAddressBarForStartPage();
+                return;
+            }
 
             if (SelectedWebView is WebView2 webView)
             {
@@ -1003,7 +1032,7 @@ public sealed partial class MainWindow
             return;
 
         if (_selectedSuggestionTarget is not Uri target ||
-            SelectedWebView is not WebView2 webView)
+            SelectedTab is not BrowserTab tab)
         {
             return;
         }
@@ -1019,7 +1048,7 @@ public sealed partial class MainWindow
         _suggestionTrainingIds.Clear();
         _addressBarUserEditing = false;
 
-        Navigate(webView, target);
+        Navigate(tab, target);
     }
 
     private void AnimateAddressBar(bool focused)
@@ -1202,6 +1231,12 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(WebView2 webView, bool force = false)
     {
+        if (SelectedTab?.Content is StartPage)
+        {
+            ClearAddressBarForStartPage();
+            return;
+        }
+
         if (webView.Source is Uri uri)
             UpdateAddressBar(uri, force);
     }

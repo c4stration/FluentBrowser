@@ -1,5 +1,6 @@
 ﻿using MessagePack;
 using MessagePack.Resolvers;
+using FluentBrowser.Pages;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -38,8 +39,7 @@ public sealed partial class MainWindow
         }
 
         AddNewTab(
-            CreateNewTab(
-                _searchSuggestionProvider.CreateHomeUri(GetSearchEngine()).AbsoluteUri),
+            CreatePageTab(typeof(StartPage)),
             true);
     }
 

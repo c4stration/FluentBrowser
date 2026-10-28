@@ -630,4 +630,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>Imagini de fundal aleatorii oferite de {0}.</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>Start</value>
+  </data>
 </root>

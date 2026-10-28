@@ -51,7 +51,7 @@ internal sealed class SearchSuggestionProvider
         };
     }
 
-    public Uri CreateHomeUri(string engine)
+    /*public Uri CreateHomeUri(string engine)
     {
         return engine switch
         {
@@ -60,7 +60,7 @@ internal sealed class SearchSuggestionProvider
             "DuckDuckGo" => new Uri("https://duckduckgo.com/"),
             _ => new Uri("https://www.google.com/")
         };
-    }
+    }*/
 
     private async Task<IReadOnlyList<string>> GetGoogleSuggestionsAsync(
         string query,

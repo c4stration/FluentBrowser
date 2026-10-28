@@ -51,6 +51,9 @@ public sealed partial class MainWindow
 
     private void UpdateDefaultFavicon(BrowserTab tab, bool visible)
     {
+        if (IsStartPageDisplayed(tab))
+            return;
+
         if (tab.Favicon.Parent is not Grid grid)
             return;
 
@@ -121,7 +124,8 @@ public sealed partial class MainWindow
         {
             if (tab.IsClosed ||
                 tab.WebView is not { } webView ||
-                webView.CoreWebView2 is not { } core)
+                webView.CoreWebView2 is not { } core ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }
@@ -147,7 +151,8 @@ public sealed partial class MainWindow
             {
                 if (tab.IsClosed ||
                     tab.WebView is not { } cachedWebView ||
-                    !ReferenceEquals(cachedWebView, webView))
+                    !ReferenceEquals(cachedWebView, webView) ||
+                    IsStartPageDisplayed(tab))
                 {
                     return;
                 }
@@ -165,7 +170,8 @@ public sealed partial class MainWindow
 
             if (tab.IsClosed ||
                 tab.WebView is not { } diskWebView ||
-                !ReferenceEquals(diskWebView, webView))
+                !ReferenceEquals(diskWebView, webView) ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }
@@ -187,7 +193,8 @@ public sealed partial class MainWindow
 
             if (tab.IsClosed ||
                 tab.WebView is not { } fetchedWebView ||
-                !ReferenceEquals(fetchedWebView, webView))
+                !ReferenceEquals(fetchedWebView, webView) ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }
@@ -203,7 +210,8 @@ public sealed partial class MainWindow
 
             if (tab.IsClosed ||
                 tab.WebView is not { } copiedWebView ||
-                !ReferenceEquals(copiedWebView, webView))
+                !ReferenceEquals(copiedWebView, webView) ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }
@@ -222,7 +230,8 @@ public sealed partial class MainWindow
 
             if (tab.IsClosed ||
                 tab.WebView is not { } bitmapWebView ||
-                !ReferenceEquals(bitmapWebView, webView))
+                !ReferenceEquals(bitmapWebView, webView) ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }
@@ -235,7 +244,8 @@ public sealed partial class MainWindow
 
             if (tab.IsClosed ||
                 tab.WebView is not { } savedWebView ||
-                !ReferenceEquals(savedWebView, webView))
+                !ReferenceEquals(savedWebView, webView) ||
+                IsStartPageDisplayed(tab))
             {
                 return;
             }

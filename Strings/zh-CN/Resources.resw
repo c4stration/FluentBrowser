@@ -634,4 +634,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>随机背景图片由 {0} 提供。</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>开始</value>
+  </data>
 </root>

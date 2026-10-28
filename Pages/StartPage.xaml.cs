@@ -20,12 +20,11 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
-using Windows.UI;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Pages;
 
-public sealed partial class Home : Page
+public sealed partial class StartPage : Page
 {
     private const string ImageMode = "Image";
     private const string RandomMode = "Random";
@@ -47,14 +46,14 @@ public sealed partial class Home : Page
 
     public ObservableCollection<BackgroundImageItem> RecentBackgrounds { get; } = new();
 
-    public Home()
+    public StartPage()
     {
         InitializeComponent();
 
         BackgroundModeComboBox.SelectionChanged += BackgroundModeComboBox_SelectionChanged;
 
-        Loaded += Home_Loaded;
-        Unloaded += Home_Unloaded;
+        Loaded += StartPage_Loaded;
+        Unloaded += StartPage_Unloaded;
 
         LoadBackgroundSettings();
         RefreshRecentBackgrounds();
@@ -64,7 +63,7 @@ public sealed partial class Home : Page
         SetRandomBackgroundDescription();
     }
 
-    private void Home_Loaded(object sender, RoutedEventArgs e)
+    private void StartPage_Loaded(object sender, RoutedEventArgs e)
     {
         var localizer = Localizer.Get();
 
@@ -74,7 +73,7 @@ public sealed partial class Home : Page
         SetRandomBackgroundDescription();
     }
 
-    private void Home_Unloaded(object sender, RoutedEventArgs e)
+    private void StartPage_Unloaded(object sender, RoutedEventArgs e)
     {
         Localizer.Get().LanguageChanged -= OnLanguageChanged;
     }

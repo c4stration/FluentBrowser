@@ -78,7 +78,6 @@
     <None Remove="Assets\Testing\favicon.png" />
     <None Remove="Controls\ScrollableItemsControl.xaml" />
     <None Remove="Controls\ShortcutControl\ShortcutDialogContentControl.xaml" />
-    <None Remove="Pages\Home.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\CantOpenPage.xaml">
@@ -92,7 +91,7 @@
     <None Update="Controls\ShortcutControl\ShortcutControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
-    <Page Update="Pages\Home.xaml">
+    <Page Update="Pages\StartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Controls\ShortcutControl\ShortcutDialogContentControl.xaml">

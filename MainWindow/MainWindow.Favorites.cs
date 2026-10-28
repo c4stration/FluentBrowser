@@ -176,10 +176,18 @@ public sealed partial class MainWindow
         object sender,
         RoutedEventArgs e)
     {
-        if (sender is Button button && button.DataContext is FavoriteWebsite favorite)
+        if (sender is not Button button ||
+            button.DataContext is not FavoriteWebsite favorite ||
+            SelectedTab is not BrowserTab tab ||
+            !Uri.TryCreate(
+                favorite.Url,
+                UriKind.Absolute,
+                out Uri? uri))
         {
-            SelectedWebView?.CoreWebView2?.Navigate(favorite.Url);
+            return;
         }
+
+        Navigate(tab, uri);
     }
 
     private void RemoveFavorite_Click(object sender, RoutedEventArgs e)

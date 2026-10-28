@@ -98,7 +98,7 @@ public sealed partial class MainWindow
     {
         handleEvent(eventJson);
 
-        if (ReferenceEquals(SelectedWebView, webView) &&
+        if (IsDisplayedWebView(webView) &&
             tracker.IsNavigating)
         {
             ShowLoadingProgress(webView);
@@ -120,7 +120,7 @@ public sealed partial class MainWindow
 
         tracker.CompleteNavigation(hasError);
 
-        if (ReferenceEquals(SelectedWebView, webView))
+        if (IsDisplayedWebView(webView))
             ShowLoadingProgress(webView);
 
         if (hasError)
@@ -136,7 +136,7 @@ public sealed partial class MainWindow
         {
             tracker.HideCompletedProgress();
 
-            if (ReferenceEquals(SelectedWebView, webView))
+            if (IsDisplayedWebView(webView))
                 HideLoadingProgress();
         }
     }

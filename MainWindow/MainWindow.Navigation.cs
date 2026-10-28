@@ -5,7 +5,9 @@ using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using WinUI3Localizer;
 
 namespace FluentBrowser;
 
@@ -25,6 +27,9 @@ public sealed partial class MainWindow
 
     private void BackButton_Click(object sender, RoutedEventArgs e)
     {
+        if (TryNavigateBackToStartPage())
+            return;
+
         if (SelectedWebView is not { CanGoBack: true } webView)
             return;
 
@@ -34,8 +39,43 @@ public sealed partial class MainWindow
 
     private void ForwardButton_Click(object sender, RoutedEventArgs e)
     {
+        if (SelectedTab is BrowserTab tab &&
+            tab.Content is StartPage &&
+            tab.StartPage is not null &&
+            tab.WebView is WebView2 startPageWebView &&
+            tab.WebHistoryIndex >= 0 &&
+            tab.WebHistoryAfterStartPage.Count > 0)
+        {
+            tab.Content = startPageWebView;
+            startPageWebView.Visibility = Visibility.Visible;
+            CurrentTabContent.Content = startPageWebView;
+
+            if (startPageWebView.CoreWebView2 is { } core)
+            {
+                tab.Title.Text = core.DocumentTitle;
+                _ = UpdateFaviconAsync(tab);
+                _ = UpdateThemeColorFromPageAsync(
+                    startPageWebView,
+                    core);
+            }
+
+            UpdateAddressBar(startPageWebView, force: true);
+            UpdateLoadingUI(startPageWebView);
+            UpdateAudioButton();
+            UpdateNavigationButtons();
+            UpdateZoomControls(GetZoomPercentage(startPageWebView));
+            startPageWebView.Focus(FocusState.Programmatic);
+            return;
+        }
+
         if (SelectedWebView is not { CanGoForward: true } webView)
             return;
+
+        if (SelectedTab is BrowserTab historyTab &&
+            historyTab.StartPage is not null)
+        {
+            historyTab.PendingWebHistoryMove = 1;
+        }
 
         webView.GoForward();
         webView.Focus(FocusState.Programmatic);
@@ -44,8 +84,25 @@ public sealed partial class MainWindow
     private void RefreshButton_Click(object sender, RoutedEventArgs e) =>
         SelectedWebView?.Reload();
 
-    private static void Navigate(WebView2 webView, Uri uri)
+    private void Navigate(BrowserTab tab, Uri uri)
     {
+        if (tab.Content is StartPage)
+        {
+            if (tab.WebView is WebView2)
+            {
+                ReplaceRetainedStartPageWebView(tab, uri);
+            }
+            else
+            {
+                ConvertInternalTabToWeb(tab, uri);
+            }
+
+            return;
+        }
+
+        if (tab.WebView is not WebView2 webView)
+            return;
+
         webView.Source = uri;
         webView.Focus(FocusState.Programmatic);
     }
@@ -59,7 +116,24 @@ public sealed partial class MainWindow
 
     private void UpdateNavigationButtons()
     {
+        if (SelectedTab is BrowserTab tab &&
+            tab.Content is StartPage)
+        {
+            BackButton.IsEnabled = false;
+            ForwardButton.IsEnabled =
+                tab.StartPage is not null &&
+                tab.WebHistoryAfterStartPage.Count > 0 &&
+                tab.WebHistoryIndex >= 0;
+
+            return;
+        }
+
         BackButton.IsEnabled =
+            (SelectedTab is BrowserTab
+            {
+                StartPage: not null,
+                WebHistoryIndex: 0
+            }) ||
             SelectedWebView?.CanGoBack == true;
 
         ForwardButton.IsEnabled =
@@ -68,6 +142,16 @@ public sealed partial class MainWindow
 
     private void UpdateLoadingUI(WebView2 webView)
     {
+        if (!IsDisplayedWebView(webView))
+        {
+            HideLoadingProgress();
+            VisualStateManager.GoToState(
+                RefreshButton,
+                "NotLoading",
+                false);
+            return;
+        }
+
         bool loading = _loadingWebViews.Contains(webView);
         bool shouldShowProgress = loading ||
             (_loadProgressTrackers.TryGetValue(
@@ -90,7 +174,7 @@ public sealed partial class MainWindow
         WebView2 webView,
         bool isLoading)
     {
-        if (!ReferenceEquals(SelectedWebView, webView))
+        if (!IsDisplayedWebView(webView))
             return;
 
         if (isLoading)
@@ -119,6 +203,8 @@ public sealed partial class MainWindow
             tab.LastKnownUrl = args.Uri;
             tab.IsInitializing = false;
 
+            TrackStartPageHistory(tab, args);
+
             _navigationUris[webView] = args.Uri;
             _downloadNavigations[webView] = new DownloadNavigation(
                 args.NavigationId);
@@ -132,13 +218,14 @@ public sealed partial class MainWindow
 
             tab.ErrorPage = null;
 
-            if (ReferenceEquals(SelectedWebView, webView))
+            if (IsDisplayedWebView(webView))
                 CurrentTabContent.Content = tab.Content;
 
             _loadingWebViews.Add(webView);
             BeginLoadingProgress(webView);
 
-            if (Uri.TryCreate(
+            if (IsDisplayedWebView(webView) &&
+                Uri.TryCreate(
                     args.Uri,
                     UriKind.Absolute,
                     out Uri? uri))
@@ -146,7 +233,7 @@ public sealed partial class MainWindow
                 UpdateAddressBar(uri);
             }
 
-            if (ReferenceEquals(SelectedWebView, webView))
+            if (IsDisplayedWebView(webView))
             {
                 ApplyDefaultThemeVisuals();
 
@@ -154,13 +241,16 @@ public sealed partial class MainWindow
                     GetDefaultWebViewBackgroundColor();
             }
 
-            favicon.Source = null;
-            favicon.Visibility = Visibility.Collapsed;
+            if (!IsStartPageDisplayed(tab))
+            {
+                favicon.Source = null;
+                favicon.Visibility = Visibility.Collapsed;
 
-            UpdateDefaultFavicon(tab, false);
+                UpdateDefaultFavicon(tab, false);
 
-            progressRing.IsActive = true;
-            progressRing.Visibility = Visibility.Visible;
+                progressRing.IsActive = true;
+                progressRing.Visibility = Visibility.Visible;
+            }
 
             UpdateLoadingState(webView, true);
         };
@@ -169,6 +259,12 @@ public sealed partial class MainWindow
         {
             try
             {
+                if (tab.IsClosed ||
+                    !ReferenceEquals(tab.WebView, webView))
+                {
+                    return;
+                }
+
                 bool isPotentialDownload =
                     !args.IsSuccess &&
                     args.WebErrorStatus ==
@@ -196,6 +292,12 @@ public sealed partial class MainWindow
                         // DownloadStarting. Give that handoff a short time
                         // to arrive before declaring the navigation broken.
                         await Task.Delay(500);
+
+                        if (tab.IsClosed ||
+                            !ReferenceEquals(tab.WebView, webView))
+                        {
+                            return;
+                        }
 
                         if (!IsTrackedNavigation(
                                 webView,
@@ -246,19 +348,20 @@ public sealed partial class MainWindow
 
                     tab.ErrorPage = null;
 
-                    bool isSelected = ReferenceEquals(SelectedWebView, webView);
+                    bool isDisplayed = IsDisplayedWebView(webView);
 
-                    webView.Visibility = isSelected
+                    webView.Visibility = isDisplayed
                         ? Visibility.Visible
                         : Visibility.Collapsed;
 
-                    if (isSelected)
+                    if (isDisplayed)
                         CurrentTabContent.Content = tab.Content;
 
                     if (!string.IsNullOrWhiteSpace(core.Source))
                         tab.LastKnownUrl = core.Source;
 
-                    title.Text = core.DocumentTitle;
+                    if (tab.Content is not StartPage)
+                        title.Text = core.DocumentTitle;
 
                     if (string.IsNullOrWhiteSpace(core.FaviconUri))
                     {
@@ -287,7 +390,7 @@ public sealed partial class MainWindow
                         }
                     }
 
-                    if (ReferenceEquals(SelectedWebView, webView))
+                    if (isDisplayed)
                     {
                         try
                         {
@@ -310,9 +413,15 @@ public sealed partial class MainWindow
                     }
                 }
 
-                if (!ReferenceEquals(SelectedWebView, webView))
+                if (tab.IsClosed ||
+                    !ReferenceEquals(tab.WebView, webView))
                 {
-                    Task suspensionTask = SuspendBackgroundTabAsync(tab);
+                    return;
+                }
+
+                if (!IsDisplayedWebView(webView))
+                {
+                    await SuspendBackgroundTabAsync(tab);
                     return;
                 }
 
@@ -337,6 +446,145 @@ public sealed partial class MainWindow
                     $"{tab.ExtensionTabId}: {ex}");
             }
         };
+    }
+
+    private static void TrackStartPageHistory(
+        BrowserTab tab,
+        CoreWebView2NavigationStartingEventArgs args)
+    {
+        if (tab.StartPage is null)
+            return;
+
+        if (args.NavigationKind == CoreWebView2NavigationKind.BackOrForward)
+        {
+            if (tab.PendingWebHistoryMove != 0)
+            {
+                tab.WebHistoryIndex = Math.Clamp(
+                    tab.WebHistoryIndex + tab.PendingWebHistoryMove,
+                    0,
+                    tab.WebHistoryAfterStartPage.Count - 1);
+
+                tab.PendingWebHistoryMove = 0;
+            }
+
+            return;
+        }
+
+        if (args.NavigationKind != CoreWebView2NavigationKind.NewDocument)
+            return;
+
+        if (args.IsRedirected && tab.WebHistoryIndex >= 0)
+        {
+            tab.WebHistoryAfterStartPage[tab.WebHistoryIndex] = args.Uri;
+            return;
+        }
+
+        if (tab.WebHistoryIndex < tab.WebHistoryAfterStartPage.Count - 1)
+        {
+            tab.WebHistoryAfterStartPage.RemoveRange(
+                tab.WebHistoryIndex + 1,
+                tab.WebHistoryAfterStartPage.Count - tab.WebHistoryIndex - 1);
+        }
+
+        tab.WebHistoryAfterStartPage.Add(args.Uri);
+        tab.WebHistoryIndex = tab.WebHistoryAfterStartPage.Count - 1;
+    }
+
+    private bool TryNavigateBackToStartPage()
+    {
+        if (SelectedTab is not BrowserTab
+            {
+                StartPage: not null,
+                WebView: WebView2 webView
+            } tab)
+        {
+            return false;
+        }
+
+        if (SelectedTab is BrowserTab currentTab &&
+            currentTab.Content is StartPage)
+        {
+            return true;
+        }
+
+        if (tab.WebHistoryIndex > 0 && webView.CanGoBack)
+        {
+            tab.PendingWebHistoryMove = -1;
+            webView.GoBack();
+            webView.Focus(FocusState.Programmatic);
+            return true;
+        }
+
+        if (tab.WebHistoryIndex == 0)
+        {
+            RestoreStartPage(tab, webView);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void RestoreStartPage(BrowserTab tab, WebView2 webView)
+    {
+        FrameworkElement startPage = tab.StartPage
+            ?? throw new InvalidOperationException(
+                "The tab has no start page to restore.");
+
+        _pendingAddressBarFocusWebView = null;
+
+        CancelSuggestionRequest();
+        ClearSuggestions(AddressBar);
+
+        _suggestionTargets.Clear();
+        _suggestionTrainingIds.Clear();
+        _selectedSuggestionTarget = null;
+        _suggestionWasChosen = false;
+
+        webView.Visibility = Visibility.Collapsed;
+
+        tab.Content = startPage;
+        tab.ErrorPage = null;
+        tab.PendingWebHistoryMove = 0;
+
+        tab.Title.Text =
+            LocalizerExtensions.GetLocalizedString("StartTitle");
+
+        tab.ProgressRing.IsActive = false;
+        tab.ProgressRing.Visibility = Visibility.Collapsed;
+        tab.AudioButton.Visibility = Visibility.Collapsed;
+        tab.Favicon.Source = null;
+        tab.Favicon.Visibility = Visibility.Collapsed;
+
+        if (tab.TabItem.Header is Grid header &&
+            header.Children.Count > 0 &&
+            header.Children[0] is Grid iconGrid)
+        {
+            FontIcon? pageIcon =
+                iconGrid.Children.OfType<FontIcon>().FirstOrDefault();
+
+            if (pageIcon is null)
+            {
+                pageIcon = new FontIcon
+                {
+                    FontSize = 16
+                };
+
+                iconGrid.Children.Add(pageIcon);
+            }
+
+            pageIcon.Glyph = "\uE734";
+            pageIcon.Visibility = Visibility.Visible;
+        }
+
+        CurrentTabContent.Content = startPage;
+        ClearAddressBarForStartPage();
+        LoadingProgressBar.Visibility = Visibility.Collapsed;
+
+        SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
+
+        UpdateNavigationButtons();
+        UpdateZoomControls(100);
+        RestoreDefaultToolbarBackground();
     }
 
     private bool IsDownloadNavigation(WebView2 webView, ulong navigationId) =>
@@ -368,6 +616,9 @@ public sealed partial class MainWindow
         WebView2 webView,
         CoreWebView2WebErrorStatus errorStatus)
     {
+        if (IsStartPageDisplayed(tab))
+            return;
+
         string url =
             _navigationUris.TryGetValue(
                 webView,
@@ -392,7 +643,7 @@ public sealed partial class MainWindow
 
         webView.Visibility = Visibility.Collapsed;
 
-        if (ReferenceEquals(SelectedWebView, webView))
+        if (IsDisplayedWebView(webView))
         {
             CurrentTabContent.Content = tab.ErrorPage;
             RestoreDefaultToolbarBackground();

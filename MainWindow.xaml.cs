@@ -115,6 +115,8 @@ public sealed partial class MainWindow : Window
 
         InitializeTabMemoryManagement();
 
+        RootGrid.Loaded += (_, _) => _ = InitializeBrowserProfileAsync();
+
         InitializeStartup();
     }
 
@@ -135,7 +137,12 @@ public sealed partial class MainWindow : Window
             if (tab.Content is SettingsPage)
             {
                 tab.Title.Text =
-                    Localizer.Get().GetLocalizedString("SettingsTitle");
+                    LocalizerExtensions.GetLocalizedString("SettingsTitle");
+            }
+            else if (tab.Content is StartPage)
+            {
+                tab.Title.Text =
+                    LocalizerExtensions.GetLocalizedString("StartTitle");
             }
         }
     }

@@ -648,4 +648,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>תמונות רקע אקראיות המסופקות על ידי {0}.</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>התחלה</value>
+  </data>
 </root>

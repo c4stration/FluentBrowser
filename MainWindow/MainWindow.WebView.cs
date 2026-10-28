@@ -1,4 +1,5 @@
 using FluentBrowser.Controls;
+using FluentBrowser.Pages;
 using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
@@ -37,6 +38,8 @@ public sealed partial class MainWindow
     private readonly TaskCompletionSource<CoreWebView2Profile>
         _browserProfileReady = new(
             TaskCreationOptions.RunContinuationsAsynchronously);
+    private CoreWebView2Profile? _browserProfile;
+    private WebView2? _profileBootstrapWebView;
 
     private readonly SemaphoreSlim _extensionOperationLock = new(1, 1);
 
@@ -58,10 +61,16 @@ public sealed partial class MainWindow
 
     public CoreWebView2Profile? GetBrowserProfile()
     {
+        if (_browserProfile is not null)
+            return _browserProfile;
+
         foreach (BrowserTab tab in _browserTabs.Values)
         {
             if (tab.WebView?.CoreWebView2 is { } core)
-                return core.Profile;
+            {
+                _browserProfile = core.Profile;
+                return _browserProfile;
+            }
         }
 
         return null;
@@ -74,6 +83,57 @@ public sealed partial class MainWindow
         return GetBrowserProfile()
             ?? throw new InvalidOperationException(
                 "No active WebView2 profile is available");
+    }
+
+    private async Task InitializeBrowserProfileAsync()
+    {
+        if (_profileBootstrapWebView is not null)
+            return;
+
+        var webView = new WebView2
+        {
+            Width = 1,
+            Height = 1,
+            Opacity = 0,
+            IsHitTestVisible = false,
+            IsTabStop = false,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top
+        };
+
+        _profileBootstrapWebView = webView;
+
+        Grid.SetRow(webView, 1);
+        RootGrid.Children.Add(webView);
+
+        try
+        {
+            await webView.EnsureCoreWebView2Async(
+                App.WebViewEnvironment);
+
+            if (webView.CoreWebView2 is not { } core)
+                return;
+
+            CoreWebView2Profile profile = core.Profile;
+
+            _browserProfile = profile;
+
+            ApplyDownloadSettings(profile);
+
+            profile.AreWebViewScriptApisEnabledForServiceWorkers = true;
+
+            _extensionServiceWorkerBridgeInitialization ??=
+                InitializeExtensionServiceWorkerBridgeAsync(profile);
+
+            await profile.GetBrowserExtensionsAsync();
+
+            _browserProfileReady.TrySetResult(profile);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to initialize the browser profile: {ex}");
+        }
     }
 
     private async void ExtensionsFlyout_Opening(
@@ -424,6 +484,7 @@ public sealed partial class MainWindow
 
             ApplyDownloadSettings(core.Profile);
 
+            _browserProfile = core.Profile;
             _browserProfileReady.TrySetResult(core.Profile);
 
             core.Settings.IsWebMessageEnabled = true;
@@ -448,7 +509,10 @@ public sealed partial class MainWindow
                 false;
 
             core.DocumentTitleChanged += (_, _) =>
-                title.Text = core.DocumentTitle;
+            {
+                if (tab.Content is not StartPage)
+                    title.Text = core.DocumentTitle;
+            };
 
             if (webView.Tag is BrowserTab coreTab)
             {
@@ -958,11 +1022,22 @@ public sealed partial class MainWindow
         BrowserTab tab,
         Uri target)
     {
+        if (tab.Content is StartPage startPage)
+        {
+            tab.StartPage = startPage;
+            tab.WebHistoryAfterStartPage.Clear();
+            tab.WebHistoryIndex = -1;
+            tab.PendingWebHistoryMove = 0;
+        }
+
         var webView = new WebView2();
 
         tab.Content = webView;
         tab.ErrorPage = null;
         tab.WebView = webView;
+        tab.WasDiscarded = false;
+        tab.IsInitializing = true;
+        tab.LastKnownUrl = target.AbsoluteUri;
 
         webView.Tag = tab;
 
@@ -977,9 +1052,76 @@ public sealed partial class MainWindow
             tab.ProgressRing,
             tab.AudioButton,
             tab.Favicon,
-            target.AbsoluteUri);
+            target.AbsoluteUri,
+            initializeNavigation: false);
 
-        CurrentTabContent.Content = webView;
+        if (ReferenceEquals(SelectedTab, tab))
+        {
+            CurrentTabContent.Content = webView;
+            webView.Visibility = Visibility.Visible;
+            UpdateAddressBar(target, force: true);
+        }
+
+        _ = InitializeWebViewAsync(
+            webView,
+            target.AbsoluteUri);
+    }
+
+    private void ReplaceRetainedStartPageWebView(
+        BrowserTab tab,
+        Uri target)
+    {
+        if (tab.WebView is not WebView2 previousWebView)
+        {
+            ConvertInternalTabToWeb(tab, target);
+            return;
+        }
+
+        // The StartPage is a synthetic history entry. A fresh navigation from
+        // it must discard the retained WebView's forward history just as a
+        // normal browser navigation does.
+        CleanupWebViewTracking(previousWebView);
+        previousWebView.Tag = null;
+        previousWebView.Close();
+
+        tab.WebHistoryAfterStartPage.Clear();
+        tab.WebHistoryIndex = -1;
+        tab.PendingWebHistoryMove = 0;
+        tab.ErrorPage = null;
+        tab.WasDiscarded = false;
+        tab.IsInitializing = true;
+        tab.LastKnownUrl = target.AbsoluteUri;
+
+        var webView = new WebView2
+        {
+            Tag = tab,
+            Visibility = ReferenceEquals(SelectedTab, tab)
+                ? Visibility.Visible
+                : Visibility.Collapsed
+        };
+
+        tab.Content = webView;
+        tab.WebView = webView;
+
+        ConfigureTabAudioButton(webView, tab.AudioButton);
+
+        ConfigureWebView(
+            tab,
+            webView,
+            tab.Title,
+            tab.ProgressRing,
+            tab.AudioButton,
+            tab.Favicon,
+            target.AbsoluteUri,
+            initializeNavigation: false);
+
+        if (ReferenceEquals(SelectedTab, tab))
+        {
+            CurrentTabContent.Content = webView;
+            UpdateAddressBar(target, force: true);
+        }
+
+        _ = InitializeWebViewAsync(webView, target.AbsoluteUri);
     }
 
     private static string? GetBestExtensionIconPath(

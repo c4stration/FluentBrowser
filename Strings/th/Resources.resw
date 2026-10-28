@@ -646,4 +646,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>รูปภาพพื้นหลังแบบสุ่มให้บริการโดย {0}</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>เริ่มต้น</value>
+  </data>
 </root>

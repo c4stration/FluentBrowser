@@ -630,4 +630,7 @@
   <data name="RandomBackgroundDescription" xml:space="preserve">
     <value>무작위 배경 이미지는 {0}에서 제공합니다.</value>
   </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>시작</value>
+  </data>
 </root>
