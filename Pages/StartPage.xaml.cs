@@ -22,6 +22,8 @@ using System.Threading.Tasks;
 using Windows.Storage.Streams;
 using WinUI3Localizer;
 
+// TODO: fix the gear icon becoming white on a transparent background when the underlying pixels are white
+
 namespace FluentBrowser.Pages;
 
 public sealed partial class StartPage : Page

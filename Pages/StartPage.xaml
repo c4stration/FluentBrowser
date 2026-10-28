@@ -104,6 +104,7 @@
 
                                                             <Image
                                                                 VerticalAlignment="Center"
+                                                                HorizontalAlignment="Center"
                                                                 AutomationProperties.AccessibilityView="Raw"
                                                                 Source="{x:Bind Thumbnail}"
                                                                 Stretch="UniformToFill"
