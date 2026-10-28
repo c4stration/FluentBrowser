@@ -529,6 +529,9 @@
   <data name="Delete" xml:space="preserve">
     <value>削除</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>ソースコード</value>
   </data>
@@ -612,5 +615,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>編集</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>背景</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>スタートページをカスタマイズ</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>画像</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>ランダム</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>ランダムな背景画像の提供元：{0}</value>
   </data>
 </root>

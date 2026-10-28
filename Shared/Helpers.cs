@@ -2,11 +2,14 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
+using Windows.UI;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Shared;
@@ -171,5 +174,111 @@ public static class Helpers
             if (transitionTypes.Any(type => type.IsInstanceOfType(transitions[i])))
                 transitions.RemoveAt(i);
         }
+    }
+
+    // stolen color stuff idk anything about
+    public static async Task<Color> GetAverageColorAsync(byte[] imageBytes)
+    {
+        ArgumentNullException.ThrowIfNull(imageBytes);
+
+        if (imageBytes.Length == 0)
+            throw new InvalidDataException("The image data is empty.");
+
+        using var stream = new InMemoryRandomAccessStream();
+
+        using (var writer = new DataWriter(stream))
+        {
+            writer.WriteBytes(imageBytes);
+            await writer.StoreAsync();
+            writer.DetachStream();
+        }
+
+        stream.Seek(0);
+
+        var decoder = await BitmapDecoder.CreateAsync(stream);
+
+        const uint maximumDimension = 64;
+
+        double scale = Math.Min(
+            1.0,
+            maximumDimension / (double)Math.Max(
+                decoder.OrientedPixelWidth,
+                decoder.OrientedPixelHeight));
+
+        var transform = new BitmapTransform
+        {
+            ScaledWidth = Math.Max(
+                1u,
+                (uint)Math.Round(decoder.OrientedPixelWidth * scale)),
+            ScaledHeight = Math.Max(
+                1u,
+                (uint)Math.Round(decoder.OrientedPixelHeight * scale))
+        };
+
+        var pixelData = await decoder.GetPixelDataAsync(
+            BitmapPixelFormat.Rgba8,
+            BitmapAlphaMode.Ignore,
+            transform,
+            ExifOrientationMode.RespectExifOrientation,
+            ColorManagementMode.ColorManageToSRgb);
+
+        byte[] pixels = pixelData.DetachPixelData();
+        int pixelCount = pixels.Length / 4;
+
+        if (pixelCount == 0)
+            throw new InvalidDataException("The image contains no pixels.");
+
+        int totalRed = 0;
+        int totalGreen = 0;
+        int totalBlue = 0;
+
+        for (int i = 0; i < pixels.Length; i += 4)
+        {
+            totalRed += pixels[i];
+            totalGreen += pixels[i + 1];
+            totalBlue += pixels[i + 2];
+        }
+
+        return Color.FromArgb(
+            255,
+            (byte)Math.Round(totalRed / (double)pixelCount),
+            (byte)Math.Round(totalGreen / (double)pixelCount),
+            (byte)Math.Round(totalBlue / (double)pixelCount));
+    }
+
+    public static Color DarkenColor(Color color, double overlayOpacity)
+    {
+        double remaining = 1.0 - Math.Clamp(overlayOpacity, 0.0, 1.0);
+
+        return Color.FromArgb(
+            255,
+            (byte)Math.Round(color.R * remaining),
+            (byte)Math.Round(color.G * remaining),
+            (byte)Math.Round(color.B * remaining));
+    }
+
+    public static (double Black, double White)
+        GetBlackAndWhiteContrastRatios(Color color)
+    {
+        double denominator = GetRelativeLuminance(color) + 0.05;
+
+        return (
+            Black: denominator / 0.05,
+            White: 1.05 / denominator);
+    }
+
+    private static double GetRelativeLuminance(Color color)
+    {
+        static double ToLinearSrgb(byte channel)
+        {
+            double value = channel / 255.0;
+            return value <= 0.04045
+                ? value / 12.92
+                : Math.Pow((value + 0.055) / 1.055, 2.4);
+        }
+
+        return 0.2126 * ToLinearSrgb(color.R)
+             + 0.7152 * ToLinearSrgb(color.G)
+             + 0.0722 * ToLinearSrgb(color.B);
     }
 }

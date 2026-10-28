@@ -214,6 +214,8 @@ public sealed partial class MainWindow
         {
             Header = "URL",
             Text = favorite.Url,
+            TextWrapping = TextWrapping.Wrap,
+            AcceptsReturn = true,
             PlaceholderText = favorite.Url
         };
 

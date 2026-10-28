@@ -32,10 +32,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid
-            x:Name="BrowserChrome"
-            Grid.Row="0"
-            Canvas.ZIndex="1">
+        <Grid x:Name="BrowserChrome" Canvas.ZIndex="1">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -53,9 +50,156 @@
                 </SystemBackdropElement.SystemBackdrop>
             </SystemBackdropElement>
 
+            <Grid
+                x:Name="FullscreenCaptionButtons"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Canvas.ZIndex="1"
+                FlowDirection="LeftToRight"
+                Visibility="Collapsed">
+
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    FlowDirection="RightToLeft"
+                    Orientation="Horizontal">
+
+                    <!--  close  -->
+                    <Button
+                        Width="46"
+                        Height="32"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="Close_Click"
+                        Foreground="{ThemeResource TextFillColorAccurateBrush}">
+
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                                    <FontIcon
+                                        x:Name="CloseIcon"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="10"
+                                        Glyph="&#xE8BB;" />
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Target="CloseIcon.Foreground" Value="{ThemeResource TextFillColorAccurateBrush}" />
+                                                    <Setter Target="RootGrid.Background" Value="Transparent" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="PointerOver">
+                                                <VisualState.Setters>
+                                                    <Setter Target="CloseIcon.Foreground" Value="White" />
+                                                    <Setter Target="RootGrid.Background" Value="#E81123" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <VisualState.Setters>
+                                                    <Setter Target="CloseIcon.Foreground" Value="Black" />
+                                                    <Setter Target="RootGrid.Background" Value="#F1707A" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!--  back to window  -->
+                    <Button
+                        Width="46"
+                        Height="32"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="BackToWindow_Click"
+                        Foreground="{ThemeResource TextFillColorAccurateBrush}">
+
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                                    <FontIcon
+                                        x:Name="CloseIcon"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="10"
+                                        Glyph="&#xE92C;" />
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="Transparent" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="PointerOver">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="{ThemeResource CaptionButtonHover}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="{ThemeResource CaptionButtonPressed}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!--  minimize  -->
+                    <Button
+                        Width="46"
+                        Height="32"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="Minimize_Click"
+                        Foreground="{ThemeResource TextFillColorAccurateBrush}">
+
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                                    <FontIcon
+                                        x:Name="CloseIcon"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="10"
+                                        Glyph="&#xE921;" />
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="Transparent" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="PointerOver">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="{ThemeResource CaptionButtonHover}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <VisualState.Setters>
+                                                    <Setter Target="RootGrid.Background" Value="{ThemeResource CaptionButtonPressed}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
             <TabView
                 x:Name="MainTabView"
-                Grid.Row="0"
                 x:FieldModifier="public"
                 AddTabButtonClick="TabView_AddButtonClick"
                 Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -185,7 +329,6 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel
-                    Grid.Column="0"
                     Margin="0,0,8,0"
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
@@ -684,7 +827,7 @@
                                     <FontIcon
                                         FontFamily="Segoe Fluent Icons"
                                         FontSize="18"
-                                        Glyph="&#xEBE8;"
+                                        Glyph="&#xF196;"
                                         Translation="0,0,0">
                                         <FontIcon.TranslationTransition>
                                             <Vector3Transition />
@@ -1144,7 +1287,6 @@
                 <my:ScrollableItemsControl
                     x:Name="FavoritesListView"
                     Grid.Row="1"
-                    Grid.Column="0"
                     Grid.ColumnSpan="3"
                     ItemsSource="{x:Bind Favorites}">
 
@@ -1174,7 +1316,8 @@
                                 Click="FavoritedWebsite_Click"
                                 CornerRadius="{ThemeResource ControlCornerRadius}"
                                 Style="{StaticResource AppBarButtonStyle}"
-                                ToolTipService.ToolTip="{Binding Url}">
+                                ToolTipService.ToolTip="{Binding Url}"
+                                ToolTipService.Placement="Top">
 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Grid>

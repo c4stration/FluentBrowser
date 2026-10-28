@@ -205,7 +205,7 @@ public sealed partial class MainWindow
     {
         "BackButton" => "\uE72B",
         "ForwardButton" => "\uE72A",
-        "DevToolsButton" => "\uEBE8",
+        "DevToolsButton" => "\uF196",
         "ExtensionButton" => "\uEA86",
         "DownloadsButton" => "\uE896",
         "MoreButton" => "\uE712",

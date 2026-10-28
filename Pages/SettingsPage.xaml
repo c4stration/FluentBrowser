@@ -42,7 +42,10 @@
                     </controls:SettingsCard>
                     <controls:SettingsCard l:Uids.Uid="WebTheme">
                         <controls:SettingsCard.HeaderIcon>
-                            <PathIcon Data="{StaticResource WebPaint}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                            <PathIcon
+                                Data="{StaticResource WebPaint}"
+                                FlowDirection="LeftToRight"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="WebThemeComboBox" SelectionChanged="WebThemeComboBox_SelectionChanged">
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
@@ -239,7 +242,10 @@
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
                     <controls:SettingsCard x:Name="DownloadLocationCard" l:Uids.Uid="DownloadLocation">
                         <controls:SettingsCard.HeaderIcon>
-                            <PathIcon Data="{StaticResource DownloadsIconData}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                            <PathIcon
+                                Data="{StaticResource DownloadsIconData}"
+                                FlowDirection="LeftToRight"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
                         <Button
                             x:Name="ChooseDownloadFolderButton"

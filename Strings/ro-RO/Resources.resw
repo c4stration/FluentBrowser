@@ -376,7 +376,7 @@
     <value>Conexiunea la „{0}” a fost întreruptă.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat acum {1}. Se poate întâmpla din cauza unei configurări greșite sau pentru că cineva încearcă să-ți intercepteze conexiunea. Ceasul computerului arată acum {2}. Ți se pare corect? Dacă nu, corectează ceasul sistemului și apoi reîncarcă pagina.</value>
+    <value>„{0}” folosește un certificat expirat. Certificatul său de securitate a expirat {1}. Se poate întâmpla din cauza unei configurări greșite sau pentru că cineva încearcă să-ți intercepteze conexiunea. Ceasul computerului arată acum {2}. Ți se pare corect? Dacă nu, corectează ceasul sistemului și apoi reîncarcă pagina.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>Certificatul de securitate pentru „{0}” este invalid.</value>
@@ -525,6 +525,9 @@
   <data name="Delete" xml:space="preserve">
     <value>Șterge</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>Șterge</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>Cod sursă</value>
   </data>
@@ -608,5 +611,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>Editare</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>Fundal</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>Personalizați pagina de pornire</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>Imagine</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>Aleatoriu</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>Niciuna</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>Imagini de fundal aleatorii oferite de {0}.</value>
   </data>
 </root>

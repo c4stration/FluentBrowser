@@ -376,7 +376,7 @@
     <value>"{0}"에 대한 연결이 중단되었습니다.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>"{0}"에서 만료된 인증서를 사용하고 있어요. 보안 인증서는 {1} 만료됐어요. 설정이 잘못되었거나 누군가 연결을 가로채려는 것일 수 있어요. 현재 컴퓨터 시계에는 {2}가 표시되어 있어요. 날짜와 시간이 맞나요? 그렇지 않다면 시스템 시계를 바로잡고 이 페이지를 새로고침하세요.</value>
+    <value>"{0}"에서 만료된 인증서를 사용하고 있어요. 보안 인증서는 {1}에 만료됐어요. 설정이 잘못되었거나 누군가 연결을 가로채려는 것일 수 있어요. 현재 컴퓨터 시계에는 {2}이 표시되어 있어요. 날짜와 시간이 맞나요? 그렇지 않다면 시스템 시계를 바로잡고 이 페이지를 새로고침하세요.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>"{0}"의 보안 인증서가 유효하지 않습니다.</value>
@@ -525,6 +525,9 @@
   <data name="Delete" xml:space="preserve">
     <value>삭제</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>삭제</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>소스 코드</value>
   </data>
@@ -608,5 +611,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>편집</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>배경</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>시작 페이지 사용자 지정</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>이미지</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>무작위</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>무작위 배경 이미지는 {0}에서 제공합니다.</value>
   </data>
 </root>

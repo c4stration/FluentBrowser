@@ -541,6 +541,9 @@
   <data name="Delete" xml:space="preserve">
     <value>ลบ</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>ลบ</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>ซอร์สโค้ด</value>
   </data>
@@ -624,5 +627,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>แก้ไข</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>พื้นหลัง</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>ปรับแต่งหน้าเริ่มต้น</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>รูปภาพ</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>สุ่ม</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>ไม่มี</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>รูปภาพพื้นหลังแบบสุ่มให้บริการโดย {0}</value>
   </data>
 </root>

@@ -529,6 +529,9 @@
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>源代码</value>
   </data>
@@ -612,5 +615,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>编辑</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>背景</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>自定义起始页</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>图片</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>随机</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>随机背景图片由 {0} 提供。</value>
   </data>
 </root>

@@ -314,9 +314,9 @@ public sealed partial class MainWindow
         AnimateBrowserChrome(false);
     }
 
-    private void ToggleBrowserFullscreen()
+    private void ToggleBrowserFullscreen(bool? forceTo = null)
     {
-        _browserFullscreen = !_browserFullscreen;
+        _browserFullscreen = forceTo ?? !_browserFullscreen;
 
         if (_browserFullscreen)
         {
@@ -324,6 +324,7 @@ public sealed partial class MainWindow
             _isRestoringNormalContentLayout = false;
             ExtendsContentIntoTitleBar = false;
             BrowserChrome.Visibility = Visibility.Visible;
+            FullscreenCaptionButtons.Visibility = Visibility.Visible;
             UpdateFullscreenContentLayout();
             AnimateBrowserChrome(false);
             _browserChromeIsShown = false;
@@ -352,6 +353,7 @@ public sealed partial class MainWindow
         }
 
         BrowserChrome.Visibility = Visibility.Visible;
+        FullscreenCaptionButtons.Visibility = Visibility.Collapsed;
         _isRestoringNormalContentLayout = true;
         StopFullscreenPointerTracking();
 
@@ -389,6 +391,18 @@ public sealed partial class MainWindow
 
         SetTitleBar(DragRegion);
     }
+
+    private void BackToWindow_Click(object sender, RoutedEventArgs e) =>
+        ToggleBrowserFullscreen(false);
+
+    private void Minimize_Click(object sender, RoutedEventArgs e) =>
+        ShowWindow(GetWindowHandle(), 6);
+
+    private void Close_Click(object sender, RoutedEventArgs e) =>
+        Close();
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(nint windowHandle, int command);
 
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out POINT point);

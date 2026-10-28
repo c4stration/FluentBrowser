@@ -537,6 +537,9 @@
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
   </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>حذف</value>
+  </data>
   <data name="SourceCodeHyperlink.Content" xml:space="preserve">
     <value>الكود المصدري</value>
   </data>
@@ -620,5 +623,23 @@
   </data>
   <data name="Edit.Text" xml:space="preserve">
     <value>تعديل</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>الخلفية</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>تخصيص صفحة البدء</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>صورة</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>عشوائي</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>بلا</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>صور خلفية عشوائية مقدمة من {0}.</value>
   </data>
 </root>
