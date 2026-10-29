@@ -846,6 +846,8 @@
                                             </MenuFlyoutItem>
 
                                             <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
+                                            
+                                            <MenuFlyoutItem Text="Force garbage collection" Click="ForceGarbageCollectionButton_Click" />
                                         </MenuFlyout>
                                     </Button.Flyout>
                                 </Button>
@@ -1316,8 +1318,8 @@
                                 Click="FavoritedWebsite_Click"
                                 CornerRadius="{ThemeResource ControlCornerRadius}"
                                 Style="{StaticResource AppBarButtonStyle}"
-                                ToolTipService.ToolTip="{Binding Url}"
-                                ToolTipService.Placement="Top">
+                                ToolTipService.Placement="Top"
+                                ToolTipService.ToolTip="{Binding Url}">
 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Grid>
@@ -1517,6 +1519,5 @@
                 TextTrimming="CharacterEllipsis"
                 TextWrapping="NoWrap" />
         </Border>
-
     </Grid>
 </Window>

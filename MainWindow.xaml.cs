@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Windows.Storage;
 using WinRT.Interop;
@@ -150,5 +151,25 @@ public sealed partial class MainWindow : Window
     private void trainML(object sender, RoutedEventArgs e)
     {
         _ = SuggestionModelTrainer.TrainInBackgroundAsync();
+    }
+
+    private void ForceGarbageCollectionButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        ForceGarbageCollection(true);
+    }
+
+    private void ForceGarbageCollection(bool printResults = false)
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        if (printResults)
+        {
+            Debug.WriteLine(
+                $"Managed heap: {GC.GetTotalMemory(false) / 1024:N0} KB");
+        }
     }
 }

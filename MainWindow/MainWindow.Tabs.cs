@@ -36,6 +36,7 @@ public sealed partial class MainWindow
         public List<string> WebHistoryAfterInternalPage { get; } = [];
         public int WebHistoryIndex { get; set; } = -1;
         public int PendingWebHistoryMove { get; set; }
+        public string? PendingReloadHistoryEntryUri { get; set; }
         public int ExtensionTabId { get; }
 
         public BrowserTab(
@@ -147,6 +148,16 @@ public sealed partial class MainWindow
         _extensionTabMap.Remove(browserTab.ExtensionTabId);
         _browserTabs.Remove(tab);
         MainTabView.TabItems.Remove(tab);
+
+        // TabView may briefly retain removed containers for selection and
+        // transition processing. Do not leave a closed page's full visual
+        // tree reachable through that cached container or its BrowserTab.
+        browserTab.Content = new Grid();
+        browserTab.HistoryPage = null;
+        browserTab.HistoryPageUri = null;
+        browserTab.ErrorPage = null;
+        tab.Tag = null;
+        tab.Header = null;
 
         if (MainTabView.Resources["TabContextMenu"] is MenuFlyout menu &&
             menu.Items

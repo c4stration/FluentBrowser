@@ -1029,6 +1029,7 @@ public sealed partial class MainWindow
             tab.WebHistoryAfterInternalPage.Clear();
             tab.WebHistoryIndex = -1;
             tab.PendingWebHistoryMove = 0;
+            tab.PendingReloadHistoryEntryUri = null;
         }
         else
         {
@@ -1037,6 +1038,7 @@ public sealed partial class MainWindow
             tab.WebHistoryAfterInternalPage.Clear();
             tab.WebHistoryIndex = -1;
             tab.PendingWebHistoryMove = 0;
+            tab.PendingReloadHistoryEntryUri = null;
 
             if (tab.Content is IDisposable disposable)
                 disposable.Dispose();
@@ -1099,6 +1101,7 @@ public sealed partial class MainWindow
         tab.WebHistoryAfterInternalPage.Clear();
         tab.WebHistoryIndex = -1;
         tab.PendingWebHistoryMove = 0;
+        tab.PendingReloadHistoryEntryUri = null;
         tab.ErrorPage = null;
         tab.WasDiscarded = false;
         tab.IsInitializing = true;

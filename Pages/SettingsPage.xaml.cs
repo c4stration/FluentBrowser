@@ -128,18 +128,58 @@ public sealed partial class SettingsPage : Page, IDisposable
             return;
 
         _isDisposed = true;
+        _extensionLoadVersion++;
+
+        AddExtensionButton.Click -= AddExtensionButton_Click;
+        CustomSitesListView.DragItemsCompleted -=
+            CustomSitesListView_DragItemsCompleted;
+        CustomSitesListView.ItemsSource = null;
+        _customSites.Clear();
+
+        NewTabShortcutControl.ShortcutChanged -=
+            NewTabShortcutControl_ShortcutChanged;
+        CloseTabShortcutControl.ShortcutChanged -=
+            CloseTabShortcutControl_ShortcutChanged;
+        ReopenTabShortcutControl.ShortcutChanged -=
+            ReopenTabShortcutControl_ShortcutChanged;
+        FocusAddressBarShortcutControl.ShortcutChanged -=
+            FocusAddressBarShortcutControl_ShortcutChanged;
+        ReloadShortcutControl.ShortcutChanged -=
+            ReloadShortcutControl_ShortcutChanged;
+        RightTabShortcutControl.ShortcutChanged -=
+            RightTabShortcutControl_ShortcutChanged;
+        LeftTabShortcutControl.ShortcutChanged -=
+            LeftTabShortcutControl_ShortcutChanged;
+        FindOnPageShortcutControl.ShortcutChanged -=
+            FindOnPageShortcutControl_ShortcutChanged;
+
+        NewTabShortcutControl.Dispose();
+        CloseTabShortcutControl.Dispose();
+        ReopenTabShortcutControl.Dispose();
+        FocusAddressBarShortcutControl.Dispose();
+        ReloadShortcutControl.Dispose();
+        RightTabShortcutControl.Dispose();
+        LeftTabShortcutControl.Dispose();
+        FindOnPageShortcutControl.Dispose();
+
+        ExtensionsExpander.Items.Clear();
 
         if (_mainWindow is not null)
         {
             _mainWindow.FaviconCacheChanged -= MainWindow_FaviconCacheChanged;
             _mainWindow.BrowserExtensionChanged -=
                 MainWindow_BrowserExtensionChanged;
-
             _mainWindow.BrowserExtensionsReset -=
                 MainWindow_BrowserExtensionsReset;
+
             _mainWindow = null;
         }
+
+        FullWebAddressChanged = null;
+        SearchSuggestionsChanged = null;
+        SearchEngineChanged = null;
     }
+
 
     private async void MainWindow_BrowserExtensionsReset(
         object? sender,
@@ -1443,32 +1483,32 @@ public sealed partial class SettingsPage : Page, IDisposable
             LoadHotkeySettings("FindOnPageShortcut", DefaultFindOnPageShortcut());
     }
 
-    private void NewTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void NewTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "NewTabShortcut", BrowserShortcut.NewTab);
 
-    private void CloseTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void CloseTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "CloseTabShortcut", BrowserShortcut.CloseTab);
 
-    private void ReopenTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void ReopenTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "ReopenTabShortcut", BrowserShortcut.ReopenTab);
 
-    private void FocusAddressBarShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void FocusAddressBarShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", BrowserShortcut.FocusAddressBar);
 
-    private void ReloadShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void ReloadShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "ReloadShortcut", BrowserShortcut.Reload);
 
-    private void RightTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void RightTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "RightTabShortcut", BrowserShortcut.NextTab);
 
-    private void LeftTabShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void LeftTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "LeftTabShortcut", BrowserShortcut.PreviousTab);
 
-    private void FindOnPageShortcutControl_ShortcutChanged(object sender, EventArgs e) =>
+    private void FindOnPageShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
         ApplyShortcutFromControl(sender, "FindOnPageShortcut", BrowserShortcut.FindOnPage);
 
     private void ApplyShortcutFromControl(
-        object sender,
+        object? sender,
         string settingsKey,
         BrowserShortcut action)
     {

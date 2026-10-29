@@ -42,6 +42,7 @@ public sealed partial class MainWindow
     private Storyboard? _addressSuggestionHeightStoryboard;
     private Uri? _pendingAddressBarUri;
     private WebView2? _pendingAddressBarFocusWebView;
+    private int _addressBarSubmissionFocusVersion;
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
@@ -391,8 +392,13 @@ public sealed partial class MainWindow
 
     private void QueueAddressBarSubmissionFocus(WebView2 webView)
     {
+        int focusVersion = _addressBarSubmissionFocusVersion;
+
         webView.DispatcherQueue.TryEnqueue(() =>
         {
+            if (focusVersion != _addressBarSubmissionFocusVersion)
+                return;
+
             CancelSuggestionRequest();
             ClearSuggestions(AddressBar);
 
@@ -634,6 +640,7 @@ public sealed partial class MainWindow
     private void ClearAddressBarForStartPage()
     {
         ++_addressBarFocusVersion;
+        ++_addressBarSubmissionFocusVersion;
 
         _addressBarBlurCancellation?.Cancel();
         _addressBarBlurCancellation = null;
@@ -724,6 +731,7 @@ public sealed partial class MainWindow
         }
 
         ++_addressBarFocusVersion;
+        ++_addressBarSubmissionFocusVersion;
 
         _addressBarBlurCancellation?.Cancel();
         _addressBarBlurCancellation = null;

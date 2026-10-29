@@ -64,19 +64,39 @@ public sealed partial class MainWindow
             UpdateAudioButton();
             UpdateNavigationButtons();
             UpdateZoomControls(GetZoomPercentage(startPageWebView));
-            startPageWebView.Focus(FocusState.Programmatic);
+            FocusWebViewAfterForwardFromInternalPage(startPageWebView);
+            return;
+        }
+
+        if (SelectedTab is BrowserTab historyTab &&
+            historyTab.HistoryPage is not null &&
+            !ReferenceEquals(historyTab.Content, historyTab.HistoryPage) &&
+            historyTab.WebView is WebView2 historyWebView &&
+            historyTab.WebHistoryIndex >= 0 &&
+            historyTab.WebHistoryIndex <
+                historyTab.WebHistoryAfterInternalPage.Count - 1)
+        {
+            historyTab.PendingWebHistoryMove = 1;
+
+            if (historyWebView.CanGoForward)
+            {
+                historyWebView.GoForward();
+            }
+            else if (Uri.TryCreate(
+                         historyTab.WebHistoryAfterInternalPage[
+                             historyTab.WebHistoryIndex + 1],
+                         UriKind.Absolute,
+                         out Uri? nextUri))
+            {
+                NavigateInternalHistoryEntry(historyWebView, nextUri);
+            }
+
+            historyWebView.Focus(FocusState.Programmatic);
             return;
         }
 
         if (SelectedWebView is not { CanGoForward: true } webView)
             return;
-
-        if (SelectedTab is BrowserTab historyTab &&
-            historyTab.HistoryPage is not null &&
-            !ReferenceEquals(historyTab.Content, historyTab.HistoryPage))
-        {
-            historyTab.PendingWebHistoryMove = 1;
-        }
 
         webView.GoForward();
         webView.Focus(FocusState.Programmatic);
@@ -110,7 +130,26 @@ public sealed partial class MainWindow
             return;
         }
 
-        webView.Source = uri;
+        if (tab.HistoryPage is not null &&
+            webView.Source is Uri currentUri &&
+            Uri.Compare(
+                currentUri,
+                uri,
+                UriComponents.AbsoluteUri,
+                UriFormat.SafeUnescaped,
+                StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            // WebView2 reloads its current URI without adding a native
+            // history entry. Preserve an explicit address-bar submission in
+            // the internal-page history so Back can still reach Start.
+            tab.PendingReloadHistoryEntryUri = uri.AbsoluteUri;
+            webView.Reload();
+        }
+        else
+        {
+            webView.Source = uri;
+        }
+
         webView.Focus(FocusState.Programmatic);
     }
 
@@ -175,7 +214,8 @@ public sealed partial class MainWindow
             if (!ReferenceEquals(tab.Content, retainedPage) &&
                 tab.WebView is WebView2 retainedWebView)
             {
-                tab.WebHistoryIndex = tab.WebHistoryAfterInternalPage.Count - 1;
+                tab.WebHistoryIndex =
+                    tab.WebHistoryAfterInternalPage.Count - 1;
                 RestoreInternalPage(tab, retainedWebView);
             }
             else
@@ -204,6 +244,7 @@ public sealed partial class MainWindow
         tab.WebHistoryAfterInternalPage.Clear();
         tab.WebHistoryIndex = -1;
         tab.PendingWebHistoryMove = 0;
+        tab.PendingReloadHistoryEntryUri = null;
         tab.ErrorPage = null;
         tab.Content = page;
 
@@ -306,15 +347,24 @@ public sealed partial class MainWindow
             return;
         }
 
+        bool hasInternalHistoryBack = SelectedTab is BrowserTab
+        {
+            HistoryPage: not null,
+            WebHistoryIndex: >= 0
+        };
+
+        bool hasInternalHistoryForward = SelectedTab is BrowserTab forwardTab &&
+            forwardTab.HistoryPage is not null &&
+            forwardTab.WebHistoryIndex >= 0 &&
+            forwardTab.WebHistoryIndex <
+                forwardTab.WebHistoryAfterInternalPage.Count - 1;
+
         BackButton.IsEnabled =
-            (SelectedTab is BrowserTab
-            {
-                HistoryPage: not null,
-                WebHistoryIndex: 0
-            }) ||
+            hasInternalHistoryBack ||
             SelectedWebView?.CanGoBack == true;
 
         ForwardButton.IsEnabled =
+            hasInternalHistoryForward ||
             SelectedWebView?.CanGoForward == true;
     }
 
@@ -633,17 +683,29 @@ public sealed partial class MainWindow
         if (tab.HistoryPage is null)
             return;
 
+        if (tab.PendingWebHistoryMove != 0)
+        {
+            tab.WebHistoryIndex = Math.Clamp(
+                tab.WebHistoryIndex + tab.PendingWebHistoryMove,
+                0,
+                tab.WebHistoryAfterInternalPage.Count - 1);
+
+            tab.PendingWebHistoryMove = 0;
+
+            // A synthetic traversal uses Source when WebView2 has no native
+            // duplicate entry. That reports NewDocument, not BackOrForward.
+            return;
+        }
+
+        if (tab.PendingReloadHistoryEntryUri is not null)
+        {
+            tab.PendingReloadHistoryEntryUri = null;
+            AddInternalWebHistoryEntry(tab, args.Uri);
+            return;
+        }
+
         if (args.NavigationKind == CoreWebView2NavigationKind.BackOrForward)
         {
-            if (tab.PendingWebHistoryMove != 0)
-            {
-                tab.WebHistoryIndex = Math.Clamp(
-                    tab.WebHistoryIndex + tab.PendingWebHistoryMove,
-                    0,
-                    tab.WebHistoryAfterInternalPage.Count - 1);
-
-                tab.PendingWebHistoryMove = 0;
-            }
 
             return;
         }
@@ -657,6 +719,13 @@ public sealed partial class MainWindow
             return;
         }
 
+        AddInternalWebHistoryEntry(tab, args.Uri);
+    }
+
+    private static void AddInternalWebHistoryEntry(
+        BrowserTab tab,
+        string uri)
+    {
         if (tab.WebHistoryIndex < tab.WebHistoryAfterInternalPage.Count - 1)
         {
             tab.WebHistoryAfterInternalPage.RemoveRange(
@@ -664,7 +733,7 @@ public sealed partial class MainWindow
                 tab.WebHistoryAfterInternalPage.Count - tab.WebHistoryIndex - 1);
         }
 
-        tab.WebHistoryAfterInternalPage.Add(args.Uri);
+        tab.WebHistoryAfterInternalPage.Add(uri);
         tab.WebHistoryIndex = tab.WebHistoryAfterInternalPage.Count - 1;
     }
 
@@ -682,10 +751,23 @@ public sealed partial class MainWindow
         if (ReferenceEquals(tab.Content, tab.HistoryPage))
             return true;
 
-        if (tab.WebHistoryIndex > 0 && webView.CanGoBack)
+        if (tab.WebHistoryIndex > 0)
         {
             tab.PendingWebHistoryMove = -1;
-            webView.GoBack();
+
+            if (webView.CanGoBack)
+            {
+                webView.GoBack();
+            }
+            else if (Uri.TryCreate(
+                         tab.WebHistoryAfterInternalPage[
+                             tab.WebHistoryIndex - 1],
+                         UriKind.Absolute,
+                         out Uri? previousUri))
+            {
+                NavigateInternalHistoryEntry(webView, previousUri);
+            }
+
             webView.Focus(FocusState.Programmatic);
             return true;
         }
@@ -704,7 +786,7 @@ public sealed partial class MainWindow
         if (tab.HistoryPage is not FrameworkElement)
             return;
 
-        _pendingAddressBarFocusWebView = null;
+        CancelAddressBarSubmissionFocus();
 
         CancelSuggestionRequest();
         ClearSuggestions(AddressBar);
@@ -715,6 +797,48 @@ public sealed partial class MainWindow
 
         webView.Visibility = Visibility.Collapsed;
         PresentInternalPage(tab);
+    }
+
+    private void FocusWebViewAfterForwardFromInternalPage(WebView2 webView)
+    {
+        // A delayed address-bar submission callback may outlive a trip back
+        // to Start. Cancel it before the retained WebView is made visible.
+        CancelAddressBarSubmissionFocus();
+        _addressBarUserEditing = false;
+
+        webView.Focus(FocusState.Programmatic);
+
+        _ = webView.DispatcherQueue.TryEnqueue(() =>
+        {
+            if (IsDisplayedWebView(webView))
+                webView.Focus(FocusState.Programmatic);
+        });
+    }
+
+    private static void NavigateInternalHistoryEntry(
+        WebView2 webView,
+        Uri target)
+    {
+        if (webView.Source is Uri currentUri &&
+            Uri.Compare(
+                currentUri,
+                target,
+                UriComponents.AbsoluteUri,
+                UriFormat.SafeUnescaped,
+                StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            webView.Reload();
+            return;
+        }
+
+        webView.Source = target;
+    }
+
+    private void CancelAddressBarSubmissionFocus()
+    {
+        ++_addressBarSubmissionFocusVersion;
+        _pendingAddressBarFocusWebView = null;
+        _addressBarSubmitting = false;
     }
 
     private bool IsDownloadNavigation(WebView2 webView, ulong navigationId) =>
