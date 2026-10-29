@@ -33,10 +33,15 @@ public sealed partial class MainWindow
         public string LastKnownUrl { get; set; } = string.Empty;
         public FrameworkElement? HistoryPage { get; set; }
         public string? HistoryPageUri { get; set; }
+
+        public Dictionary<string, FrameworkElement> InternalPages { get; } =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public List<string> WebHistoryAfterInternalPage { get; } = [];
         public int WebHistoryIndex { get; set; } = -1;
         public int PendingWebHistoryMove { get; set; }
         public string? PendingReloadHistoryEntryUri { get; set; }
+        public string? PendingHistoryRestoreUri { get; set; }
         public int ExtensionTabId { get; }
 
         public BrowserTab(
@@ -60,8 +65,20 @@ public sealed partial class MainWindow
         }
     }
 
+    // Closed and duplicated tabs must not keep the original Page or WebView2
+    // alive.  URLs are immutable and are all that the synthetic internal-page
+    // history needs in order to reproduce Back/Forward behavior.
+    private abstract record TabNavigationSnapshot;
+
+    private sealed record WebTabSnapshot(string Url) : TabNavigationSnapshot;
+
+    private sealed record InternalHistoryTabSnapshot(
+        string[] Entries,
+        int CurrentIndex,
+        bool ShowsInternalPage) : TabNavigationSnapshot;
+
     private sealed record ClosedTab(
-        string Url,
+        TabNavigationSnapshot Navigation,
         int Index);
 
     private bool IsDisplayedWebView(WebView2 webView) =>
@@ -102,18 +119,10 @@ public sealed partial class MainWindow
 
         browserTab.IsClosed = true;
 
-        string closedUrl = browserTab.LastKnownUrl;
-
-        if (string.IsNullOrWhiteSpace(closedUrl) &&
-            browserTab.WebView?.Source is Uri source)
-        {
-            closedUrl = source.AbsoluteUri;
-        }
-
-        if (!string.IsNullOrWhiteSpace(closedUrl))
+        if (CaptureNavigationSnapshot(browserTab) is { } snapshot)
         {
             _closedTabs.Push(new ClosedTab(
-                closedUrl,
+                snapshot,
                 MainTabView.TabItems.IndexOf(tab)));
         }
 
@@ -134,13 +143,17 @@ public sealed partial class MainWindow
             webView.Close();
         }
 
-        if (browserTab.HistoryPage is IDisposable historyPageDisposable)
+        foreach (IDisposable page in browserTab.InternalPages.Values
+             .OfType<IDisposable>()
+             .Distinct())
         {
-            historyPageDisposable.Dispose();
+            page.Dispose();
         }
-        else if (!hadWebView &&
-                 browserTab.Content is IDisposable disposable &&
-                 !ReferenceEquals(browserTab.Content, browserTab.HistoryPage))
+
+        if (browserTab.InternalPages.Count == 0 &&
+            !hadWebView &&
+            browserTab.Content is IDisposable disposable &&
+            !ReferenceEquals(browserTab.Content, browserTab.HistoryPage))
         {
             disposable.Dispose();
         }
@@ -149,13 +162,12 @@ public sealed partial class MainWindow
         _browserTabs.Remove(tab);
         MainTabView.TabItems.Remove(tab);
 
-        // TabView may briefly retain removed containers for selection and
-        // transition processing. Do not leave a closed page's full visual
-        // tree reachable through that cached container or its BrowserTab.
         browserTab.Content = new Grid();
         browserTab.HistoryPage = null;
         browserTab.HistoryPageUri = null;
         browserTab.ErrorPage = null;
+        browserTab.InternalPages.Clear();
+        browserTab.WebHistoryAfterInternalPage.Clear();
         tab.Tag = null;
         tab.Header = null;
 
@@ -353,9 +365,9 @@ public sealed partial class MainWindow
 
         if (tab.HistoryPage is not null)
         {
-            tab.WebHistoryAfterInternalPage.Clear();
-            tab.WebHistoryIndex = -1;
+            tab.PendingHistoryRestoreUri = url;
             tab.PendingWebHistoryMove = 0;
+            tab.PendingReloadHistoryEntryUri = null;
         }
 
         tab.Content = webView;
@@ -559,16 +571,129 @@ public sealed partial class MainWindow
             audioButton,
             favicon);
 
-        if (page is StartPage or SettingsPage)
+        string? internalUri = GetInternalPageUri(page);
+
+        if ((page is StartPage or SettingsPage) &&
+            internalUri is not null)
         {
             browserTab.HistoryPage = page;
-            browserTab.HistoryPageUri = GetInternalPageUri(page);
+            browserTab.HistoryPageUri = internalUri;
+            browserTab.InternalPages[internalUri] = page;
+            browserTab.WebHistoryAfterInternalPage.Add(internalUri);
+            browserTab.WebHistoryIndex = 0;
         }
 
         tab.Tag = browserTab;
         _browserTabs[tab] = browserTab;
 
         return tab;
+    }
+
+    private static TabNavigationSnapshot? CaptureNavigationSnapshot(
+        BrowserTab tab)
+    {
+        if (tab.HistoryPage is not null &&
+            tab.WebHistoryAfterInternalPage.Count > 0 &&
+            tab.WebHistoryAfterInternalPage.Any(IsInternalHistoryEntry))
+        {
+            return new InternalHistoryTabSnapshot(
+                [.. tab.WebHistoryAfterInternalPage],
+                Math.Clamp(
+                    tab.WebHistoryIndex,
+                    0,
+                    tab.WebHistoryAfterInternalPage.Count - 1),
+                IsInternalPageDisplayed(tab));
+        }
+
+        string url = tab.LastKnownUrl;
+
+        if (string.IsNullOrWhiteSpace(url) &&
+            tab.WebView?.Source is Uri source)
+        {
+            url = source.AbsoluteUri;
+        }
+
+        return string.IsNullOrWhiteSpace(url)
+            ? null
+            : new WebTabSnapshot(url);
+    }
+
+    private static bool IsInternalHistoryEntry(string entry) =>
+        Uri.TryCreate(entry, UriKind.Absolute, out Uri? uri) &&
+        TryGetInternalPageType(uri, out _);
+
+    private TabViewItem CreateTabFromSnapshot(
+        TabNavigationSnapshot snapshot)
+    {
+        if (snapshot is WebTabSnapshot webTab)
+            return CreateNewTab(webTab.Url);
+
+        var historyTab = (InternalHistoryTabSnapshot)snapshot;
+
+        if (!TryGetRetainedInternalPageType(historyTab, out Type? pageType) ||
+            pageType is null)
+        {
+            string? currentUrl = historyTab.Entries
+                .ElementAtOrDefault(historyTab.CurrentIndex);
+
+            return !string.IsNullOrWhiteSpace(currentUrl)
+                ? CreateNewTab(currentUrl)
+                : CreatePageTab(typeof(StartPage));
+        }
+
+        TabViewItem tab = CreatePageTab(pageType);
+        BrowserTab browserTab = (BrowserTab)tab.Tag;
+
+        browserTab.WebHistoryAfterInternalPage.Clear();
+        browserTab.WebHistoryAfterInternalPage.AddRange(historyTab.Entries);
+        browserTab.WebHistoryIndex = Math.Clamp(
+            historyTab.CurrentIndex,
+            0,
+            historyTab.Entries.Length - 1);
+
+        string currentEntry =
+            browserTab.WebHistoryAfterInternalPage[browserTab.WebHistoryIndex];
+
+        if (!historyTab.ShowsInternalPage &&
+            !IsInternalHistoryEntry(currentEntry))
+        {
+            CreateWebViewForHistoryEntry(
+                browserTab,
+                browserTab.WebHistoryIndex,
+                currentEntry);
+        }
+        else if (IsInternalHistoryEntry(currentEntry))
+        {
+            ShowInternalHistoryEntry(browserTab, currentEntry);
+        }
+
+        if (browserTab.HistoryPage is SettingsPage settingsPage)
+            _ = LoadSettingsPageExtensionsAsync(settingsPage);
+
+        return tab;
+    }
+
+    private static bool TryGetRetainedInternalPageType(
+        InternalHistoryTabSnapshot snapshot,
+        out Type? pageType)
+    {
+        pageType = null;
+
+        IEnumerable<string> candidates = snapshot.Entries
+            .Take(snapshot.CurrentIndex + 1)
+            .Reverse()
+            .Concat(snapshot.Entries);
+
+        foreach (string entry in candidates)
+        {
+            if (Uri.TryCreate(entry, UriKind.Absolute, out Uri? uri) &&
+                TryGetInternalPageType(uri, out pageType))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Page CreatePageInstance(Type pageType)
@@ -617,11 +742,19 @@ public sealed partial class MainWindow
         };
     }
 
+
     private async Task LoadSettingsPageExtensionsAsync(SettingsPage settingsPage)
     {
+        if (settingsPage.IsDisposed)
+            return;
+
         try
         {
             CoreWebView2Profile profile = await GetBrowserProfileAsync();
+
+            if (settingsPage.IsDisposed)
+                return;
+
             await settingsPage.LoadExtensionsAsync(profile);
         }
         catch (Exception ex)
@@ -629,6 +762,7 @@ public sealed partial class MainWindow
             Debug.WriteLine($"Failed to load Settings page extensions: {ex}");
         }
     }
+
 
     private async Task ShowPageAsync(Type pageType)
     {
@@ -688,11 +822,8 @@ public sealed partial class MainWindow
                 break;
 
             case "duplicate":
-                if (tab.Tag is BrowserTab duplicateTab &&
-                    duplicateTab.WebView?.Source is Uri uri)
-                {
-                    OpenNewTab(uri.AbsoluteUri);
-                }
+                if (tab.Tag is BrowserTab duplicateTab)
+                    DuplicateTab(duplicateTab);
                 break;
 
             case "close":
@@ -731,7 +862,7 @@ public sealed partial class MainWindow
 
         ClosedTab closedTab = _closedTabs.Pop();
 
-        var tab = CreateNewTab(closedTab.Url);
+        var tab = CreateTabFromSnapshot(closedTab.Navigation);
 
         int index = Math.Clamp(
             closedTab.Index,
@@ -791,7 +922,15 @@ public sealed partial class MainWindow
         object sender,
         RoutedEventArgs e)
     {
-        if (SelectedWebView?.Source is Uri uri)
-            OpenNewTab(uri.AbsoluteUri);
+        if (SelectedTab is BrowserTab tab)
+            DuplicateTab(tab);
+    }
+
+    private void DuplicateTab(BrowserTab source)
+    {
+        if (CaptureNavigationSnapshot(source) is not { } snapshot)
+            return;
+
+        AddNewTab(CreateTabFromSnapshot(snapshot), true);
     }
 }

@@ -1019,26 +1019,41 @@ public sealed partial class MainWindow
     }
 
     private void ConvertInternalTabToWeb(
-        BrowserTab tab,
-        Uri target)
+    BrowserTab tab,
+    Uri target)
     {
         if (tab.Content is StartPage or SettingsPage)
         {
+            string? internalUri = GetInternalPageUri(tab.Content);
+
             tab.HistoryPage = tab.Content;
-            tab.HistoryPageUri = GetInternalPageUri(tab.Content);
-            tab.WebHistoryAfterInternalPage.Clear();
-            tab.WebHistoryIndex = -1;
+            tab.HistoryPageUri = internalUri;
+
+            if (internalUri is not null)
+            {
+                tab.InternalPages[internalUri] = tab.Content;
+
+                if (tab.WebHistoryAfterInternalPage.Count == 0)
+                {
+                    tab.WebHistoryAfterInternalPage.Add(internalUri);
+                    tab.WebHistoryIndex = 0;
+                }
+            }
+
             tab.PendingWebHistoryMove = 0;
             tab.PendingReloadHistoryEntryUri = null;
+            tab.PendingHistoryRestoreUri = null;
         }
         else
         {
             tab.HistoryPage = null;
             tab.HistoryPageUri = null;
+            tab.InternalPages.Clear();
             tab.WebHistoryAfterInternalPage.Clear();
             tab.WebHistoryIndex = -1;
             tab.PendingWebHistoryMove = 0;
             tab.PendingReloadHistoryEntryUri = null;
+            tab.PendingHistoryRestoreUri = null;
 
             if (tab.Content is IDisposable disposable)
                 disposable.Dispose();
@@ -1081,6 +1096,60 @@ public sealed partial class MainWindow
             target.AbsoluteUri);
     }
 
+    private void CreateWebViewForHistoryEntry(
+        BrowserTab tab,
+        int targetIndex,
+        string targetUri)
+    {
+        if (!Uri.TryCreate(targetUri, UriKind.Absolute, out Uri? target) ||
+            IsInternalPageUri(target))
+        {
+            return;
+        }
+
+        var webView = new WebView2
+        {
+            Tag = tab,
+            Visibility = ReferenceEquals(SelectedTab, tab)
+                ? Visibility.Visible
+                : Visibility.Collapsed
+        };
+
+        // The first navigation initializes a new WebView2 rather than adding
+        // a new logical entry.  The URL-only history snapshot already owns
+        // this entry.
+        tab.WebHistoryIndex = targetIndex;
+        tab.PendingHistoryRestoreUri = target.AbsoluteUri;
+        tab.PendingWebHistoryMove = 0;
+        tab.PendingReloadHistoryEntryUri = null;
+        tab.Content = webView;
+        tab.ErrorPage = null;
+        tab.WebView = webView;
+        tab.WasDiscarded = false;
+        tab.IsInitializing = true;
+        tab.LastKnownUrl = target.AbsoluteUri;
+
+        ConfigureTabAudioButton(webView, tab.AudioButton);
+
+        ConfigureWebView(
+            tab,
+            webView,
+            tab.Title,
+            tab.ProgressRing,
+            tab.AudioButton,
+            tab.Favicon,
+            target.AbsoluteUri,
+            initializeNavigation: false);
+
+        if (ReferenceEquals(SelectedTab, tab))
+        {
+            CurrentTabContent.Content = webView;
+            UpdateAddressBar(target, force: true);
+        }
+
+        _ = InitializeWebViewAsync(webView, target.AbsoluteUri);
+    }
+
     private void ReplaceRetainedInternalPageWebView(
         BrowserTab tab,
         Uri target)
@@ -1091,17 +1160,13 @@ public sealed partial class MainWindow
             return;
         }
 
-        // The StartPage is a synthetic history entry. A fresh navigation from
-        // it must discard the retained WebView's forward history just as a
-        // normal browser navigation does.
         CleanupWebViewTracking(previousWebView);
         previousWebView.Tag = null;
         previousWebView.Close();
 
-        tab.WebHistoryAfterInternalPage.Clear();
-        tab.WebHistoryIndex = -1;
         tab.PendingWebHistoryMove = 0;
         tab.PendingReloadHistoryEntryUri = null;
+        tab.PendingHistoryRestoreUri = null;
         tab.ErrorPage = null;
         tab.WasDiscarded = false;
         tab.IsInitializing = true;

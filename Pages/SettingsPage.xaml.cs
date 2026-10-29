@@ -63,6 +63,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     private readonly ApplicationDataContainer _settings;
     private MainWindow? _mainWindow;
     private bool _isDisposed;
+    public bool IsDisposed => _isDisposed;
     private bool _loadingSettings;
     public event EventHandler? FullWebAddressChanged;
     public event EventHandler? SearchSuggestionsChanged;
@@ -339,10 +340,14 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         _settings.Values["Theme"] = theme;
 
-        App.ApplyTheme(theme);
-
         if (App.MainWindow is MainWindow window)
-            window.ApplyWebTheme();
+        {
+            window.DispatcherQueue.TryEnqueue(() =>
+            {
+                App.ApplyTheme(theme);
+                window.ApplyWebTheme();
+            });
+        }
     }
 
     private void BackdropMaterialComboBox_SelectionChanged(
@@ -865,19 +870,30 @@ public sealed partial class SettingsPage : Page, IDisposable
 
     public async Task LoadExtensionsAsync(CoreWebView2Profile? profile)
     {
-        if (profile is null)
+        if (_isDisposed || profile is null)
             return;
 
         int loadVersion = Interlocked.Increment(ref _extensionLoadVersion);
 
         await _extensionLoadLock.WaitAsync();
+
         try
         {
+            if (_isDisposed || loadVersion != _extensionLoadVersion)
+                return;
+
             var extensions = await profile.GetBrowserExtensionsAsync();
+
+            if (_isDisposed || loadVersion != _extensionLoadVersion)
+                return;
+
             var cards = new List<SettingsCard>();
 
             foreach (var extension in extensions)
             {
+                if (_isDisposed || loadVersion != _extensionLoadVersion)
+                    return;
+
                 string? description = null;
                 string key = $"ExtensionPath_{extension.Id}";
                 string? iconPath = null;
@@ -892,11 +908,19 @@ public sealed partial class SettingsPage : Page, IDisposable
                         try
                         {
                             string json = await File.ReadAllTextAsync(manifestPath);
+
+                            if (_isDisposed || loadVersion != _extensionLoadVersion)
+                                return;
+
                             using JsonDocument document = JsonDocument.Parse(json);
                             description = await GetExtensionStringAsync(
                                 extensionPath,
                                 document.RootElement,
                                 "description");
+
+                            if (_isDisposed || loadVersion != _extensionLoadVersion)
+                                return;
+
                             iconPath = GetBestExtensionIconPath(extensionPath, document.RootElement);
                         }
                         catch (Exception ex)
@@ -951,7 +975,7 @@ public sealed partial class SettingsPage : Page, IDisposable
                 cards.Add(card);
             }
 
-            if (loadVersion != _extensionLoadVersion)
+            if (_isDisposed || loadVersion != _extensionLoadVersion)
                 return;
 
             ExtensionsExpander.Items = cards.Cast<object>().ToList();

@@ -29,12 +29,34 @@ public sealed partial class MainWindow
             if (_pageThemeColorApplied)
                 return;
 
-            ApplyDefaultThemeVisuals();
+            ApplyDefaultThemeColors();
 
             if (SelectedWebView is { } webView)
+            {
                 webView.DefaultBackgroundColor =
                     GetDefaultWebViewBackgroundColor();
+            }
         };
+    }
+
+    private void ApplyDefaultThemeColors()
+    {
+        MainTabView.Background =
+            new SolidColorBrush(
+                Windows.UI.Color.FromArgb(0, 0, 0, 0));
+
+        RightTabViewRectangle.ClearValue(
+            Shape.FillProperty);
+
+        var defaultColor =
+            Toolbar.ActualTheme == ElementTheme.Dark
+                ? Windows.UI.Color.FromArgb(0x4C, 0x3A, 0x3A, 0x3A)
+                : Windows.UI.Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF);
+
+        Toolbar.Background =
+            new SolidColorBrush(defaultColor);
+
+        _tabViewSelectedBackgroundBrush.Color = defaultColor;
     }
 
     private async Task UpdateThemeColorFromPageAsync(

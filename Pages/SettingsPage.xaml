@@ -159,19 +159,15 @@
                                 <StackPanel Spacing="16">
                                     <ListView
                                         x:Name="CustomSitesListView"
+                                        MaxHeight="320"
                                         AllowDrop="True"
                                         CanDragItems="True"
                                         CanReorderItems="True"
                                         ReorderMode="Enabled"
                                         SelectionMode="None">
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Spacing="8" />
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Margin="-32">
+                                                <Border Margin="-32,4">
                                                     <controls:SettingsCard
                                                         BorderThickness="0"
                                                         Description="{Binding Description}"

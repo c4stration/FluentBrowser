@@ -66,8 +66,11 @@ public sealed partial class MainWindow : Window
 
         themeRoot.ActualThemeChanged += (_, _) =>
         {
-            _ = ApplyThemeColorTintAsync(
-                _settings.Values["ThemeColorTint"] as bool? ?? true);
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _ = ApplyThemeColorTintAsync(
+                    _settings.Values["ThemeColorTint"] as bool? ?? true);
+            });
         };
 
         Localizer.Get().LanguageChanged +=

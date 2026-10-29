@@ -40,66 +40,55 @@ public sealed partial class MainWindow
     private void ForwardButton_Click(object sender, RoutedEventArgs e)
     {
         if (SelectedTab is BrowserTab tab &&
-            tab.HistoryPage is not null &&
-            ReferenceEquals(tab.Content, tab.HistoryPage) &&
-            tab.WebView is WebView2 startPageWebView &&
-            tab.WebHistoryIndex >= 0 &&
-            tab.WebHistoryAfterInternalPage.Count > 0)
+            tab.HistoryPage is not null)
         {
-            tab.Content = startPageWebView;
-            startPageWebView.Visibility = Visibility.Visible;
-            CurrentTabContent.Content = startPageWebView;
-
-            if (startPageWebView.CoreWebView2 is { } core)
+            if (tab.WebHistoryIndex < 0 ||
+                tab.WebHistoryIndex >=
+                    tab.WebHistoryAfterInternalPage.Count - 1)
             {
-                tab.Title.Text = core.DocumentTitle;
-                _ = UpdateFaviconAsync(tab);
-                _ = UpdateThemeColorFromPageAsync(
-                    startPageWebView,
-                    core);
+                return;
             }
 
-            UpdateAddressBar(startPageWebView, force: true);
-            UpdateLoadingUI(startPageWebView);
-            UpdateAudioButton();
-            UpdateNavigationButtons();
-            UpdateZoomControls(GetZoomPercentage(startPageWebView));
-            FocusWebViewAfterForwardFromInternalPage(startPageWebView);
+            int targetIndex = tab.WebHistoryIndex + 1;
+            string targetUri =
+                tab.WebHistoryAfterInternalPage[targetIndex];
+
+            if (Uri.TryCreate(
+                    targetUri,
+                    UriKind.Absolute,
+                    out Uri? uri) &&
+                TryGetInternalPageType(uri, out _))
+            {
+                tab.WebHistoryIndex = targetIndex;
+                ShowInternalHistoryEntry(tab, targetUri);
+                return;
+            }
+
+            if (tab.WebView is WebView2 webView)
+            {
+                NavigateToWebHistoryEntry(
+                    tab,
+                    webView,
+                    targetIndex,
+                    targetUri,
+                    1);
+            }
+            else
+            {
+                CreateWebViewForHistoryEntry(
+                    tab,
+                    targetIndex,
+                    targetUri);
+            }
+
             return;
         }
 
-        if (SelectedTab is BrowserTab historyTab &&
-            historyTab.HistoryPage is not null &&
-            !ReferenceEquals(historyTab.Content, historyTab.HistoryPage) &&
-            historyTab.WebView is WebView2 historyWebView &&
-            historyTab.WebHistoryIndex >= 0 &&
-            historyTab.WebHistoryIndex <
-                historyTab.WebHistoryAfterInternalPage.Count - 1)
-        {
-            historyTab.PendingWebHistoryMove = 1;
-
-            if (historyWebView.CanGoForward)
-            {
-                historyWebView.GoForward();
-            }
-            else if (Uri.TryCreate(
-                         historyTab.WebHistoryAfterInternalPage[
-                             historyTab.WebHistoryIndex + 1],
-                         UriKind.Absolute,
-                         out Uri? nextUri))
-            {
-                NavigateInternalHistoryEntry(historyWebView, nextUri);
-            }
-
-            historyWebView.Focus(FocusState.Programmatic);
-            return;
-        }
-
-        if (SelectedWebView is not { CanGoForward: true } webView)
+        if (SelectedWebView is not { CanGoForward: true } fallbackWebView)
             return;
 
-        webView.GoForward();
-        webView.Focus(FocusState.Programmatic);
+        fallbackWebView.GoForward();
+        fallbackWebView.Focus(FocusState.Programmatic);
     }
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e) =>
@@ -205,56 +194,55 @@ public sealed partial class MainWindow
             ? "fluentbrowser://settings"
             : "fluentbrowser://start";
 
-        if (tab.HistoryPage is FrameworkElement retainedPage &&
+        if (tab.HistoryPage is not null &&
+            ReferenceEquals(tab.Content, tab.HistoryPage) &&
             string.Equals(
                 tab.HistoryPageUri,
                 targetUri,
                 StringComparison.OrdinalIgnoreCase))
         {
-            if (!ReferenceEquals(tab.Content, retainedPage) &&
-                tab.WebView is WebView2 retainedWebView)
-            {
-                tab.WebHistoryIndex =
-                    tab.WebHistoryAfterInternalPage.Count - 1;
-                RestoreInternalPage(tab, retainedWebView);
-            }
-            else
-            {
-                tab.Content = retainedPage;
-                PresentInternalPage(tab);
-            }
-
             return;
         }
 
-        FrameworkElement? previousPage = tab.HistoryPage;
-        if (previousPage is null &&
-            tab.Content is not WebView2 &&
-            tab.Content is IDisposable currentDisposable)
+        if (tab.HistoryPage is null)
         {
-            currentDisposable.Dispose();
-        }
-        else if (previousPage is IDisposable previousDisposable)
-            previousDisposable.Dispose();
+            if (tab.Content is not WebView2 &&
+                tab.Content is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
 
-        FrameworkElement page = CreatePageInstance(pageType);
+            if (tab.WebView?.Source is Uri currentUri &&
+                IsHttpUri(currentUri))
+            {
+                tab.WebHistoryAfterInternalPage.Clear();
+                tab.WebHistoryAfterInternalPage.Add(currentUri.AbsoluteUri);
+                tab.WebHistoryIndex = 0;
+            }
+        }
+
+        bool createdPage = false;
+
+        if (!tab.InternalPages.TryGetValue(
+                targetUri,
+                out FrameworkElement? page))
+        {
+            page = CreatePageInstance(pageType);
+            tab.InternalPages[targetUri] = page;
+            createdPage = true;
+        }
+
+        AddInternalWebHistoryEntry(tab, targetUri);
 
         tab.HistoryPage = page;
         tab.HistoryPageUri = targetUri;
-        tab.WebHistoryAfterInternalPage.Clear();
-        tab.WebHistoryIndex = -1;
         tab.PendingWebHistoryMove = 0;
         tab.PendingReloadHistoryEntryUri = null;
+        tab.PendingHistoryRestoreUri = null;
         tab.ErrorPage = null;
         tab.Content = page;
 
-        if (tab.WebView?.Source is Uri currentUri && IsHttpUri(currentUri))
-        {
-            tab.WebHistoryAfterInternalPage.Add(currentUri.AbsoluteUri);
-            tab.WebHistoryIndex = 0;
-        }
-
-        if (page is SettingsPage settingsPage)
+        if (createdPage && page is SettingsPage settingsPage)
             _ = LoadSettingsPageExtensionsAsync(settingsPage);
 
         PresentInternalPage(tab);
@@ -288,6 +276,129 @@ public sealed partial class MainWindow
         UpdateNavigationButtons();
         UpdateZoomControls(100);
         RestoreDefaultToolbarBackground();
+    }
+
+    private void ShowInternalHistoryEntry(
+    BrowserTab tab,
+    string targetUri)
+    {
+        if (!Uri.TryCreate(
+                targetUri,
+                UriKind.Absolute,
+                out Uri? uri) ||
+            !TryGetInternalPageType(uri, out Type? pageType) ||
+            pageType is null)
+        {
+            return;
+        }
+
+        bool createdPage = false;
+
+        if (!tab.InternalPages.TryGetValue(
+                uri.AbsoluteUri,
+                out FrameworkElement? page))
+        {
+            page = CreatePageInstance(pageType);
+            tab.InternalPages[uri.AbsoluteUri] = page;
+            createdPage = true;
+        }
+
+        tab.HistoryPage = page;
+        tab.HistoryPageUri = uri.AbsoluteUri;
+        tab.Content = page;
+        tab.ErrorPage = null;
+
+        if (createdPage && page is SettingsPage settingsPage)
+            _ = LoadSettingsPageExtensionsAsync(settingsPage);
+
+        PresentInternalPage(tab);
+    }
+
+    private void ShowWebHistoryEntry(
+        BrowserTab tab,
+        WebView2 webView)
+    {
+        tab.Content = webView;
+        tab.ErrorPage = null;
+
+        webView.Visibility = ReferenceEquals(SelectedTab, tab)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        if (!ReferenceEquals(SelectedTab, tab))
+            return;
+
+        CurrentTabContent.Content = webView;
+
+        if (webView.CoreWebView2 is { } core)
+        {
+            tab.Title.Text = core.DocumentTitle;
+            _ = UpdateFaviconAsync(tab);
+            _ = UpdateThemeColorFromPageAsync(webView, core);
+        }
+
+        UpdateAddressBar(webView, force: true);
+        UpdateLoadingUI(webView);
+        UpdateAudioButton();
+        UpdateNavigationButtons();
+        UpdateZoomControls(GetZoomPercentage(webView));
+        FocusWebViewAfterForwardFromInternalPage(webView);
+    }
+
+    private void NavigateToWebHistoryEntry(
+        BrowserTab tab,
+        WebView2 webView,
+        int targetIndex,
+        string targetUri,
+        int historyMove)
+    {
+        if (!Uri.TryCreate(
+                targetUri,
+                UriKind.Absolute,
+                out Uri? target))
+        {
+            return;
+        }
+
+        if (webView.Source is Uri currentUri &&
+            Uri.Compare(
+                currentUri,
+                target,
+                UriComponents.AbsoluteUri,
+                UriFormat.SafeUnescaped,
+                StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            tab.WebHistoryIndex = targetIndex;
+            ShowWebHistoryEntry(tab, webView);
+            return;
+        }
+
+        tab.Content = webView;
+        tab.ErrorPage = null;
+
+        webView.Visibility = ReferenceEquals(SelectedTab, tab)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        if (ReferenceEquals(SelectedTab, tab))
+            CurrentTabContent.Content = webView;
+
+        tab.PendingWebHistoryMove = historyMove;
+
+        if (historyMove < 0 && webView.CanGoBack)
+        {
+            webView.GoBack();
+        }
+        else if (historyMove > 0 && webView.CanGoForward)
+        {
+            webView.GoForward();
+        }
+        else
+        {
+            webView.Source = target;
+        }
+
+        webView.Focus(FocusState.Programmatic);
     }
 
     private void ApplyInternalPageTabHeader(BrowserTab tab, FrameworkElement page)
@@ -336,35 +447,22 @@ public sealed partial class MainWindow
     private void UpdateNavigationButtons()
     {
         if (SelectedTab is BrowserTab tab &&
-            tab.HistoryPage is not null &&
-            ReferenceEquals(tab.Content, tab.HistoryPage))
+            tab.HistoryPage is not null)
         {
-            BackButton.IsEnabled = false;
+            BackButton.IsEnabled = tab.WebHistoryIndex > 0;
+
             ForwardButton.IsEnabled =
-                tab.WebHistoryAfterInternalPage.Count > 0 &&
-                tab.WebHistoryIndex >= 0;
+                tab.WebHistoryIndex >= 0 &&
+                tab.WebHistoryIndex <
+                    tab.WebHistoryAfterInternalPage.Count - 1;
 
             return;
         }
 
-        bool hasInternalHistoryBack = SelectedTab is BrowserTab
-        {
-            HistoryPage: not null,
-            WebHistoryIndex: >= 0
-        };
-
-        bool hasInternalHistoryForward = SelectedTab is BrowserTab forwardTab &&
-            forwardTab.HistoryPage is not null &&
-            forwardTab.WebHistoryIndex >= 0 &&
-            forwardTab.WebHistoryIndex <
-                forwardTab.WebHistoryAfterInternalPage.Count - 1;
-
         BackButton.IsEnabled =
-            hasInternalHistoryBack ||
             SelectedWebView?.CanGoBack == true;
 
         ForwardButton.IsEnabled =
-            hasInternalHistoryForward ||
             SelectedWebView?.CanGoForward == true;
     }
 
@@ -683,6 +781,19 @@ public sealed partial class MainWindow
         if (tab.HistoryPage is null)
             return;
 
+        if (tab.PendingHistoryRestoreUri is string restoreUri)
+        {
+            tab.PendingHistoryRestoreUri = null;
+
+            if (string.Equals(
+                    args.Uri,
+                    restoreUri,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
         if (tab.PendingWebHistoryMove != 0)
         {
             tab.WebHistoryIndex = Math.Clamp(
@@ -741,44 +852,48 @@ public sealed partial class MainWindow
     {
         if (SelectedTab is not BrowserTab
             {
-                HistoryPage: not null,
-                WebView: WebView2 webView
+                HistoryPage: not null
             } tab)
         {
             return false;
         }
 
-        if (ReferenceEquals(tab.Content, tab.HistoryPage))
+        if (tab.WebHistoryIndex <= 0)
             return true;
 
-        if (tab.WebHistoryIndex > 0)
+        int targetIndex = tab.WebHistoryIndex - 1;
+        string targetUri =
+            tab.WebHistoryAfterInternalPage[targetIndex];
+
+        if (Uri.TryCreate(
+                targetUri,
+                UriKind.Absolute,
+                out Uri? uri) &&
+            TryGetInternalPageType(uri, out _))
         {
-            tab.PendingWebHistoryMove = -1;
-
-            if (webView.CanGoBack)
-            {
-                webView.GoBack();
-            }
-            else if (Uri.TryCreate(
-                         tab.WebHistoryAfterInternalPage[
-                             tab.WebHistoryIndex - 1],
-                         UriKind.Absolute,
-                         out Uri? previousUri))
-            {
-                NavigateInternalHistoryEntry(webView, previousUri);
-            }
-
-            webView.Focus(FocusState.Programmatic);
+            tab.WebHistoryIndex = targetIndex;
+            ShowInternalHistoryEntry(tab, targetUri);
             return true;
         }
 
-        if (tab.WebHistoryIndex == 0)
+        if (tab.WebView is WebView2 webView)
         {
-            RestoreInternalPage(tab, webView);
-            return true;
+            NavigateToWebHistoryEntry(
+                tab,
+                webView,
+                targetIndex,
+                targetUri,
+                -1);
+        }
+        else
+        {
+            CreateWebViewForHistoryEntry(
+                tab,
+                targetIndex,
+                targetUri);
         }
 
-        return false;
+        return true;
     }
 
     private void RestoreInternalPage(BrowserTab tab, WebView2 webView)

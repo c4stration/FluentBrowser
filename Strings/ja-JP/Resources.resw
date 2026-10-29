@@ -142,7 +142,7 @@
     <value>システム設定を使用</value>
   </data>
   <data name="AddressBar.PlaceholderText" xml:space="preserve">
-    <value>検索 ／ Webサイト名入力</value>
+    <value>検索または URL を入力</value>
   </data>
   <data name="TabContextRefresh.Text" xml:space="preserve">
     <value>更新</value>
