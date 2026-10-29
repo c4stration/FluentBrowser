@@ -31,8 +31,9 @@ public sealed partial class MainWindow
         public bool IsInitializing { get; set; } = true;
         public bool WasDiscarded { get; set; }
         public string LastKnownUrl { get; set; } = string.Empty;
-        public FrameworkElement? StartPage { get; set; }
-        public List<string> WebHistoryAfterStartPage { get; } = [];
+        public FrameworkElement? HistoryPage { get; set; }
+        public string? HistoryPageUri { get; set; }
+        public List<string> WebHistoryAfterInternalPage { get; } = [];
         public int WebHistoryIndex { get; set; } = -1;
         public int PendingWebHistoryMove { get; set; }
         public int ExtensionTabId { get; }
@@ -67,8 +68,9 @@ public sealed partial class MainWindow
         ReferenceEquals(tab.WebView, webView) &&
         ReferenceEquals(tab.Content, webView);
 
-    private static bool IsStartPageDisplayed(BrowserTab tab) =>
-        tab.Content is StartPage;
+    private static bool IsInternalPageDisplayed(BrowserTab tab) =>
+        tab.HistoryPage is not null &&
+        ReferenceEquals(tab.Content, tab.HistoryPage);
 
     private readonly Stack<ClosedTab> _closedTabs = [];
 
@@ -120,6 +122,8 @@ public sealed partial class MainWindow
             CurrentTabContent.Content = null;
         }
 
+        bool hadWebView = browserTab.WebView is WebView2;
+
         if (browserTab.WebView is WebView2 webView)
         {
             CleanupWebViewTracking(webView);
@@ -128,7 +132,14 @@ public sealed partial class MainWindow
             webView.Tag = null;
             webView.Close();
         }
-        else if (browserTab.Content is IDisposable disposable)
+
+        if (browserTab.HistoryPage is IDisposable historyPageDisposable)
+        {
+            historyPageDisposable.Dispose();
+        }
+        else if (!hadWebView &&
+                 browserTab.Content is IDisposable disposable &&
+                 !ReferenceEquals(browserTab.Content, browserTab.HistoryPage))
         {
             disposable.Dispose();
         }
@@ -175,7 +186,7 @@ public sealed partial class MainWindow
             if (webView.CoreWebView2 is { IsSuspended: true } core)
                 core.Resume();
 
-            webView.Visibility = tab.Content is StartPage
+            webView.Visibility = ReferenceEquals(tab.Content, tab.HistoryPage)
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }
@@ -187,11 +198,16 @@ public sealed partial class MainWindow
 
         if (tab.WebView is WebView2 selectedWebView)
         {
-            if (tab.Content is StartPage)
+            if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
+                tab.HistoryPage is not null)
             {
-                ClearAddressBarForStartPage();
-                LoadingProgressBar.Visibility = Visibility.Collapsed;
+                if (tab.Content is StartPage)
+                    ClearAddressBarForStartPage();
+                else if (tab.HistoryPageUri is string internalUri &&
+                         Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
+                    UpdateAddressBar(uri, force: true);
 
+                LoadingProgressBar.Visibility = Visibility.Collapsed;
                 SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
 
                 UpdateNavigationButtons();
@@ -225,7 +241,7 @@ public sealed partial class MainWindow
                         if (ReferenceEquals(SelectedTab, tab) &&
                             ReferenceEquals(tab.WebView, selectedWebView) &&
                             tab.ErrorPage is null &&
-                            tab.Content is not StartPage)
+                            !ReferenceEquals(tab.Content, tab.HistoryPage))
                         {
                             selectedWebView.Focus(FocusState.Programmatic);
                         }
@@ -237,12 +253,24 @@ public sealed partial class MainWindow
         {
             UpdateZoomControls(100);
 
-            ClearAddressBarForStartPage();
+            if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
+                tab.HistoryPage is not null &&
+                tab.HistoryPage is not StartPage &&
+                tab.HistoryPageUri is string internalUri &&
+                Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
+            {
+                UpdateAddressBar(uri, force: true);
+                UpdateNavigationButtons();
+            }
+            else
+            {
+                ClearAddressBarForStartPage();
+                BackButton.IsEnabled = false;
+                ForwardButton.IsEnabled = false;
+            }
+
             LoadingProgressBar.Visibility = Visibility.Collapsed;
             SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
-            BackButton.IsEnabled = false;
-            ForwardButton.IsEnabled = false;
-
             RestoreDefaultToolbarBackground();
         }
     }
@@ -312,9 +340,9 @@ public sealed partial class MainWindow
         string url = tab.LastKnownUrl;
         var webView = new WebView2();
 
-        if (tab.StartPage is not null)
+        if (tab.HistoryPage is not null)
         {
-            tab.WebHistoryAfterStartPage.Clear();
+            tab.WebHistoryAfterInternalPage.Clear();
             tab.WebHistoryIndex = -1;
             tab.PendingWebHistoryMove = 0;
         }
@@ -509,41 +537,7 @@ public sealed partial class MainWindow
 
         tab.Header = header;
 
-        if (Activator.CreateInstance(pageType) is not Page page)
-            throw new InvalidOperationException(
-                $"Could not create an instance of {pageType.FullName}.");
-
-        if (page is SettingsPage settingsPage)
-        {
-            settingsPage.FullWebAddressChanged += (_, _) =>
-            {
-                if (SelectedWebView is WebView2 webView)
-                    UpdateAddressBar(webView);
-            };
-
-            settingsPage.SearchSuggestionsChanged += (_, _) =>
-            {
-                if (!AreSearchSuggestionsEnabled())
-                {
-                    CancelSuggestionRequest();
-                    ClearSuggestions(AddressBar);
-                    _suggestionTargets.Clear();
-                    _suggestionTrainingIds.Clear();
-                    _selectedSuggestionTarget = null;
-                    _suggestionWasChosen = false;
-                }
-            };
-
-            settingsPage.SearchEngineChanged += (_, _) =>
-            {
-                CancelSuggestionRequest();
-                ClearSuggestions(AddressBar);
-                _suggestionTargets.Clear();
-                _suggestionTrainingIds.Clear();
-                _selectedSuggestionTarget = null;
-                _suggestionWasChosen = false;
-            };
-        }
+        Page page = CreatePageInstance(pageType);
 
         var browserTab = new BrowserTab(
             _nextExtensionTabId++,
@@ -554,10 +548,75 @@ public sealed partial class MainWindow
             audioButton,
             favicon);
 
+        if (page is StartPage or SettingsPage)
+        {
+            browserTab.HistoryPage = page;
+            browserTab.HistoryPageUri = GetInternalPageUri(page);
+        }
+
         tab.Tag = browserTab;
         _browserTabs[tab] = browserTab;
 
         return tab;
+    }
+
+    private Page CreatePageInstance(Type pageType)
+    {
+        if (Activator.CreateInstance(pageType) is not Page page)
+        {
+            throw new InvalidOperationException(
+                $"Could not create an instance of {pageType.FullName}.");
+        }
+
+        if (page is SettingsPage settingsPage)
+            ConfigureSettingsPage(settingsPage);
+
+        return page;
+    }
+
+    private void ConfigureSettingsPage(SettingsPage settingsPage)
+    {
+        settingsPage.FullWebAddressChanged += (_, _) =>
+        {
+            if (SelectedWebView is WebView2 webView)
+                UpdateAddressBar(webView);
+        };
+
+        settingsPage.SearchSuggestionsChanged += (_, _) =>
+        {
+            if (!AreSearchSuggestionsEnabled())
+            {
+                CancelSuggestionRequest();
+                ClearSuggestions(AddressBar);
+                _suggestionTargets.Clear();
+                _suggestionTrainingIds.Clear();
+                _selectedSuggestionTarget = null;
+                _suggestionWasChosen = false;
+            }
+        };
+
+        settingsPage.SearchEngineChanged += (_, _) =>
+        {
+            CancelSuggestionRequest();
+            ClearSuggestions(AddressBar);
+            _suggestionTargets.Clear();
+            _suggestionTrainingIds.Clear();
+            _selectedSuggestionTarget = null;
+            _suggestionWasChosen = false;
+        };
+    }
+
+    private async Task LoadSettingsPageExtensionsAsync(SettingsPage settingsPage)
+    {
+        try
+        {
+            CoreWebView2Profile profile = await GetBrowserProfileAsync();
+            await settingsPage.LoadExtensionsAsync(profile);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load Settings page extensions: {ex}");
+        }
     }
 
     private async Task ShowPageAsync(Type pageType)
@@ -569,10 +628,7 @@ public sealed partial class MainWindow
         if (tab.Tag is BrowserTab browserTab &&
             browserTab.Content is SettingsPage settingsPage)
         {
-            CoreWebView2Profile profile =
-                await GetBrowserProfileAsync();
-
-            await settingsPage.LoadExtensionsAsync(profile);
+            await LoadSettingsPageExtensionsAsync(settingsPage);
         }
     }
 
@@ -728,4 +784,3 @@ public sealed partial class MainWindow
             OpenNewTab(uri.AbsoluteUri);
     }
 }
-

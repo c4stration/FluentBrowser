@@ -51,7 +51,7 @@ public sealed partial class MainWindow
 
     private void UpdateDefaultFavicon(BrowserTab tab, bool visible)
     {
-        if (IsStartPageDisplayed(tab))
+        if (IsInternalPageDisplayed(tab))
             return;
 
         if (tab.Favicon.Parent is not Grid grid)
@@ -73,8 +73,8 @@ public sealed partial class MainWindow
     }
 
     private bool TryGetCachedFavicon(
-    string faviconUri,
-    out BitmapImage? bitmap)
+        string faviconUri,
+        out BitmapImage? bitmap)
     {
         if (!_faviconCache.TryGetValue(faviconUri, out bitmap))
             return false;
@@ -122,13 +122,17 @@ public sealed partial class MainWindow
     {
         try
         {
-            if (tab.IsClosed ||
-                tab.WebView is not { } webView ||
-                webView.CoreWebView2 is not { } core ||
-                IsStartPageDisplayed(tab))
-            {
+            if (tab.IsClosed || IsInternalPageDisplayed(tab))
                 return;
-            }
+
+            // Assign these separately so every use is definitely assigned.
+            WebView2? webView = tab.WebView;
+            if (webView is null)
+                return;
+
+            CoreWebView2? core = webView.CoreWebView2;
+            if (core is null)
+                return;
 
             string? faviconUri = core.FaviconUri;
 
@@ -150,9 +154,8 @@ public sealed partial class MainWindow
                 cached is not null)
             {
                 if (tab.IsClosed ||
-                    tab.WebView is not { } cachedWebView ||
-                    !ReferenceEquals(cachedWebView, webView) ||
-                    IsStartPageDisplayed(tab))
+                    !ReferenceEquals(tab.WebView, webView) ||
+                    IsInternalPageDisplayed(tab))
                 {
                     return;
                 }
@@ -169,9 +172,8 @@ public sealed partial class MainWindow
             var diskFavicon = await LoadFaviconFromDiskAsync(faviconUri);
 
             if (tab.IsClosed ||
-                tab.WebView is not { } diskWebView ||
-                !ReferenceEquals(diskWebView, webView) ||
-                IsStartPageDisplayed(tab))
+                !ReferenceEquals(tab.WebView, webView) ||
+                IsInternalPageDisplayed(tab))
             {
                 return;
             }
@@ -192,9 +194,8 @@ public sealed partial class MainWindow
                 CoreWebView2FaviconImageFormat.Png);
 
             if (tab.IsClosed ||
-                tab.WebView is not { } fetchedWebView ||
-                !ReferenceEquals(fetchedWebView, webView) ||
-                IsStartPageDisplayed(tab))
+                !ReferenceEquals(tab.WebView, webView) ||
+                IsInternalPageDisplayed(tab))
             {
                 return;
             }
@@ -209,9 +210,8 @@ public sealed partial class MainWindow
                 .CopyToAsync(memoryStream);
 
             if (tab.IsClosed ||
-                tab.WebView is not { } copiedWebView ||
-                !ReferenceEquals(copiedWebView, webView) ||
-                IsStartPageDisplayed(tab))
+                !ReferenceEquals(tab.WebView, webView) ||
+                IsInternalPageDisplayed(tab))
             {
                 return;
             }
@@ -229,9 +229,8 @@ public sealed partial class MainWindow
                 bitmapStream.AsRandomAccessStream());
 
             if (tab.IsClosed ||
-                tab.WebView is not { } bitmapWebView ||
-                !ReferenceEquals(bitmapWebView, webView) ||
-                IsStartPageDisplayed(tab))
+                !ReferenceEquals(tab.WebView, webView) ||
+                IsInternalPageDisplayed(tab))
             {
                 return;
             }
@@ -243,9 +242,8 @@ public sealed partial class MainWindow
             FaviconCacheChanged?.Invoke(this, EventArgs.Empty);
 
             if (tab.IsClosed ||
-                tab.WebView is not { } savedWebView ||
-                !ReferenceEquals(savedWebView, webView) ||
-                IsStartPageDisplayed(tab))
+                !ReferenceEquals(tab.WebView, webView) ||
+                IsInternalPageDisplayed(tab))
             {
                 return;
             }

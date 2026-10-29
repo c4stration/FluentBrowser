@@ -735,7 +735,12 @@ public sealed partial class MainWindow
         WebView2? webViewToFocus =
             (SelectedTab)?.WebView;
 
+        bool isOnInternalPage = SelectedTab is BrowserTab selectedTab &&
+            ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage);
+
         bool waitForSuggestionPopupClose =
+            !isOnInternalPage &&
+            !IsInternalPageUri(target) &&
             webViewToFocus is not null &&
             _addressSuggestionPopup?.IsOpen == true;
 
@@ -755,7 +760,8 @@ public sealed partial class MainWindow
         }
 
         if (tab.WebView is WebView2 webView &&
-            tab.Content is not StartPage)
+            !ReferenceEquals(tab.Content, tab.HistoryPage) &&
+            !IsInternalPageUri(target))
         {
             _addressBarUserEditing = false;
 
@@ -792,7 +798,8 @@ public sealed partial class MainWindow
         {
             CancelSuggestionRequest();
 
-            if (SelectedTab?.Content is not StartPage &&
+            if (SelectedTab is BrowserTab selectedTab &&
+                !ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage) &&
                 SelectedWebView?.Source is Uri uri)
             {
                 AddressBar.Text = uri.AbsoluteUri;
@@ -843,6 +850,16 @@ public sealed partial class MainWindow
             if (SelectedTab?.Content is StartPage)
             {
                 ClearAddressBarForStartPage();
+                return;
+            }
+
+            if (SelectedTab is BrowserTab selectedTab &&
+                ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage) &&
+                selectedTab.HistoryPageUri is string internalUri &&
+                Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalUriValue))
+            {
+                UpdateAddressBar(internalUriValue, force: true);
+                AnimateAddressBar(false);
                 return;
             }
 
@@ -1237,12 +1254,41 @@ public sealed partial class MainWindow
             return;
         }
 
+        if (SelectedTab is BrowserTab tab &&
+            ReferenceEquals(tab.Content, tab.HistoryPage) &&
+            tab.HistoryPageUri is string internalUri &&
+            Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalUriValue))
+        {
+            UpdateAddressBar(internalUriValue, force);
+            return;
+        }
+
         if (webView.Source is Uri uri)
             UpdateAddressBar(uri, force);
     }
 
     private void UpdateAddressBar(Uri uri, bool force = false)
     {
+        // this is fucking disgusting but at least it works
+        if (SelectedTab is BrowserTab tab &&
+            ReferenceEquals(tab.Content, tab.HistoryPage) &&
+            tab.HistoryPageUri is string internalUri &&
+            Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalPageUri) &&
+            internalPageUri is not null &&
+            string.Equals(
+                internalPageUri.Scheme,
+                "fluentbrowser",
+                StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(
+                internalPageUri.Host,
+                "settings",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            _pendingAddressBarUri = null;
+            AddressBar.Text = string.Empty;
+            return;
+        }
+
         bool addressBarFocused =
             _addressBarUserEditing ||
             AddressBar.FocusState != FocusState.Unfocused;

@@ -510,7 +510,7 @@ public sealed partial class MainWindow
 
             core.DocumentTitleChanged += (_, _) =>
             {
-                if (tab.Content is not StartPage)
+                if (!ReferenceEquals(tab.Content, tab.HistoryPage))
                     title.Text = core.DocumentTitle;
             };
 
@@ -1022,12 +1022,24 @@ public sealed partial class MainWindow
         BrowserTab tab,
         Uri target)
     {
-        if (tab.Content is StartPage startPage)
+        if (tab.Content is StartPage or SettingsPage)
         {
-            tab.StartPage = startPage;
-            tab.WebHistoryAfterStartPage.Clear();
+            tab.HistoryPage = tab.Content;
+            tab.HistoryPageUri = GetInternalPageUri(tab.Content);
+            tab.WebHistoryAfterInternalPage.Clear();
             tab.WebHistoryIndex = -1;
             tab.PendingWebHistoryMove = 0;
+        }
+        else
+        {
+            tab.HistoryPage = null;
+            tab.HistoryPageUri = null;
+            tab.WebHistoryAfterInternalPage.Clear();
+            tab.WebHistoryIndex = -1;
+            tab.PendingWebHistoryMove = 0;
+
+            if (tab.Content is IDisposable disposable)
+                disposable.Dispose();
         }
 
         var webView = new WebView2();
@@ -1067,7 +1079,7 @@ public sealed partial class MainWindow
             target.AbsoluteUri);
     }
 
-    private void ReplaceRetainedStartPageWebView(
+    private void ReplaceRetainedInternalPageWebView(
         BrowserTab tab,
         Uri target)
     {
@@ -1084,7 +1096,7 @@ public sealed partial class MainWindow
         previousWebView.Tag = null;
         previousWebView.Close();
 
-        tab.WebHistoryAfterStartPage.Clear();
+        tab.WebHistoryAfterInternalPage.Clear();
         tab.WebHistoryIndex = -1;
         tab.PendingWebHistoryMove = 0;
         tab.ErrorPage = null;
