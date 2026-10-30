@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.Storage.Streams;
 using WinUI3Localizer;
 
@@ -563,13 +564,28 @@ public sealed partial class StartPage : Page
 
     private void SetBackgroundImage(string path, int requestId)
     {
+        _ = SetBackgroundImageAsync(path, requestId);
+    }
+
+    private async Task SetBackgroundImageAsync(string path, int requestId)
+    {
         try
         {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            using var stream = await file.OpenAsync(FileAccessMode.Read);
+
             var image = new BitmapImage
             {
-                DecodePixelWidth = 1920,
-                UriSource = new Uri(path, UriKind.Absolute)
+                DecodePixelWidth = 1920
             };
+
+            await image.SetSourceAsync(stream);
+
+            if (requestId != _randomBackgroundRequestId ||
+                _settings.Mode != ImageMode)
+            {
+                return;
+            }
 
             RootGrid.Background = new ImageBrush
             {
@@ -581,8 +597,8 @@ public sealed partial class StartPage : Page
         }
         catch
         {
-            RootGrid.Background = null;
-            SetSettingsIconToThemeForeground();
+            if (requestId == _randomBackgroundRequestId)
+                SetSettingsIconToThemeForeground();
         }
     }
 
