@@ -810,7 +810,7 @@ public sealed partial class MainWindow
                 !ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage) &&
                 SelectedWebView?.Source is Uri uri)
             {
-                AddressBar.Text = uri.AbsoluteUri;
+                AddressBar.Text = GetDisplayUri(uri);
             }
 
             FindAddressBarTextHost();
@@ -1308,9 +1308,14 @@ public sealed partial class MainWindow
             _pendingAddressBarUri = null;
 
         AddressBar.Text = addressBarFocused
-            ? uri.AbsoluteUri
+            ? GetDisplayUri(uri)
             : GetAddressName(uri);
     }
+
+    private static string GetDisplayUri(Uri uri) =>
+        uri.GetComponents(
+            UriComponents.AbsoluteUri,
+            UriFormat.SafeUnescaped);
 
     private string GetAddressName(Uri uri)
     {
@@ -1318,7 +1323,7 @@ public sealed partial class MainWindow
             _settings.Values["FullWebAddress"] as bool? ?? false;
 
         if (fullWebAddress || !IsHttpUri(uri))
-            return uri.AbsoluteUri;
+            return GetDisplayUri(uri);
 
         string host = uri.Host;
 

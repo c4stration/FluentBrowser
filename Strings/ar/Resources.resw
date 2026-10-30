@@ -645,4 +645,19 @@
   <data name="StartTitle" xml:space="preserve">
     <value>البداية</value>
   </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>الخطوط</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>قياسي</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>مع الذنابات</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>بدون الذنابات</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>أحادي المسافة</value>
+  </data>
 </root>

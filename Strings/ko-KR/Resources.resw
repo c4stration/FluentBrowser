@@ -633,4 +633,19 @@
   <data name="StartTitle" xml:space="preserve">
     <value>시작</value>
   </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>글꼴</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>표준</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>명조체</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>고딕체</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>고정폭</value>
+  </data>
 </root>

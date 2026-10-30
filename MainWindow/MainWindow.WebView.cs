@@ -366,14 +366,34 @@ public sealed partial class MainWindow
         object sender,
         RoutedEventArgs e)
     {
-        if (sender is not ToggleSwitch toggle ||
-            toggle.DataContext is not ExtensionListItem item)
+        if (sender is not ToggleSwitch toggle)
         {
             return;
         }
 
+        // ListView recycles its item visuals. Do not capture an extension ID
+        // in Tag here: a recycled ToggleSwitch can display a new DataContext
+        // while retaining a previous local Tag value.
+        toggle.DataContextChanged -= ExtensionToggle_DataContextChanged;
+        toggle.DataContextChanged += ExtensionToggle_DataContextChanged;
+
+        SyncExtensionToggle(toggle);
+    }
+
+    private void ExtensionToggle_DataContextChanged(
+        FrameworkElement sender,
+        DataContextChangedEventArgs args)
+    {
+        if (sender is ToggleSwitch toggle)
+            SyncExtensionToggle(toggle);
+    }
+
+    private void SyncExtensionToggle(ToggleSwitch toggle)
+    {
+        if (toggle.DataContext is not ExtensionListItem item)
+            return;
+
         toggle.Toggled -= ExtensionToggle_Toggled;
-        toggle.Tag = item.ExtensionId;
         toggle.IsOn = item.IsEnabled;
         toggle.Toggled += ExtensionToggle_Toggled;
     }
@@ -383,21 +403,30 @@ public sealed partial class MainWindow
         RoutedEventArgs e)
     {
         if (sender is not ToggleSwitch toggle ||
-            toggle.Tag is not string extensionId)
+            toggle.DataContext is not ExtensionListItem item)
         {
             return;
         }
+
+        string extensionId = item.ExtensionId;
+        bool requestedState = toggle.IsOn;
+        bool previousState = item.IsEnabled;
 
         toggle.IsEnabled = false;
 
         try
         {
-            await SetExtensionEnabledAsync(extensionId, toggle.IsOn);
+            await SetExtensionEnabledAsync(extensionId, requestedState);
+            item.IsEnabled = requestedState;
         }
         catch (Exception ex)
         {
             Debug.WriteLine(
                 $"Failed to toggle extension '{extensionId}': {ex}");
+
+            toggle.Toggled -= ExtensionToggle_Toggled;
+            toggle.IsOn = previousState;
+            toggle.Toggled += ExtensionToggle_Toggled;
         }
         finally
         {
@@ -584,19 +613,85 @@ public sealed partial class MainWindow
             args.Handled = true;
     }
 
+    private static readonly string[] RandomFonts =
+    [
+        "Arial",
+        "Calibri",
+        "Candara",
+        "Corbel",
+        "Segoe UI",
+        "Tahoma",
+        "Trebuchet MS",
+        "Verdana"
+    ];
+
+    // Page.setFontFamilies accepts only the script names recognized by Blink's
+    // ScriptNameToCode mapping. This is deliberately not the full ISO 15924 list
+    // exposed by chrome.fontSettings, which would cause the CDP call to fail.
+    private static readonly string[] FontScriptCodes =
+    [
+        "Arab", "Armn", "Beng", "Bopo", "Cher", "Copt", "Cyrl",
+        "Jpan", "Kore", "Sara", "Syre", "Syrj", "Syrn", "Teng",
+        "Vaii", "Visp", "Xsux"
+    ];
+
+    private static async Task SetRandomStandardFontAsync(
+        CoreWebView2 core)
+    {
+        string font = RandomFonts[
+            Random.Shared.Next(RandomFonts.Length)];
+
+        var fontFamilies = new
+        {
+            standard = font
+        };
+
+        string parameters = JsonSerializer.Serialize(new
+        {
+            fontFamilies,
+            forScripts = FontScriptCodes.Select(script => new
+            {
+                script,
+                fontFamilies
+            })
+        });
+
+        try
+        {
+            await core.CallDevToolsProtocolMethodAsync(
+                "Page.setFontFamilies",
+                parameters);
+
+            Debug.WriteLine($"Random standard font: {font}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Failed to set random standard font: {ex}");
+        }
+    }
+
+    private Task InitializeWebViewAsync(
+        WebView2 webView,
+        string url) =>
+        InitializeWebViewAsync(webView, new Uri(url));
+
     private async Task InitializeWebViewAsync(
         WebView2 webView,
-        string url)
+        Uri uri)
     {
         await webView.EnsureCoreWebView2Async(
             App.WebViewEnvironment);
 
         if (webView.CoreWebView2 is { } core)
+        {
             await ConfigureWebMessageHandlingAsync(webView, core);
+            await SetRandomStandardFontAsync(core);
+        }
 
         await EnableLoadProgressTrackingAsync(webView);
 
-        webView.Source = new Uri(url);
+        webView.Source = uri;
     }
 
     private void InitializeWebViewCore(
@@ -1093,7 +1188,7 @@ public sealed partial class MainWindow
 
         _ = InitializeWebViewAsync(
             webView,
-            target.AbsoluteUri);
+            target);
     }
 
     private void CreateWebViewForHistoryEntry(
@@ -1147,7 +1242,7 @@ public sealed partial class MainWindow
             UpdateAddressBar(target, force: true);
         }
 
-        _ = InitializeWebViewAsync(webView, target.AbsoluteUri);
+        _ = InitializeWebViewAsync(webView, target);
     }
 
     private void ReplaceRetainedInternalPageWebView(
@@ -1201,7 +1296,7 @@ public sealed partial class MainWindow
             UpdateAddressBar(target, force: true);
         }
 
-        _ = InitializeWebViewAsync(webView, target.AbsoluteUri);
+        _ = InitializeWebViewAsync(webView, target);
     }
 
     private static string? GetBestExtensionIconPath(

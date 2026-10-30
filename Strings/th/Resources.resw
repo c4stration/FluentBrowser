@@ -649,4 +649,19 @@
   <data name="StartTitle" xml:space="preserve">
     <value>เริ่มต้น</value>
   </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>ฟอนต์</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>มาตรฐาน</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>มีเชิง</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>ไม่มีเชิง</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>ความกว้างคงที่</value>
+  </data>
 </root>

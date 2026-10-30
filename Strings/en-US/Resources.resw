@@ -652,4 +652,19 @@
   <data name="StartTitle" xml:space="preserve">
     <value>Start</value>
   </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>Fonts</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>Serif</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>Sans-serif</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>Monospace</value>
+  </data>
 </root>

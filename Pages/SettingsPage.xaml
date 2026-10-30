@@ -73,6 +73,47 @@
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="ThemeColorTintToggleSwitch_Toggled" />
                     </controls:SettingsCard>
+                    <controls:SettingsExpander l:Uids.Uid="Fonts">
+                        <controls:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xE8D2;" />
+                        </controls:SettingsExpander.HeaderIcon>
+
+                        <controls:SettingsExpander.Items>
+                            <controls:SettingsCard l:Uids.Uid="FontType_Standard">
+                                <controls:SettingsCard.Description>
+                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                </controls:SettingsCard.Description>
+                                
+                                <ComboBox>
+                                </ComboBox>
+                            </controls:SettingsCard>
+                            <controls:SettingsCard l:Uids.Uid="FontType_Serif">
+                                <controls:SettingsCard.Description>
+                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                </controls:SettingsCard.Description>
+                                
+                                <ComboBox>
+                                </ComboBox>
+                            </controls:SettingsCard>
+                            <controls:SettingsCard l:Uids.Uid="FontType_SansSerif">
+                                <controls:SettingsCard.Description>
+                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                </controls:SettingsCard.Description>
+
+                                <ComboBox>
+                                </ComboBox>
+                            </controls:SettingsCard>
+                            <controls:SettingsCard l:Uids.Uid="FontType_Monospace">
+                                <controls:SettingsCard.Description>
+                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                </controls:SettingsCard.Description>
+
+                                <ComboBox>
+                                </ComboBox>
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander.Items>
+                    </controls:SettingsExpander>
+                    
                     <!--  Language  -->
                     <TextBlock
                         Margin="0,29,0,8"

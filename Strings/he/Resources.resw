@@ -651,4 +651,19 @@
   <data name="StartTitle" xml:space="preserve">
     <value>התחלה</value>
   </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>גופנים</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>סטנדרטי</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>סריפי</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>סנס־סריפי</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>מונו־ספייס</value>
+  </data>
 </root>

@@ -939,8 +939,7 @@
                                                                                 VerticalAlignment="Center"
                                                                                 Loaded="ExtensionToggle_Loaded"
                                                                                 OffContent=""
-                                                                                OnContent=""
-                                                                                Tag="{Binding ExtensionId}" />
+                                                                                OnContent="" />
 
                                                                             <Grid.ContextFlyout>
                                                                                 <MenuFlyout>
