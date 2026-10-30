@@ -216,7 +216,7 @@
   <data name="LanguageSection.Text" xml:space="preserve">
     <value>언어</value>
   </data>
-  <data name="AppearanceCategory.Content" xml:space="preserve">
+  <data name="AppearanceSection.Text" xml:space="preserve">
     <value>모양</value>
   </data>
   <data name="AdvancedSection.Text" xml:space="preserve">

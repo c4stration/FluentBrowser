@@ -216,7 +216,7 @@
   <data name="LanguageSection.Text" xml:space="preserve">
     <value>語言</value>
   </data>
-  <data name="AppearanceCategory.Content" xml:space="preserve">
+  <data name="AppearanceSection.Text" xml:space="preserve">
     <value>外觀</value>
   </data>
   <data name="AdvancedSection.Text" xml:space="preserve">
@@ -575,6 +575,9 @@
   </data>
   <data name="WaitingForInternet" xml:space="preserve">
     <value>正在等待網際網路連線…</value>
+  </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>居中</value>
   </data>
   <data name="AddressBarAlignment.Header" xml:space="preserve">
     <value>地址對齊</value>

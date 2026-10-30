@@ -416,13 +416,14 @@ public sealed partial class SettingsPage : Page, IDisposable
             "zh-CN" => 2,
             "zh-TW" => 3,
             "en-US" => 4,
-            "he" => 5,
-            "ja-JP" => 6,
-            "ko-KR" => 7,
-            "ro-RO" => 8,
-            "th" => 9,
-            "en-UWU" => 10,
-            "en-LOL" => 11,
+            "en-GB" => 5,
+            "he" => 6,
+            "ja-JP" => 7,
+            "ko-KR" => 8,
+            "ro-RO" => 9,
+            "th" => 10,
+            "en-UWU" => 11,
+            "en-LOL" => 12,
             _ => 0
         };
     }
@@ -479,13 +480,14 @@ public sealed partial class SettingsPage : Page, IDisposable
             2 => "zh-CN",
             3 => "zh-TW",
             4 => "en-US",
-            5 => "he",
-            6 => "ja-JP",
-            7 => "ko-KR",
-            8 => "ro-RO",
-            9 => "th",
-            10 => "en-UWU",
-            11 => "en-LOL",
+            5 => "en-GB",
+            6 => "he",
+            7 => "ja-JP",
+            8 => "ko-KR",
+            9 => "ro-RO",
+            10 => "th",
+            11 => "en-UWU",
+            12 => "en-LOL",
             _ => "System"
         };
 

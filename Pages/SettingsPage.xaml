@@ -28,7 +28,7 @@
                     <!--  App Theme  -->
                     <TextBlock
                         Margin="0,5,0,8"
-                        l:Uids.Uid="ColorsSection"
+                        l:Uids.Uid="AppearanceSection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
                     <controls:SettingsCard l:Uids.Uid="AppTheme">
                         <controls:SettingsCard.HeaderIcon>
@@ -99,6 +99,7 @@
                             <ComboBoxItem l:Uids.Uid="zh-CN" Content="中文（中华人民共和国）" />
                             <ComboBoxItem l:Uids.Uid="zh-TW" Content="中文（台灣）" />
                             <ComboBoxItem l:Uids.Uid="en-US" Content="English (United States)" />
+                            <ComboBoxItem l:Uids.Uid="en-GB" Content="English (United Kingdom)" />
                             <ComboBoxItem l:Uids.Uid="he" Content="עברית" />
                             <ComboBoxItem l:Uids.Uid="ja-JP" Content="日本語" />
                             <ComboBoxItem l:Uids.Uid="ko-KR" Content="한국어" />

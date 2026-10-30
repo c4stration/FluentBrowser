@@ -216,7 +216,7 @@
   <data name="LanguageSection.Text" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="AppearanceCategory.Content" xml:space="preserve">
+  <data name="AppearanceSection.Text" xml:space="preserve">
     <value>Appearance</value>
   </data>
   <data name="AdvancedSection.Text" xml:space="preserve">
@@ -245,11 +245,9 @@
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
     <value>Material</value>
-    <comment>المادة</comment>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
     <value>Select the backdrop material for window background</value>
-    <comment>حدد مادة الخلفية لنافذة التطبيق</comment>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>

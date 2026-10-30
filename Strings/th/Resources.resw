@@ -216,7 +216,7 @@
   <data name="LanguageSection.Text" xml:space="preserve">
     <value>ภาษา</value>
   </data>
-  <data name="AppearanceCategory.Content" xml:space="preserve">
+  <data name="AppearanceSection.Text" xml:space="preserve">
     <value>ลักษณะที่ปรากฏ</value>
   </data>
   <data name="AdvancedSection.Text" xml:space="preserve">
