@@ -656,7 +656,7 @@
                 <Grid
                     Grid.Column="2"
                     Margin="16,2,0,0"
-                    HorizontalAlignment="Right"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
 
                     <Border
@@ -671,14 +671,19 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         CornerRadius="{ThemeResource OverlayCornerRadius}" />
 
-                    <StackPanel
-                        HorizontalAlignment="Right"
+                    <Grid
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        CornerRadius="{ThemeResource OverlayCornerRadius}"
-                        Orientation="Horizontal">
+                        CornerRadius="{ThemeResource OverlayCornerRadius}">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
                         <Button
                             x:Name="AddToolbarItemButton"
+                            Grid.Column="0"
                             Margin="5,0,0,0"
                             Padding="12,8"
                             CornerRadius="{ThemeResource ControlCornerRadius}"
@@ -766,11 +771,12 @@
                             </Button.Flyout>
                         </Button>
 
-                        <ListView
+                        <my:ScrollableListView
                             x:Name="ToolbarListView"
+                            Grid.Column="1"
                             MinWidth="88"
                             Padding="0"
-                            HorizontalAlignment="Right"
+                            HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Right"
                             AllowDrop="True"
                             Background="Transparent"
@@ -783,7 +789,7 @@
                             Loaded="ToolbarListView_Loaded"
                             SelectionMode="None">
 
-                            <ListView.ItemsPanel>
+                            <my:ScrollableListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel
                                         Padding="5,0"
@@ -791,9 +797,9 @@
                                         Orientation="Horizontal"
                                         Spacing="8" />
                                 </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
+                            </my:ScrollableListView.ItemsPanel>
 
-                            <ListView.ItemContainerStyle>
+                            <my:ScrollableListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="Margin" Value="0" />
                                     <Setter Property="Padding" Value="0" />
@@ -803,16 +809,16 @@
                                     <Setter Property="HorizontalContentAlignment" Value="Left" />
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
-                            </ListView.ItemContainerStyle>
+                            </my:ScrollableListView.ItemContainerStyle>
 
-                            <ListView.ContextFlyout>
+                            <my:ScrollableListView.ContextFlyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem
                                         MinWidth="178"
                                         l:Uids.Uid="CustomizeToolbar"
                                         Click="CustomizeToolbar_Click" />
                                 </MenuFlyout>
-                            </ListView.ContextFlyout>
+                            </my:ScrollableListView.ContextFlyout>
 
                             <ListViewItem>
                                 <Button
@@ -846,7 +852,7 @@
                                             </MenuFlyoutItem>
 
                                             <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
-                                            
+
                                             <MenuFlyoutItem Text="Force garbage collection" Click="ForceGarbageCollectionButton_Click" />
                                         </MenuFlyout>
                                     </Button.Flyout>
@@ -1281,8 +1287,8 @@
                                     </Button.Flyout>
                                 </Button>
                             </ListViewItem>
-                        </ListView>
-                    </StackPanel>
+                        </my:ScrollableListView>
+                    </Grid>
                 </Grid>
 
                 <my:ScrollableItemsControl

@@ -59,6 +59,18 @@ public sealed partial class MainWindow
     public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionChanged;
     public event EventHandler? BrowserExtensionsReset;
 
+    internal const string DefaultStandardFontFamily = "Times New Roman";
+    internal const string DefaultSerifFontFamily = "Times New Roman";
+    internal const string DefaultSansSerifFontFamily = "Arial";
+    internal const string DefaultMonospaceFontFamily = "Courier New";
+    private static readonly string[] FontScriptCodes =
+    [
+        "Arab", "Armn", "Beng", "Bopo", "Cher", "Copt", "Cyrl",
+        "Jpan", "Kore", "Latn", "Sara", "Syre", "Syrj", "Syrn",
+        "Teng", "Thai", "Vaii", "Visp", "Xsux"
+    ];
+    private readonly SemaphoreSlim _webFontSettingsLock = new(1, 1);
+
     public CoreWebView2Profile? GetBrowserProfile()
     {
         if (_browserProfile is not null)
@@ -521,6 +533,11 @@ public sealed partial class MainWindow
 
             ConfigureLoadProgressTracking(webView, core);
 
+            core.ContentLoading += async (_, _) =>
+            {
+                await ApplyWebFontFamiliesAsync(core);
+            };
+
             core.Profile.AreWebViewScriptApisEnabledForServiceWorkers =
                 true;
 
@@ -613,61 +630,122 @@ public sealed partial class MainWindow
             args.Handled = true;
     }
 
-    private static readonly string[] RandomFonts =
-    [
-        "Arial",
-        "Calibri",
-        "Candara",
-        "Corbel",
-        "Segoe UI",
-        "Tahoma",
-        "Trebuchet MS",
-        "Verdana"
-    ];
-
-    // Page.setFontFamilies accepts only the script names recognized by Blink's
-    // ScriptNameToCode mapping. This is deliberately not the full ISO 15924 list
-    // exposed by chrome.fontSettings, which would cause the CDP call to fail.
-    private static readonly string[] FontScriptCodes =
-    [
-        "Arab", "Armn", "Beng", "Bopo", "Cher", "Copt", "Cyrl",
-        "Jpan", "Kore", "Sara", "Syre", "Syrj", "Syrn", "Teng",
-        "Vaii", "Visp", "Xsux"
-    ];
-
-    private static async Task SetRandomStandardFontAsync(
-        CoreWebView2 core)
+    private string GetConfiguredFontFamily(
+        string settingKey,
+        string defaultFontFamily)
     {
-        string font = RandomFonts[
-            Random.Shared.Next(RandomFonts.Length)];
+        string? fontFamily = _settings.Values[settingKey] as string;
 
-        var fontFamilies = new
-        {
-            standard = font
-        };
+        return string.IsNullOrWhiteSpace(fontFamily)
+            ? defaultFontFamily
+            : fontFamily;
+    }
 
-        string parameters = JsonSerializer.Serialize(new
+    public async Task ApplyWebFontFamiliesToAllTabsAsync()
+    {
+        foreach (BrowserTab tab in _browserTabs.Values.ToArray())
         {
-            fontFamilies,
-            forScripts = FontScriptCodes.Select(script => new
-            {
-                script,
-                fontFamilies
-            })
-        });
+            if (tab.WebView?.CoreWebView2 is { } core)
+                await ApplyWebFontFamiliesAsync(core);
+        }
+    }
+
+    private async Task ApplyWebFontFamiliesAsync(CoreWebView2 core)
+    {
+        await _webFontSettingsLock.WaitAsync();
+
+        string? sessionId = null;
 
         try
         {
-            await core.CallDevToolsProtocolMethodAsync(
+            var fontFamilies = new Dictionary<string, string>
+            {
+                ["standard"] = GetConfiguredFontFamily(
+                    "StandardFont",
+                    DefaultStandardFontFamily),
+                ["serif"] = GetConfiguredFontFamily(
+                    "SerifFont",
+                    DefaultSerifFontFamily),
+                ["sansSerif"] = GetConfiguredFontFamily(
+                    "SansSerifFont",
+                    DefaultSansSerifFontFamily),
+                ["fixed"] = GetConfiguredFontFamily(
+                    "MonospaceFont",
+                    DefaultMonospaceFontFamily)
+            };
+
+            string parameters = JsonSerializer.Serialize(new
+            {
+                fontFamilies,
+                forScripts = FontScriptCodes.Select(script => new
+                {
+                    script,
+                    fontFamilies
+                })
+            });
+
+            string targetInfoJson =
+                await core.CallDevToolsProtocolMethodAsync(
+                    "Target.getTargetInfo",
+                    "{}");
+
+            using JsonDocument targetInfo =
+                JsonDocument.Parse(targetInfoJson);
+
+            string targetId = targetInfo.RootElement
+                .GetProperty("targetInfo")
+                .GetProperty("targetId")
+                .GetString()
+                ?? throw new InvalidOperationException(
+                    "The WebView2 target ID was not returned.");
+
+            string attachResultJson =
+                await core.CallDevToolsProtocolMethodAsync(
+                    "Target.attachToTarget",
+                    JsonSerializer.Serialize(new
+                    {
+                        targetId,
+                        flatten = true
+                    }));
+
+            using JsonDocument attachResult =
+                JsonDocument.Parse(attachResultJson);
+
+            sessionId = attachResult.RootElement
+                .GetProperty("sessionId")
+                .GetString();
+
+            if (string.IsNullOrWhiteSpace(sessionId))
+                throw new InvalidOperationException(
+                    "The WebView2 DevTools session ID was not returned.");
+
+            await core.CallDevToolsProtocolMethodForSessionAsync(
+                sessionId,
                 "Page.setFontFamilies",
                 parameters);
-
-            Debug.WriteLine($"Random standard font: {font}");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(
-                $"Failed to set random standard font: {ex}");
+            Debug.WriteLine($"Failed to apply web font families: {ex}");
+        }
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(sessionId))
+            {
+                try
+                {
+                    await core.CallDevToolsProtocolMethodAsync(
+                        "Target.detachFromTarget",
+                        JsonSerializer.Serialize(new { sessionId }));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(
+                        $"Failed to detach the font settings DevTools session: {ex}");
+                }
+            }
+
+            _webFontSettingsLock.Release();
         }
     }
 
@@ -684,10 +762,7 @@ public sealed partial class MainWindow
             App.WebViewEnvironment);
 
         if (webView.CoreWebView2 is { } core)
-        {
             await ConfigureWebMessageHandlingAsync(webView, core);
-            await SetRandomStandardFontAsync(core);
-        }
 
         await EnableLoadProgressTrackingAsync(webView);
 

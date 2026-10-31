@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using FluentBrowser.Controls;
 using FluentBrowser.Shared;
+using Microsoft.Graphics.Canvas.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Windows.Globalization;
 using System;
@@ -71,6 +73,12 @@ public sealed partial class SettingsPage : Page, IDisposable
     private readonly SemaphoreSlim _extensionLoadLock = new(1, 1);
     private int _extensionLoadVersion;
 
+    private static readonly Lazy<string[]> InstalledFontFamilies = new(() =>
+    CanvasTextFormat.GetSystemFontFamilies(ApplicationLanguages.Languages)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
+        .ToArray());
+
     public SettingsPage()
     {
         InitializeComponent();
@@ -110,17 +118,21 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadDownloadLocation();
         LoadAskEveryDownload();
         LoadAllShortcuts();
+        LoadInstalledFonts();
 
         CustomSitesListView.ItemsSource = _customSites;
         CustomSitesListView.DragItemsCompleted += CustomSitesListView_DragItemsCompleted;
 
         _loadingSettings = false;
 
+        if (_mainWindow is not null)
+            _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
+
         UpdateSystemLanguageInfoBar();
         LoadFaviconCacheDescription();
 
         var available = Localizer.Get().GetAvailableLanguages();
-        System.Diagnostics.Debug.WriteLine("Available languages: " + string.Join(", ", available));
+        Debug.WriteLine("Available languages: " + string.Join(", ", available));
     }
 
     public void Dispose()
@@ -1445,18 +1457,14 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (string.IsNullOrEmpty(_faviconCacheDescriptionTemplate))
             return;
 
-        string faviconCachePath = Path.Combine(
-            ApplicationData.Current.LocalFolder.Path,
-            "Favicons");
-
         long totalBytes = 0;
 
-        if (Directory.Exists(faviconCachePath))
+        if (Directory.Exists(Paths.FaviconCache))
         {
             try
             {
                 foreach (string file in Directory.EnumerateFiles(
-                    faviconCachePath,
+                    Paths.FaviconCache,
                     "*.png",
                     SearchOption.AllDirectories))
                 {
@@ -1842,5 +1850,181 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         if (App.MainWindow is MainWindow window)
             window.ApplyAddressBarAlignment();
+    }
+
+    private static string GetDefaultFontFamily(string settingKey) =>
+        settingKey switch
+        {
+            "StandardFont" =>
+                global::FluentBrowser.MainWindow.DefaultStandardFontFamily,
+            "SerifFont" =>
+                global::FluentBrowser.MainWindow.DefaultSerifFontFamily,
+            "SansSerifFont" =>
+                global::FluentBrowser.MainWindow.DefaultSansSerifFontFamily,
+            "MonospaceFont" =>
+                global::FluentBrowser.MainWindow.DefaultMonospaceFontFamily,
+            _ => throw new ArgumentOutOfRangeException(nameof(settingKey))
+        };
+
+    private void LoadInstalledFonts()
+    {
+        string[] fonts = InstalledFontFamilies.Value;
+
+        StandardFontComboBox.ItemsSource = fonts;
+        SerifFontComboBox.ItemsSource = fonts;
+        SansSerifFontComboBox.ItemsSource = fonts;
+        MonospaceFontComboBox.ItemsSource = fonts;
+
+        LoadFontSelection(
+            StandardFontComboBox,
+            StandardFontPreviewTextBlock,
+            "StandardFont");
+        LoadFontSelection(
+            SerifFontComboBox,
+            SerifFontPreviewTextBlock,
+            "SerifFont");
+        LoadFontSelection(
+            SansSerifFontComboBox,
+            SansSerifFontPreviewTextBlock,
+            "SansSerifFont");
+        LoadFontSelection(
+            MonospaceFontComboBox,
+            MonospaceFontPreviewTextBlock,
+            "MonospaceFont");
+    }
+
+    private void LoadFontSelection(
+        ComboBox comboBox,
+        TextBlock previewTextBlock,
+        string settingKey)
+    {
+        string fontName = _settings.Values[settingKey] as string
+            ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(fontName))
+            fontName = GetDefaultFontFamily(settingKey);
+
+        comboBox.SelectedItem = comboBox.Items.Contains(fontName)
+            ? fontName
+            : null;
+        comboBox.Text = fontName;
+
+        ApplyFontPreview(comboBox, previewTextBlock);
+    }
+
+    private void StandardFontComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e) =>
+        UpdateFontSelection(
+            StandardFontComboBox,
+            StandardFontPreviewTextBlock,
+            "StandardFont");
+
+    private void SerifFontComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e) =>
+        UpdateFontSelection(
+            SerifFontComboBox,
+            SerifFontPreviewTextBlock,
+            "SerifFont");
+
+    private void SansSerifFontComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e) =>
+        UpdateFontSelection(
+            SansSerifFontComboBox,
+            SansSerifFontPreviewTextBlock,
+            "SansSerifFont");
+
+    private void MonospaceFontComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e) =>
+        UpdateFontSelection(
+            MonospaceFontComboBox,
+            MonospaceFontPreviewTextBlock,
+            "MonospaceFont");
+
+    private void StandardFontComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e) =>
+        UpdateFontSelection(
+            sender,
+            StandardFontPreviewTextBlock,
+            "StandardFont",
+            e.Text);
+
+    private void SerifFontComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e) =>
+        UpdateFontSelection(
+            sender,
+            SerifFontPreviewTextBlock,
+            "SerifFont",
+            e.Text);
+
+    private void SansSerifFontComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e) =>
+        UpdateFontSelection(
+            sender,
+            SansSerifFontPreviewTextBlock,
+            "SansSerifFont",
+            e.Text);
+
+    private void MonospaceFontComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e) =>
+        UpdateFontSelection(
+            sender,
+            MonospaceFontPreviewTextBlock,
+            "MonospaceFont",
+            e.Text);
+
+    private void UpdateFontSelection(
+        ComboBox comboBox,
+        TextBlock previewTextBlock,
+        string settingKey,
+        string? submittedText = null)
+    {
+        if (_loadingSettings)
+            return;
+
+        string fontName = (
+            submittedText
+            ?? comboBox.SelectedItem as string
+            ?? comboBox.Text).Trim();
+
+        if (string.IsNullOrWhiteSpace(fontName))
+        {
+            _settings.Values.Remove(settingKey);
+            fontName = GetDefaultFontFamily(settingKey);
+            comboBox.Text = fontName;
+            previewTextBlock.FontFamily = new FontFamily(fontName);
+        }
+        else
+        {
+            _settings.Values[settingKey] = fontName;
+            previewTextBlock.FontFamily = new FontFamily(fontName);
+        }
+
+        if (_mainWindow is not null)
+            _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
+    }
+
+    private static void ApplyFontPreview(
+        ComboBox comboBox,
+        TextBlock previewTextBlock)
+    {
+        string fontName = (
+            comboBox.SelectedItem as string
+            ?? comboBox.Text).Trim();
+
+        if (string.IsNullOrWhiteSpace(fontName))
+        {
+            previewTextBlock.ClearValue(TextBlock.FontFamilyProperty);
+            return;
+        }
+
+        previewTextBlock.FontFamily = new FontFamily(fontName);
     }
 }

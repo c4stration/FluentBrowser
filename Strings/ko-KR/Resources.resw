@@ -648,4 +648,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>고정폭</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>이미지 정보</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>제작자</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>설명</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>촬영 날짜</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>라이선스 보기</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>라이선스</value>
+  </data>
 </root>

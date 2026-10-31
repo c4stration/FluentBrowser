@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using FluentBrowser.Shared;
 
 namespace FluentBrowser;
 
@@ -321,7 +322,7 @@ public sealed partial class MainWindow
             Encoding.UTF8.GetBytes(faviconUri));
 
         return Path.Combine(
-            _faviconCacheDirectory,
+            Paths.FaviconCache,
             $"{Convert.ToHexString(hash)}.png");
     }
 
@@ -352,7 +353,7 @@ public sealed partial class MainWindow
     {
         try
         {
-            var files = new DirectoryInfo(_faviconCacheDirectory)
+            var files = new DirectoryInfo(Paths.FaviconCache)
                 .EnumerateFiles("*.png")
                 .Select(file => new
                 {
@@ -497,10 +498,10 @@ public sealed partial class MainWindow
     }
 
     private string GetFaviconIndexPath() =>
-        Path.Combine(_faviconCacheDirectory, "hosts.msgpack");
+        Path.Combine(Paths.FaviconCache, "hosts.msgpack");
 
     private string GetLegacyFaviconIndexPath() =>
-        Path.Combine(_faviconCacheDirectory, "hosts.json");
+        Path.Combine(Paths.FaviconCache, "hosts.json");
 
     private static string GetFaviconHost(Uri uri) =>
         uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
@@ -517,10 +518,10 @@ public sealed partial class MainWindow
 
         try
         {
-            if (Directory.Exists(_faviconCacheDirectory))
+            if (Directory.Exists(Paths.FaviconCache))
             {
                 foreach (string file in Directory.EnumerateFiles(
-                    _faviconCacheDirectory,
+                    Paths.FaviconCache,
                     "*"))
                 {
                     try

@@ -666,4 +666,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>מונו־ספייס</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>ברירת מחדל</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>פרטי תמונה</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>יוצר</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>תיאור</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>תאריך הצילום</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>הצגת הרישיון</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>רישיון</value>
+  </data>
 </root>

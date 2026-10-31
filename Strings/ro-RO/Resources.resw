@@ -648,4 +648,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>Monospațiat</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>Implicit</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>Informații despre imagine</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>Creator</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>Descriere</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>Data fotografierii</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>Vezi licența</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>Licență</value>
+  </data>
 </root>

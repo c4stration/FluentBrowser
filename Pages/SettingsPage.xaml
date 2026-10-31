@@ -81,39 +81,62 @@
                         <controls:SettingsExpander.Items>
                             <controls:SettingsCard l:Uids.Uid="FontType_Standard">
                                 <controls:SettingsCard.Description>
-                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                    <TextBlock
+                                        x:Name="StandardFontPreviewTextBlock"
+                                        FontSize="14"
+                                        Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                
-                                <ComboBox>
-                                </ComboBox>
+                                <ComboBox
+                                    x:Name="StandardFontComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="StandardFontComboBox_SelectionChanged"
+                                    TextSubmitted="StandardFontComboBox_TextSubmitted" />
                             </controls:SettingsCard>
+
                             <controls:SettingsCard l:Uids.Uid="FontType_Serif">
                                 <controls:SettingsCard.Description>
-                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                    <TextBlock
+                                        x:Name="SerifFontPreviewTextBlock"
+                                        FontSize="14"
+                                        Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                
-                                <ComboBox>
-                                </ComboBox>
+                                <ComboBox
+                                    x:Name="SerifFontComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="SerifFontComboBox_SelectionChanged"
+                                    TextSubmitted="SerifFontComboBox_TextSubmitted" />
                             </controls:SettingsCard>
+
                             <controls:SettingsCard l:Uids.Uid="FontType_SansSerif">
                                 <controls:SettingsCard.Description>
-                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                    <TextBlock
+                                        x:Name="SansSerifFontPreviewTextBlock"
+                                        FontSize="14"
+                                        Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-
-                                <ComboBox>
-                                </ComboBox>
+                                <ComboBox
+                                    x:Name="SansSerifFontComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="SansSerifFontComboBox_SelectionChanged"
+                                    TextSubmitted="SansSerifFontComboBox_TextSubmitted" />
                             </controls:SettingsCard>
+
                             <controls:SettingsCard l:Uids.Uid="FontType_Monospace">
                                 <controls:SettingsCard.Description>
-                                    <TextBlock Text="The quick brown fox jumps over the lazy dog." />
+                                    <TextBlock
+                                        x:Name="MonospaceFontPreviewTextBlock"
+                                        FontSize="14"
+                                        Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-
-                                <ComboBox>
-                                </ComboBox>
+                                <ComboBox
+                                    x:Name="MonospaceFontComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="MonospaceFontComboBox_SelectionChanged"
+                                    TextSubmitted="MonospaceFontComboBox_TextSubmitted" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
                     </controls:SettingsExpander>
-                    
+
                     <!--  Language  -->
                     <TextBlock
                         Margin="0,29,0,8"

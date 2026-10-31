@@ -1,4 +1,5 @@
 using FluentBrowser.Pages;
+using FluentBrowser.Shared;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -22,10 +23,6 @@ public sealed partial class MainWindow : Window
 
     private readonly HashSet<WebView2> _loadingWebViews = new();
     private readonly Dictionary<TabViewItem, BrowserTab> _browserTabs = new();
-
-    private readonly string _faviconCacheDirectory = Path.Combine(
-        ApplicationData.Current.LocalFolder.Path,
-        "Favicons");
 
     private BrowserTab? SelectedTab =>
         MainTabView.SelectedItem is TabViewItem tab &&
@@ -101,7 +98,7 @@ public sealed partial class MainWindow : Window
             new KeyEventHandler(FindOnPageBox_KeyDownHandled),
             true);
 
-        Directory.CreateDirectory(_faviconCacheDirectory);
+        Directory.CreateDirectory(Paths.FaviconCache);
         TrimFaviconDiskCache();
 
         ExtendsContentIntoTitleBar = true;

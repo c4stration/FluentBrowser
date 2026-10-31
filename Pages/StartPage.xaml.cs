@@ -1,4 +1,5 @@
 ﻿using FluentBrowser.Shared;
+using MessagePack;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -34,15 +35,32 @@ public sealed partial class StartPage : Page
     private const string LegacySpotlightMode = "Spotlight";
     private const string NoneMode = "None";
     private const int MaximumRecentBackgrounds = 12;
-    private static readonly HttpClient RandomBackgroundHttpClient = new();
+    private const int RandomBackgroundBatchSize = 10;
+    private const int RandomBackgroundRefillThreshold = 3;
+    private const int MaximumRandomBackgroundCacheEntries = 40;
+    private static readonly string CommonsApiUrl =
+        "https://commons.wikimedia.org/w/api.php?action=query" +
+        $"&generator=random&grnnamespace=6&grnlimit={RandomBackgroundBatchSize}" +
+        "&prop=imageinfo&iiprop=url%7Cextmetadata&iiurlwidth=1920" +
+        "&format=json&formatversion=2&origin=*&maxage=0&smaxage=0";
+
+    private static readonly HttpClient RandomBackgroundHttpClient =
+        CreateRandomBackgroundHttpClient();
+    private static readonly object CommonsCooldownLock = new();
+    private static readonly object RandomBackgroundCacheLock = new();
+    private static DateTimeOffset _commonsRetryAfterUtc = DateTimeOffset.MinValue;
+
     private bool _isRefreshingRecentBackgrounds;
     private CancellationTokenSource? _randomBackgroundLoadCancellation;
     private int _randomBackgroundRequestId;
-
-    private readonly string _backgroundsDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "FluentBrowser",
-        "Backgrounds");
+    private readonly SemaphoreSlim _randomBackgroundQueueLock = new(1, 1);
+    private readonly SemaphoreSlim _randomBackgroundDownloadLimiter = new(2, 2);
+    private readonly object _randomBackgroundDownloadsLock = new();
+    private readonly Dictionary<string, Task<bool>> _randomBackgroundDownloads =
+        new(StringComparer.Ordinal);
+    private readonly List<RandomBackgroundEntry> _randomBackgroundQueue = [];
+    private readonly Dictionary<string, RandomBackgroundEntry>
+        _randomBackgroundEntries = new(StringComparer.Ordinal);
 
     private bool _isUpdatingMode;
     private BackgroundSettings _settings = new();
@@ -59,6 +77,7 @@ public sealed partial class StartPage : Page
         Unloaded += StartPage_Unloaded;
 
         LoadBackgroundSettings();
+        LoadRandomBackgroundCache();
         RefreshRecentBackgrounds();
         SynchronizeModeControls();
         UpdateBackgroundModeCards();
@@ -88,7 +107,31 @@ public sealed partial class StartPage : Page
         SetRandomBackgroundDescription();
     }
 
-    private string SettingsFilePath => Path.Combine(_backgroundsDirectory, "settings.json");
+    private string SettingsFilePath => Path.Combine(Paths.CustomBackgrounds, "settings.msgpack");
+    private string LegacySettingsFilePath => Path.Combine(Paths.CustomBackgrounds, "settings.json");
+    private string RandomBackgroundMetadataPath => Path.Combine(
+        Paths.RandomBackgrounds,
+        "commons-backgrounds.msgpack");
+
+    private static string? GetBackgroundFileName(string? path)
+    {
+        return string.IsNullOrWhiteSpace(path)
+            ? null
+            : Path.GetFileName(path);
+    }
+
+    private static string? ResolveBackgroundPath(string? fileName)
+    {
+        return string.IsNullOrWhiteSpace(fileName)
+            ? null
+            : Path.Combine(Paths.CustomBackgrounds, Path.GetFileName(fileName));
+    }
+
+    private static bool HasDirectory(string? path)
+    {
+        return !string.IsNullOrWhiteSpace(path) &&
+               !string.Equals(path, Path.GetFileName(path), StringComparison.Ordinal);
+    }
 
     private void RecentBackgroundsItemsView_SelectionChanged(
         ItemsView sender,
@@ -217,14 +260,14 @@ public sealed partial class StartPage : Page
                 return;
             }
 
-            Directory.CreateDirectory(_backgroundsDirectory);
+            Directory.CreateDirectory(Paths.CustomBackgrounds);
 
             var destinationPath = FindExistingBackground(pickedFile.Path);
 
             if (destinationPath is null)
             {
                 destinationPath = Path.Combine(
-                    _backgroundsDirectory,
+                    Paths.CustomBackgrounds,
                     $"{Guid.NewGuid():N}{extension}");
 
                 File.Copy(pickedFile.Path, destinationPath);
@@ -401,10 +444,10 @@ public sealed partial class StartPage : Page
         var hyperlink = new Hyperlink
         {
             UnderlineStyle = UnderlineStyle.None,
-            NavigateUri = new Uri("https://picsum.photos/")
+            NavigateUri = new Uri("https://commons.wikimedia.org/")
         };
 
-        hyperlink.Inlines.Add(new Run { Text = "Lorem Picsum" });
+        hyperlink.Inlines.Add(new Run { Text = "Wikimedia Commons" });
         RandomBackgroundDescription.Inlines.Add(hyperlink);
 
         RandomBackgroundDescription.Inlines.Add(
@@ -463,8 +506,13 @@ public sealed partial class StartPage : Page
     private void ApplyCurrentBackground()
     {
         _randomBackgroundLoadCancellation?.Cancel();
+        _randomBackgroundLoadCancellation = null;
         var requestId = ++_randomBackgroundRequestId;
-        SetSettingsIconToThemeForeground();
+        SetIconToThemeForeground();
+        SetImageMetadata(null, null, null);
+        InfoButton.Visibility = _settings.Mode == RandomMode
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         if (_settings.Mode == NoneMode)
         {
@@ -474,7 +522,6 @@ public sealed partial class StartPage : Page
 
         if (_settings.Mode == RandomMode)
         {
-            RootGrid.Background = null;
             var cancellation = new CancellationTokenSource();
             _randomBackgroundLoadCancellation = cancellation;
             _ = ApplyRandomBackgroundAsync(requestId, cancellation);
@@ -498,67 +545,893 @@ public sealed partial class StartPage : Page
     {
         try
         {
-            var imageUri = new Uri(
-                $"https://picsum.photos/1920/1080?random={Guid.NewGuid():N}");
+            Debug.WriteLine("Loading a local-first Wikimedia Commons random background.");
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, imageUri);
-            request.Headers.CacheControl = new CacheControlHeaderValue
+            RandomBackgroundEntry? entry =
+                await GetNextRandomBackgroundAsync(cancellation.Token);
+
+            if (entry is null)
             {
-                NoCache = true,
-                NoStore = true
+                Debug.WriteLine("No cached Wikimedia Commons background is available yet.");
+                return;
+            }
+
+            (BitmapImage Image, byte[] Bytes)? preparedImage =
+                await LoadCachedRandomBackgroundAsync(entry, cancellation.Token);
+
+            if (preparedImage is null)
+            {
+                _randomBackgroundEntries.Remove(entry.Id);
+                RemoveQueuedRandomBackground(entry.Id);
+                SaveRandomBackgroundCache();
+
+                if (requestId == _randomBackgroundRequestId &&
+                    _settings.Mode == RandomMode &&
+                    !cancellation.IsCancellationRequested)
+                {
+                    _ = ApplyRandomBackgroundAsync(requestId, cancellation);
+                }
+
+                return;
+            }
+
+            if (requestId != _randomBackgroundRequestId || _settings.Mode != RandomMode)
+                return;
+
+            entry.LastShownUtcTicks = DateTimeOffset.UtcNow.Ticks;
+
+            RootGrid.Background = new ImageBrush
+            {
+                ImageSource = preparedImage.Value.Image,
+                Stretch = Stretch.UniformToFill
             };
-            request.Headers.Pragma.ParseAdd("no-cache");
 
-            using var response = await RandomBackgroundHttpClient.SendAsync(
-                request,
+            SetImageMetadata(
+                entry.Artist,
+                entry.Description,
+                entry.Name,
+                entry.DateTaken,
+                entry.LicenseShortName,
+                entry.LicenseUrl);
+            RemoveQueuedRandomBackground(entry.Id);
+            SaveRandomBackgroundCache();
+
+            Debug.WriteLine($"Displayed Wikimedia Commons background: {entry.Title}");
+
+            _ = RefillRandomBackgroundQueueAsync();
+            _ = UpdateIconForegroundAsync(preparedImage.Value.Bytes, requestId);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            if (requestId == _randomBackgroundRequestId && _settings.Mode == RandomMode)
+                Debug.WriteLine($"Failed to load a random background: {ex}");
+        }
+    }
+
+    private static HttpClient CreateRandomBackgroundHttpClient()
+    {
+        var client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "FluentBrowser/1.0 (https://github.com/c4stration/FluentBrowser/issues)");
+
+        return client;
+    }
+
+    private async Task<RandomBackgroundEntry?> GetNextRandomBackgroundAsync(
+        CancellationToken cancellationToken)
+    {
+        await RefillRandomBackgroundQueueAsync(cancellationToken);
+        await _randomBackgroundQueueLock.WaitAsync(cancellationToken);
+
+        try
+        {
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                RandomBackgroundEntry? unseenLocalEntry = GetNextUnshownLocalBackground();
+
+                if (unseenLocalEntry is not null)
+                {
+                    StartNextRandomBackgroundPrefetch(unseenLocalEntry);
+                    return unseenLocalEntry;
+                }
+
+                if (_randomBackgroundQueue.Count > 0)
+                {
+                    RandomBackgroundEntry candidate = _randomBackgroundQueue[0];
+
+                    if (IsCommonsCooldownActive())
+                        break;
+
+                    bool downloaded = await EnsureRandomBackgroundDownloadedAsync(
+                        candidate,
+                        CancellationToken.None).WaitAsync(cancellationToken);
+
+                    if (downloaded)
+                    {
+                        StartNextRandomBackgroundPrefetch(candidate);
+                        return candidate;
+                    }
+
+                    // A rate limit or temporary server failure should preserve
+                    // the candidate so it can be retried after the cooldown.
+                    if (IsCommonsCooldownActive())
+                        break;
+
+                    // Permanent failures, such as a missing thumbnail, should
+                    // not block the remaining candidates in this batch.
+                    RemoveQueuedRandomBackground(candidate.Id);
+                    _randomBackgroundEntries.Remove(candidate.Id);
+                    SaveRandomBackgroundCache();
+                    continue;
+                }
+
+                break;
+            }
+
+            // Wikimedia is unavailable or the current batch has been exhausted.
+            // Reuse the least-recently-shown local image instead of making
+            // repeated requests or leaving the background empty.
+            return GetLeastRecentlyShownLocalBackground();
+        }
+        finally
+        {
+            _randomBackgroundQueueLock.Release();
+        }
+    }
+
+    private async Task RefillRandomBackgroundQueueAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await _randomBackgroundQueueLock.WaitAsync(cancellationToken);
+
+        try
+        {
+            if (_randomBackgroundQueue.Count > RandomBackgroundRefillThreshold ||
+                IsCommonsCooldownActive())
+            {
+                return;
+            }
+
+            List<RandomBackgroundEntry> batch =
+                await RequestRandomBackgroundBatchAsync(cancellationToken);
+
+            if (batch.Count == 0)
+                return;
+
+            foreach (RandomBackgroundEntry entry in batch)
+            {
+                if (_randomBackgroundEntries.TryAdd(entry.Id, entry))
+                    _randomBackgroundQueue.Add(entry);
+            }
+
+            SaveRandomBackgroundCache();
+            StartRandomBackgroundPrefetches();
+        }
+        finally
+        {
+            _randomBackgroundQueueLock.Release();
+        }
+    }
+
+    private RandomBackgroundEntry? GetNextUnshownLocalBackground()
+    {
+        return _randomBackgroundEntries.Values
+            .Where(entry =>
+                entry.LastShownUtcTicks == 0 &&
+                File.Exists(GetRandomBackgroundFilePath(entry)))
+            .OrderBy(entry => entry.DownloadedUtcTicks)
+            .ThenBy(entry => entry.Id, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
+    private RandomBackgroundEntry? GetLeastRecentlyShownLocalBackground()
+    {
+        return _randomBackgroundEntries.Values
+            .Where(entry =>
+                entry.LastShownUtcTicks > 0 &&
+                File.Exists(GetRandomBackgroundFilePath(entry)))
+            .OrderBy(entry => entry.LastShownUtcTicks)
+            .ThenBy(entry => entry.DownloadedUtcTicks)
+            .FirstOrDefault();
+    }
+
+    private void StartNextRandomBackgroundPrefetch(RandomBackgroundEntry currentEntry)
+    {
+        // If another downloaded, unseen image is already waiting, leave it alone.
+        bool anotherUnshownImageIsReady = _randomBackgroundEntries.Values.Any(entry =>
+            entry.Id != currentEntry.Id &&
+            entry.LastShownUtcTicks == 0 &&
+            File.Exists(GetRandomBackgroundFilePath(entry)));
+
+        if (anotherUnshownImageIsReady || IsCommonsCooldownActive())
+            return;
+
+        RandomBackgroundEntry? nextEntry = _randomBackgroundQueue.FirstOrDefault(entry =>
+            entry.Id != currentEntry.Id &&
+            !File.Exists(GetRandomBackgroundFilePath(entry)));
+
+        if (nextEntry is not null)
+        {
+            // Prefetch is intentionally independent of the current display
+            // cancellation token. Switching backgrounds must not cancel a
+            // useful download that is already in progress.
+            _ = EnsureRandomBackgroundDownloadedAsync(
+                nextEntry,
+                CancellationToken.None);
+        }
+    }
+
+    private void StartRandomBackgroundPrefetches()
+    {
+        // Keep the next one or two queued backgrounds ready without allowing
+        // a burst of downloads when a new batch arrives.
+        foreach (RandomBackgroundEntry entry in _randomBackgroundQueue
+                     .Where(entry => !File.Exists(GetRandomBackgroundFilePath(entry)))
+                     .Take(2))
+        {
+            _ = EnsureRandomBackgroundDownloadedAsync(entry, CancellationToken.None);
+        }
+    }
+
+    private async Task<List<RandomBackgroundEntry>>
+        RequestRandomBackgroundBatchAsync(CancellationToken cancellationToken)
+    {
+        if (IsCommonsCooldownActive())
+            return [];
+
+        // generator=random is cacheable at intermediary proxies. A unique
+        // request id, plus explicit no-cache headers, makes every refill an
+        // actual random-generator request instead of repeatedly parsing the
+        // same ten page IDs and rejecting them as already known.
+        const int maximumAttempts = 3;
+
+        for (int attempt = 1; attempt <= maximumAttempts; attempt++)
+        {
+            try
+            {
+                string requestUri = $"{CommonsApiUrl}&requestid={Guid.NewGuid():N}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+                request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                request.Headers.Pragma.ParseAdd("no-cache");
+                using HttpResponseMessage response = await RandomBackgroundHttpClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead,
+                    cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    SetCommonsCooldown(response, GetDefaultCommonsCooldown(response.StatusCode));
+                    SaveRandomBackgroundCache();
+                    Debug.WriteLine(
+                        $"Wikimedia Commons batch request was rejected: " +
+                        $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}. " +
+                        $"Retry after {_commonsRetryAfterUtc:O}.");
+                    return [];
+                }
+
+                await using Stream stream = await response.Content
+                    .ReadAsStreamAsync(cancellationToken);
+
+                using JsonDocument document = await JsonDocument.ParseAsync(
+                    stream,
+                    cancellationToken: cancellationToken);
+
+                List<RandomBackgroundEntry> batch =
+                    ParseRandomBackgroundBatch(document.RootElement);
+
+                Debug.WriteLine(
+                    $"Received {batch.Count} new Wikimedia Commons background candidate(s) " +
+                    $"from batch request {attempt}.");
+
+                if (batch.Count > 0 || attempt == maximumAttempts)
+                    return batch;
+
+                // A valid random batch can contain only unsupported media or
+                // entries already persisted locally. Ask for a fresh batch.
+                await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (OperationCanceledException ex)
+            {
+                SetCommonsCooldown(TimeSpan.FromSeconds(30));
+                SaveRandomBackgroundCache();
+                Debug.WriteLine($"Wikimedia Commons batch request timed out: {ex}");
+                return [];
+            }
+            catch (HttpRequestException ex)
+            {
+                SetCommonsCooldown(TimeSpan.FromSeconds(30));
+                SaveRandomBackgroundCache();
+                Debug.WriteLine($"Wikimedia Commons batch request failed: {ex}");
+                return [];
+            }
+            catch (Exception ex)
+            {
+                SetCommonsCooldown(TimeSpan.FromSeconds(30));
+                SaveRandomBackgroundCache();
+                Debug.WriteLine($"Wikimedia Commons batch request failed: {ex}");
+                return [];
+            }
+        }
+
+        return [];
+    }
+
+    private static bool IsCommonsCooldownActive()
+    {
+        lock (CommonsCooldownLock)
+            return DateTimeOffset.UtcNow < _commonsRetryAfterUtc;
+    }
+
+    private static long GetCommonsRetryAfterUtcTicks()
+    {
+        lock (CommonsCooldownLock)
+            return _commonsRetryAfterUtc.UtcDateTime.Ticks;
+    }
+
+    private static void SetCommonsCooldown(HttpResponseMessage response, TimeSpan fallback)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        TimeSpan delay = fallback;
+
+        if (response.Headers.RetryAfter?.Delta is TimeSpan retryDelay &&
+            retryDelay > TimeSpan.Zero)
+        {
+            delay = retryDelay;
+        }
+        else if (response.Headers.RetryAfter?.Date is DateTimeOffset retryDate &&
+                 retryDate > now)
+        {
+            delay = retryDate - now;
+        }
+
+        SetCommonsCooldown(delay);
+    }
+
+    private static void SetCommonsCooldown(TimeSpan delay)
+    {
+        if (delay < TimeSpan.FromSeconds(1))
+            delay = TimeSpan.FromSeconds(1);
+        else if (delay > TimeSpan.FromDays(30))
+            delay = TimeSpan.FromDays(30);
+
+        DateTimeOffset retryAfter = DateTimeOffset.UtcNow.Add(delay);
+
+        lock (CommonsCooldownLock)
+        {
+            if (retryAfter > _commonsRetryAfterUtc)
+                _commonsRetryAfterUtc = retryAfter;
+        }
+    }
+
+    private static TimeSpan GetDefaultCommonsCooldown(System.Net.HttpStatusCode statusCode)
+    {
+        return statusCode switch
+        {
+            System.Net.HttpStatusCode.TooManyRequests => TimeSpan.FromMinutes(5),
+            System.Net.HttpStatusCode.ServiceUnavailable => TimeSpan.FromMinutes(1),
+            System.Net.HttpStatusCode.Forbidden => TimeSpan.FromMinutes(5),
+            _ when (int)statusCode >= 500 => TimeSpan.FromSeconds(30),
+            _ => TimeSpan.FromSeconds(15)
+        };
+    }
+
+    private List<RandomBackgroundEntry> ParseRandomBackgroundBatch(
+        JsonElement root)
+    {
+        var entries = new List<RandomBackgroundEntry>();
+
+        if (!root.TryGetProperty("query", out JsonElement query) ||
+            !query.TryGetProperty("pages", out JsonElement pages) ||
+            pages.ValueKind != JsonValueKind.Array)
+        {
+            return entries;
+        }
+
+        foreach (JsonElement page in pages.EnumerateArray())
+        {
+            if (!page.TryGetProperty("pageid", out JsonElement pageIdElement) ||
+                !pageIdElement.TryGetInt64(out long pageId) ||
+                !page.TryGetProperty("title", out JsonElement titleElement) ||
+                string.IsNullOrWhiteSpace(titleElement.GetString()) ||
+                !page.TryGetProperty("imageinfo", out JsonElement imageInfo) ||
+                imageInfo.ValueKind != JsonValueKind.Array ||
+                imageInfo.GetArrayLength() == 0)
+            {
+                continue;
+            }
+
+            JsonElement info = imageInfo[0];
+
+            if (!info.TryGetProperty("thumburl", out JsonElement thumbnailElement) ||
+                string.IsNullOrWhiteSpace(thumbnailElement.GetString()))
+            {
+                continue;
+            }
+
+            string id = pageId.ToString();
+
+            if (_randomBackgroundEntries.ContainsKey(id))
+                continue;
+
+            string title = titleElement.GetString()!;
+
+            if (!IsSupportedRandomBackgroundImage(title))
+                continue;
+
+            JsonElement metadata = info.TryGetProperty(
+                    "extmetadata",
+                    out JsonElement metadataElement)
+                ? metadataElement
+                : default;
+
+            entries.Add(new RandomBackgroundEntry
+            {
+                Id = id,
+                Name = GetCommonsMetadataValue(metadata, "ObjectName"),
+                ThumbnailUrl = thumbnailElement.GetString()!,
+                Title = title,
+                DescriptionUrl = $"https://commons.wikimedia.org/?curid={id}",
+                LicenseShortName = GetCommonsMetadataValue(
+                    metadata,
+                    "LicenseShortName"),
+                LicenseUrl = GetCommonsMetadataValue(metadata, "LicenseUrl"),
+                UsageTerms = GetCommonsMetadataValue(metadata, "UsageTerms"),
+                Artist = GetCommonsMetadataValue(metadata, "Artist"),
+                Credit = GetCommonsMetadataValue(metadata, "Credit"),
+                Description = GetCommonsMetadataValue(metadata, "ImageDescription"),
+                DateTaken = GetCommonsMetadataValue(metadata, "DateTimeOriginal")
+            });
+        }
+
+        return entries;
+    }
+
+    private void SetImageMetadata(
+        string? creator,
+        string? description,
+        string? name,
+        string? dateTaken = null,
+        string? licenseShortName = null,
+        string? licenseUrl = null)
+    {
+        static string CleanMetadata(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            string cleaned = System.Net.WebUtility.HtmlDecode(
+                System.Text.RegularExpressions.Regex.Replace(
+                    value,
+                    "<[^>]*>",
+                    " "));
+
+            return System.Text.RegularExpressions.Regex.Replace(
+                cleaned,
+                @"\s+",
+                " ").Trim();
+        }
+
+        string creatorText = CleanMetadata(creator);
+        string descriptionText = CleanMetadata(description);
+
+        if (string.IsNullOrWhiteSpace(descriptionText))
+            descriptionText = CleanMetadata(name);
+
+        CreatorTextBlock.Text = creatorText;
+        CreatorField.Visibility = string.IsNullOrWhiteSpace(creatorText)
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+        DescriptionTextBlock.Text = descriptionText;
+        DescriptionField.Visibility = string.IsNullOrWhiteSpace(descriptionText)
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+        string cleanedDate = CleanMetadata(dateTaken);
+
+        string dateText = Helpers.FormatDate(cleanedDate) ?? string.Empty;
+
+        DateTextBlock.Text = dateText;
+        DateField.Visibility = string.IsNullOrWhiteSpace(dateText)
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+        string licenseText = CleanMetadata(licenseShortName);
+        bool hasLicenseUrl = Uri.TryCreate(
+            licenseUrl,
+            UriKind.Absolute,
+            out Uri? licenseUri) &&
+            (licenseUri.Scheme == Uri.UriSchemeHttp ||
+             licenseUri.Scheme == Uri.UriSchemeHttps);
+
+        LicenseRun.Text = licenseText;
+        LicenseLink.NavigateUri = hasLicenseUrl ? licenseUri : null;
+        LicenseField.Visibility = !string.IsNullOrWhiteSpace(licenseText) && hasLicenseUrl
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private static string? GetCommonsMetadataValue(
+        JsonElement metadata,
+        string name)
+    {
+        if (metadata.ValueKind != JsonValueKind.Object ||
+            !metadata.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind != JsonValueKind.Object ||
+            !value.TryGetProperty("value", out JsonElement text))
+        {
+            return null;
+        }
+
+        return text.GetString();
+    }
+
+    private static bool IsSupportedRandomBackgroundImage(string title)
+    {
+        string extension = Path.GetExtension(title);
+
+        return extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".webp", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private Task<bool> EnsureRandomBackgroundDownloadedAsync(
+        RandomBackgroundEntry entry,
+        CancellationToken cancellationToken)
+    {
+        if (File.Exists(GetRandomBackgroundFilePath(entry)))
+            return Task.FromResult(true);
+
+        lock (_randomBackgroundDownloadsLock)
+        {
+            if (_randomBackgroundDownloads.TryGetValue(
+                    entry.Id,
+                    out Task<bool>? existingDownload))
+            {
+                return existingDownload;
+            }
+
+            Task<bool> download = DownloadRandomBackgroundAsync(
+                entry,
+                cancellationToken);
+
+            _randomBackgroundDownloads[entry.Id] = download;
+            return AwaitAndRemoveRandomBackgroundDownloadAsync(entry.Id, download);
+        }
+    }
+
+    private async Task<bool> AwaitAndRemoveRandomBackgroundDownloadAsync(
+        string id,
+        Task<bool> download)
+    {
+        try
+        {
+            return await download;
+        }
+        finally
+        {
+            lock (_randomBackgroundDownloadsLock)
+            {
+                if (_randomBackgroundDownloads.TryGetValue(id, out Task<bool>? current) &&
+                    ReferenceEquals(current, download))
+                {
+                    _randomBackgroundDownloads.Remove(id);
+                }
+            }
+        }
+    }
+
+    private async Task<bool> DownloadRandomBackgroundAsync(
+        RandomBackgroundEntry entry,
+        CancellationToken cancellationToken)
+    {
+        if (IsCommonsCooldownActive())
+            return false;
+
+        bool limiterAcquired = false;
+        string? temporaryPath = null;
+
+        try
+        {
+            await _randomBackgroundDownloadLimiter.WaitAsync(cancellationToken);
+            limiterAcquired = true;
+
+            // Another request may have triggered a cooldown while this download
+            // was waiting for the single-download limiter.
+            if (IsCommonsCooldownActive())
+                return false;
+
+            using var response = await RandomBackgroundHttpClient.GetAsync(
+                entry.ThumbnailUrl,
                 HttpCompletionOption.ResponseHeadersRead,
-                cancellation.Token);
-            response.EnsureSuccessStatusCode();
+                cancellationToken);
 
-            var imageBytes = await response.Content.ReadAsByteArrayAsync(cancellation.Token);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests ||
+                    response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                    (int)response.StatusCode >= 500)
+                {
+                    SetCommonsCooldown(
+                        response,
+                        GetDefaultCommonsCooldown(response.StatusCode));
+                    SaveRandomBackgroundCache();
+                }
+
+                Debug.WriteLine(
+                    $"Wikimedia Commons thumbnail request for '{entry.Title}' " +
+                    $"failed: HTTP {(int)response.StatusCode} {response.ReasonPhrase}.");
+                return false;
+            }
+
+            byte[] imageBytes = await response.Content
+                .ReadAsByteArrayAsync(cancellationToken);
+
+            string targetPath = GetRandomBackgroundFilePath(entry);
+            temporaryPath = targetPath + $".{Guid.NewGuid():N}.tmp";
+
+            Directory.CreateDirectory(Paths.RandomBackgrounds);
+            await File.WriteAllBytesAsync(
+                temporaryPath,
+                imageBytes,
+                cancellationToken);
+            File.Move(temporaryPath, targetPath, overwrite: true);
+            temporaryPath = null;
+
+            entry.DownloadedUtcTicks = DateTimeOffset.UtcNow.Ticks;
+            SaveRandomBackgroundCache();
+
+            Debug.WriteLine($"Downloaded Wikimedia Commons background: {entry.Title}");
+            return true;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (OperationCanceledException ex)
+        {
+            SetCommonsCooldown(TimeSpan.FromSeconds(30));
+            SaveRandomBackgroundCache();
+            Debug.WriteLine(
+                $"Wikimedia Commons download for '{entry.Title}' timed out: {ex}");
+            return false;
+        }
+        catch (HttpRequestException ex)
+        {
+            SetCommonsCooldown(TimeSpan.FromSeconds(30));
+            SaveRandomBackgroundCache();
+            Debug.WriteLine(
+                $"Wikimedia Commons download for '{entry.Title}' failed: {ex}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Wikimedia Commons download for '{entry.Title}' failed: {ex}");
+            return false;
+        }
+        finally
+        {
+            if (temporaryPath is not null)
+            {
+                try
+                {
+                    if (File.Exists(temporaryPath))
+                        File.Delete(temporaryPath);
+                }
+                catch { }
+            }
+
+            if (limiterAcquired)
+                _randomBackgroundDownloadLimiter.Release();
+        }
+    }
+
+    private async Task<(BitmapImage Image, byte[] Bytes)?>
+        LoadCachedRandomBackgroundAsync(
+            RandomBackgroundEntry entry,
+            CancellationToken cancellationToken)
+    {
+        string path = GetRandomBackgroundFilePath(entry);
+
+        try
+        {
+            byte[] bytes = await File.ReadAllBytesAsync(path, cancellationToken);
 
             using var stream = new InMemoryRandomAccessStream();
             using (var writer = new DataWriter(stream))
             {
-                writer.WriteBytes(imageBytes);
+                writer.WriteBytes(bytes);
                 await writer.StoreAsync();
                 await writer.FlushAsync();
                 writer.DetachStream();
             }
 
             stream.Seek(0);
-            var image = new BitmapImage();
+            var image = new BitmapImage { DecodePixelWidth = 1920 };
             await image.SetSourceAsync(stream);
 
-            if (requestId != _randomBackgroundRequestId || _settings.Mode != RandomMode)
+            return (image, bytes);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"Cached Wikimedia Commons image '{entry.Title}' is invalid: {ex.Message}");
+
+            try
             {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch { }
+
+            return null;
+        }
+    }
+
+    private string GetRandomBackgroundFilePath(RandomBackgroundEntry entry)
+    {
+        string extension = Path.GetExtension(entry.Title);
+
+        if (string.IsNullOrWhiteSpace(extension))
+            extension = ".jpg";
+
+        return Path.Combine(Paths.RandomBackgrounds, entry.Id + extension);
+    }
+
+    private void RemoveQueuedRandomBackground(string id)
+    {
+        _randomBackgroundQueue.RemoveAll(entry => entry.Id == id);
+        SaveRandomBackgroundCache();
+    }
+
+    private void LoadRandomBackgroundCache()
+    {
+        try
+        {
+            if (!File.Exists(RandomBackgroundMetadataPath))
                 return;
+
+            var data = MessagePackSerializer.Deserialize<RandomBackgroundCacheData>(
+                File.ReadAllBytes(RandomBackgroundMetadataPath),
+                MessagePackData.Options);
+
+            if (data is null)
+                return;
+
+            if (data.CommonsRetryAfterUtcTicks > 0)
+            {
+                var cachedRetryAfter = new DateTimeOffset(
+                    data.CommonsRetryAfterUtcTicks,
+                    TimeSpan.Zero);
+
+                lock (CommonsCooldownLock)
+                {
+                    if (cachedRetryAfter > _commonsRetryAfterUtc)
+                        _commonsRetryAfterUtc = cachedRetryAfter;
+                }
             }
 
-            RootGrid.Background = new ImageBrush
+            foreach (RandomBackgroundEntryData item in data.Entries ?? [])
             {
-                ImageSource = image,
-                Stretch = Stretch.UniformToFill
-            };
+                if (string.IsNullOrWhiteSpace(item.Id) ||
+                    string.IsNullOrWhiteSpace(item.ThumbnailUrl) ||
+                    string.IsNullOrWhiteSpace(item.Title))
+                {
+                    continue;
+                }
 
-            _ = UpdateSettingsIconForegroundAsync(imageBytes, requestId);
+                _randomBackgroundEntries[item.Id] =
+                    RandomBackgroundEntry.FromData(item);
+            }
+
+            foreach (string id in data.QueuedEntryIds ?? [])
+            {
+                if (_randomBackgroundEntries.TryGetValue(
+                        id,
+                        out RandomBackgroundEntry? entry))
+                {
+                    if (!_randomBackgroundQueue.Any(queued => queued.Id == entry.Id))
+                        _randomBackgroundQueue.Add(entry);
+                }
+            }
+
+            Debug.WriteLine(
+                $"Restored {_randomBackgroundQueue.Count} queued Wikimedia " +
+                $"Commons background(s) from cache.");
         }
-        catch (OperationCanceledException) { }
-        catch
+        catch (Exception ex)
         {
-            if (requestId == _randomBackgroundRequestId && _settings.Mode == RandomMode)
+            Debug.WriteLine(
+                $"Failed to restore Wikimedia Commons background cache: {ex}");
+            _randomBackgroundEntries.Clear();
+            _randomBackgroundQueue.Clear();
+        }
+    }
+
+    private void SaveRandomBackgroundCache()
+    {
+        lock (RandomBackgroundCacheLock)
+        {
+            try
             {
-                Debug.WriteLine("failed to load random image");
+                Directory.CreateDirectory(Paths.RandomBackgrounds);
+                TrimRandomBackgroundCache();
+
+                var data = new RandomBackgroundCacheData
+                {
+                    Entries = _randomBackgroundEntries.Values
+                        .Select(RandomBackgroundEntryData.FromEntry)
+                        .ToList(),
+                    QueuedEntryIds = _randomBackgroundQueue
+                        .Select(entry => entry.Id)
+                        .ToList(),
+                    CommonsRetryAfterUtcTicks = GetCommonsRetryAfterUtcTicks()
+                };
+
+                string temporaryPath = RandomBackgroundMetadataPath + ".tmp";
+
+                File.WriteAllBytes(
+                    temporaryPath,
+                    MessagePackSerializer.Serialize(data, MessagePackData.Options));
+                File.Move(
+                    temporaryPath,
+                    RandomBackgroundMetadataPath,
+                    overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"Failed to save Wikimedia Commons background cache: {ex}");
             }
         }
-        finally
-        {
-            if (ReferenceEquals(_randomBackgroundLoadCancellation, cancellation))
-            {
-                _randomBackgroundLoadCancellation = null;
-            }
+    }
 
-            cancellation.Dispose();
+    private void TrimRandomBackgroundCache()
+    {
+        var queuedIds = _randomBackgroundQueue
+            .Select(entry => entry.Id)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (RandomBackgroundEntry entry in _randomBackgroundEntries.Values
+                     .Where(entry => !queuedIds.Contains(entry.Id))
+                     .OrderBy(entry => entry.LastShownUtcTicks == 0
+                         ? long.MaxValue
+                         : entry.LastShownUtcTicks)
+                     .ThenBy(entry => entry.DownloadedUtcTicks)
+                     .Take(Math.Max(
+                         0,
+                         _randomBackgroundEntries.Count -
+                             MaximumRandomBackgroundCacheEntries))
+                     .ToList())
+        {
+            _randomBackgroundEntries.Remove(entry.Id);
+
+            try
+            {
+                string path = GetRandomBackgroundFilePath(entry);
+
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch { }
         }
     }
 
@@ -593,32 +1466,32 @@ public sealed partial class StartPage : Page
                 Stretch = Stretch.UniformToFill
             };
 
-            _ = UpdateSettingsIconForegroundFromFileAsync(path, requestId);
+            _ = UpdateIconForegroundFromFileAsync(path, requestId);
         }
         catch
         {
             if (requestId == _randomBackgroundRequestId)
-                SetSettingsIconToThemeForeground();
+                SetIconToThemeForeground();
         }
     }
 
-    private async Task UpdateSettingsIconForegroundFromFileAsync(
+    private async Task UpdateIconForegroundFromFileAsync(
         string path,
         int requestId)
     {
         try
         {
             var imageBytes = await File.ReadAllBytesAsync(path);
-            await UpdateSettingsIconForegroundAsync(imageBytes, requestId);
+            await UpdateIconForegroundAsync(imageBytes, requestId);
         }
         catch
         {
             if (requestId == _randomBackgroundRequestId)
-                SetSettingsIconToThemeForeground();
+                SetIconToThemeForeground();
         }
     }
 
-    private async Task UpdateSettingsIconForegroundAsync(
+    private async Task UpdateIconForegroundAsync(
         byte[] imageBytes,
         int requestId)
     {
@@ -629,42 +1502,74 @@ public sealed partial class StartPage : Page
             if (requestId != _randomBackgroundRequestId)
                 return;
 
-            var contrastBackground = Helpers.DarkenColor(averageColor, 0.30);
+            var contrastBackground = Helpers.DarkenColor(averageColor, 0.40);
             var (blackContrast, whiteContrast) = Helpers.GetBlackAndWhiteContrastRatios(contrastBackground);
 
             if (blackContrast >= 3.0)
             {
                 SettingsIcon.Foreground = new SolidColorBrush(Colors.Black);
+                InfoIcon.Foreground = new SolidColorBrush(Colors.Black);
             }
             else if (whiteContrast >= 3.0)
             {
                 SettingsIcon.Foreground = new SolidColorBrush(Colors.White);
+                InfoIcon.Foreground = new SolidColorBrush(Colors.White);
             }
             else
             {
-                SetSettingsIconToThemeForeground();
+                SetIconToThemeForeground();
             }
         }
         catch
         {
             if (requestId == _randomBackgroundRequestId)
-                SetSettingsIconToThemeForeground();
+                SetIconToThemeForeground();
         }
     }
 
-    private void SetSettingsIconToThemeForeground()
+    private void SetIconToThemeForeground()
     {
         SettingsIcon.ClearValue(IconElement.ForegroundProperty);
+        InfoIcon.ClearValue(IconElement.ForegroundProperty);
     }
 
     private void LoadBackgroundSettings()
     {
+        bool rewriteSettings = false;
+
         try
         {
             if (File.Exists(SettingsFilePath))
             {
-                _settings = JsonSerializer.Deserialize<BackgroundSettings>(File.ReadAllText(SettingsFilePath))
-                    ?? new BackgroundSettings();
+                var data = MessagePackSerializer.Deserialize<BackgroundSettingsData>(
+                    File.ReadAllBytes(SettingsFilePath),
+                    MessagePackData.Options);
+
+                if (data is not null)
+                {
+                    var recentFileNames = data.RecentBackgroundFileNames ?? new();
+
+                    rewriteSettings =
+                        HasDirectory(data.SelectedBackgroundFileName) ||
+                        recentFileNames.Any(HasDirectory);
+
+                    _settings = new BackgroundSettings
+                    {
+                        Mode = data.Mode,
+                        SelectedBackgroundPath = ResolveBackgroundPath(data.SelectedBackgroundFileName),
+                        RecentBackgroundPaths = recentFileNames
+                            .Select(ResolveBackgroundPath)
+                            .OfType<string>()
+                            .ToList()
+                    };
+                }
+            }
+            else if (File.Exists(LegacySettingsFilePath))
+            {
+                _settings = JsonSerializer.Deserialize<BackgroundSettings>(
+                    File.ReadAllText(LegacySettingsFilePath)) ?? new();
+
+                rewriteSettings = true;
             }
         }
         catch
@@ -683,7 +1588,10 @@ public sealed partial class StartPage : Page
             _settings.Mode = ImageMode;
         }
 
-        _settings.RecentBackgroundPaths ??= new List<string>();
+        _settings.RecentBackgroundPaths ??= new();
+
+        if (rewriteSettings)
+            SaveBackgroundSettings();
     }
 
     private void RefreshRecentBackgrounds()
@@ -780,7 +1688,7 @@ public sealed partial class StartPage : Page
         var sourceLength = new FileInfo(sourcePath).Length;
         var sourceHash = GetImageHash(sourcePath);
 
-        foreach (var path in Directory.EnumerateFiles(_backgroundsDirectory)
+        foreach (var path in Directory.EnumerateFiles(Paths.CustomBackgrounds)
                      .Where(IsSupportedImage))
         {
             try
@@ -810,7 +1718,7 @@ public sealed partial class StartPage : Page
         var keepLength = new FileInfo(keepPath).Length;
         var keepHash = GetImageHash(keepPath);
 
-        foreach (var path in Directory.EnumerateFiles(_backgroundsDirectory)
+        foreach (var path in Directory.EnumerateFiles(Paths.CustomBackgrounds)
                      .Where(IsSupportedImage))
         {
             if (string.Equals(
@@ -901,15 +1809,32 @@ public sealed partial class StartPage : Page
     {
         try
         {
-            Directory.CreateDirectory(_backgroundsDirectory);
-            File.WriteAllText(
-                SettingsFilePath,
-                JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true }));
+            Directory.CreateDirectory(Paths.CustomBackgrounds);
+
+            var data = new BackgroundSettingsData
+            {
+                Mode = _settings.Mode,
+                SelectedBackgroundFileName = GetBackgroundFileName(
+                    _settings.SelectedBackgroundPath),
+                RecentBackgroundFileNames = _settings.RecentBackgroundPaths
+                    .Where(path => !string.IsNullOrWhiteSpace(path))
+                    .Select(path => GetBackgroundFileName(path)!)
+                    .ToList()
+            };
+
+            string temporaryPath = SettingsFilePath + ".tmp";
+
+            byte[] serializedData = MessagePackSerializer.Serialize(
+                data,
+                MessagePackData.Options);
+
+            File.WriteAllBytes(temporaryPath, serializedData);
+            File.Move(temporaryPath, SettingsFilePath, overwrite: true);
+
+            if (File.Exists(LegacySettingsFilePath))
+                File.Delete(LegacySettingsFilePath);
         }
-        catch
-        {
-            // The current selection still works for this session if persistence fails.
-        }
+        catch { }
     }
 
     private static BitmapImage CreateBitmapImage(string path, int decodePixelWidth)
@@ -940,6 +1865,133 @@ public sealed partial class StartPage : Page
         };
 
         await dialog.ShowAsync();
+    }
+
+    public sealed class RandomBackgroundEntry
+    {
+        public string Id { get; init; } = string.Empty;
+        public string? Name { get; init; }
+        public string ThumbnailUrl { get; init; } = string.Empty;
+        public string Title { get; init; } = string.Empty;
+        public string DescriptionUrl { get; init; } = string.Empty;
+        public string? LicenseShortName { get; init; }
+        public string? LicenseUrl { get; init; }
+        public string? UsageTerms { get; init; }
+        public string? Artist { get; init; }
+        public string? Credit { get; init; }
+        public string? Description { get; init; }
+        public long DownloadedUtcTicks { get; set; }
+        public long LastShownUtcTicks { get; set; }
+        public string? DateTaken { get; init; }
+
+        public static RandomBackgroundEntry FromData(
+            RandomBackgroundEntryData data) => new()
+            {
+                Id = data.Id,
+                Name = data.Name,
+                ThumbnailUrl = data.ThumbnailUrl,
+                Title = data.Title,
+                DescriptionUrl = data.DescriptionUrl,
+                LicenseShortName = data.LicenseShortName,
+                LicenseUrl = data.LicenseUrl,
+                UsageTerms = data.UsageTerms,
+                Artist = data.Artist,
+                Credit = data.Credit,
+                Description = data.Description,
+                DownloadedUtcTicks = data.DownloadedUtcTicks,
+                LastShownUtcTicks = data.LastShownUtcTicks,
+                DateTaken = data.DateTaken,
+            };
+    }
+
+    [MessagePackObject]
+    public sealed class RandomBackgroundCacheData
+    {
+        [Key(0)]
+        public List<RandomBackgroundEntryData> Entries { get; set; } = [];
+
+        [Key(1)]
+        public List<string> QueuedEntryIds { get; set; } = [];
+
+        [Key(2)]
+        public long CommonsRetryAfterUtcTicks { get; set; }
+    }
+
+    [MessagePackObject]
+    public sealed class RandomBackgroundEntryData
+    {
+        [Key(0)]
+        public string Id { get; set; } = string.Empty;
+
+        [Key(1)]
+        public string ThumbnailUrl { get; set; } = string.Empty;
+
+        [Key(2)]
+        public string Title { get; set; } = string.Empty;
+
+        [Key(3)]
+        public string DescriptionUrl { get; set; } = string.Empty;
+
+        [Key(4)]
+        public string? LicenseShortName { get; set; }
+
+        [Key(5)]
+        public string? LicenseUrl { get; set; }
+
+        [Key(6)]
+        public string? UsageTerms { get; set; }
+
+        [Key(7)]
+        public string? Artist { get; set; }
+
+        [Key(8)]
+        public string? Credit { get; set; }
+
+        [Key(9)]
+        public string? Description { get; set; }
+
+        [Key(10)]
+        public long DownloadedUtcTicks { get; set; }
+
+        [Key(11)]
+        public long LastShownUtcTicks { get; set; }
+
+        [Key(12)]
+        public string? Name { get; set; }
+        [Key(13)]
+        public string? DateTaken { get; set; }
+
+        public static RandomBackgroundEntryData FromEntry(
+            RandomBackgroundEntry entry) => new()
+            {
+                Id = entry.Id,
+                ThumbnailUrl = entry.ThumbnailUrl,
+                Title = entry.Title,
+                DescriptionUrl = entry.DescriptionUrl,
+                LicenseShortName = entry.LicenseShortName,
+                LicenseUrl = entry.LicenseUrl,
+                UsageTerms = entry.UsageTerms,
+                Artist = entry.Artist,
+                Credit = entry.Credit,
+                Description = entry.Description,
+                DownloadedUtcTicks = entry.DownloadedUtcTicks,
+                LastShownUtcTicks = entry.LastShownUtcTicks,
+                Name = entry.Name,
+                DateTaken = entry.DateTaken,
+            };
+    }
+
+    [MessagePackObject]
+    public sealed class BackgroundSettingsData
+    {
+        [Key(0)]
+        public string Mode { get; set; } = ImageMode;
+
+        [Key(1)]
+        public string? SelectedBackgroundFileName { get; set; }
+
+        [Key(2)]
+        public List<string> RecentBackgroundFileNames { get; set; } = new();
     }
 
     private sealed class BackgroundSettings

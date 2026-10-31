@@ -660,4 +660,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>أحادي المسافة</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>الافتراضي</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>معلومات الصورة</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>منشئ</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>تاريخ الالتقاط</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>عرض الترخيص</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>ترخيص</value>
+  </data>
 </root>

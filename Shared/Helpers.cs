@@ -82,6 +82,47 @@ public static class Helpers
             days.ToString("N0", GetCurrentCulture()));
     }
 
+    public static string? FormatDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        bool includesTime = System.Text.RegularExpressions.Regex.IsMatch(
+            value,
+            @"(?:T|\s)\d{1,2}:\d{2}");
+
+        string[] formats =
+        [
+            "yyyy:MM:dd HH:mm:ss",
+            "yyyy:MM:dd HH:mm",
+            "yyyy-MM-dd",
+            "yyyy"
+        ];
+
+        if (!DateTimeOffset.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowWhiteSpaces,
+                out DateTimeOffset date) &&
+            !DateTimeOffset.TryParseExact(
+                value,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowWhiteSpaces,
+                out date))
+        {
+            return null;
+        }
+
+        return date.DateTime.ToString(
+            includesTime
+                ? "MMMM d, yyyy 'at' h:mm tt"
+                : "MMMM d, yyyy",
+            CultureInfo.InvariantCulture);
+    }
+
     public static MenuFlyoutItem CreateContextMenuItem(
         string text,
         string? icon,

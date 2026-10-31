@@ -652,4 +652,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>等幅</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>既定</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>画像情報</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>撮影日</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>ライセンスを表示</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>ライセンス</value>
+  </data>
 </root>

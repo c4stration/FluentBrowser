@@ -103,8 +103,8 @@
                                                             </Button>
 
                                                             <Image
-                                                                VerticalAlignment="Center"
                                                                 HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
                                                                 AutomationProperties.AccessibilityView="Raw"
                                                                 Source="{x:Bind Thumbnail}"
                                                                 Stretch="UniformToFill"
@@ -131,6 +131,88 @@
                                     </controls:SettingsCard>
                                 </my:SettingsControl.Items>
                             </my:SettingsControl>
+                        </StackPanel>
+                    </my:ContentMenuFlyoutItem>
+                </MenuFlyout>
+            </Button.Flyout>
+        </Button>
+
+        <Button
+            x:Name="InfoButton"
+            Width="32"
+            Height="32"
+            Padding="8"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            CornerRadius="{ThemeResource ControlCornerRadius}"
+            Style="{ThemeResource AppBarButtonStyle}">
+
+            <FontIcon
+                x:Name="InfoIcon"
+                FontSize="15"
+                Glyph="&#xE946;" />
+
+            <Button.Flyout>
+                <MenuFlyout Placement="TopEdgeAlignedLeft">
+                    <my:ContentMenuFlyoutItem Width="500">
+                        <StackPanel Spacing="3">
+                            <TextBlock
+                                Margin="0,0,0,8"
+                                l:Uids.Uid="ImageInfoHeader"
+                                Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                            <controls:WrapPanel HorizontalSpacing="16" VerticalSpacing="12">
+                                <StackPanel x:Name="DescriptionField">
+                                    <TextBlock
+                                        l:Uids.Uid="ImageDescription"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}" />
+
+                                    <TextBlock
+                                        x:Name="DescriptionTextBlock"
+                                        IsTextSelectionEnabled="True"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel x:Name="CreatorField">
+                                    <TextBlock
+                                        l:Uids.Uid="ImageCreator"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}" />
+
+                                    <TextBlock
+                                        x:Name="CreatorTextBlock"
+                                        IsTextSelectionEnabled="True"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel x:Name="DateField">
+                                    <TextBlock
+                                        l:Uids.Uid="ImageDate"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}" />
+
+                                    <TextBlock
+                                        x:Name="DateTextBlock"
+                                        IsTextSelectionEnabled="True"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel x:Name="LicenseField">
+                                    <TextBlock
+                                        l:Uids.Uid="ImageLicense"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}" />
+
+                                    <TextBlock IsTextSelectionEnabled="True" TextWrapping="Wrap">
+                                        <Run x:Name="LicenseRun" />
+                                        <Run Text="·" />
+                                        <Hyperlink x:Name="LicenseLink" UnderlineStyle="None">
+                                            <Run l:Uids.Uid="ViewLicenseHyperlink" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </controls:WrapPanel>
                         </StackPanel>
                     </my:ContentMenuFlyoutItem>
                 </MenuFlyout>

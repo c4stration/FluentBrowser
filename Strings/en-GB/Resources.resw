@@ -661,4 +661,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>Monospace</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>Image info</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>Creator</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>Date taken</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>View licence</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>Licence</value>
+  </data>
 </root>

@@ -664,4 +664,25 @@
   <data name="FontType_Monospace.Header" xml:space="preserve">
     <value>ความกว้างคงที่</value>
   </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>ค่าเริ่มต้น</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>ข้อมูลรูปภาพ</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>ผู้สร้าง</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>คำอธิบาย</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>วันที่ถ่าย</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>ดูใบอนุญาต</value>
+  </data>
+  <data name="ImageLicense.Text" xml:space="preserve">
+    <value>ใบอนุญาต</value>
+  </data>
 </root>
