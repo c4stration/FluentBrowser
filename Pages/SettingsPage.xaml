@@ -290,7 +290,7 @@
                     </controls:SettingsCard>
                     <controls:SettingsCard l:Uids.Uid="SearchSuggestions">
                         <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xEA80;" />
+                            <PathIcon Data="{StaticResource Suggestions}" FlowDirection="LeftToRight" />
                         </controls:SettingsCard.HeaderIcon>
                         <ToggleSwitch
                             x:Name="SearchSuggestionsToggle"

@@ -57,19 +57,34 @@ public static class Helpers
 
     public static CultureInfo GetCurrentCulture()
     {
-        return Localizer.Get().GetCurrentLanguage() switch
+        string language = Localizer.Get().GetCurrentLanguage();
+
+        string cultureName = language switch
         {
-            "ar" => CultureInfo.GetCultureInfo("ar"),
-            "en-US" => CultureInfo.GetCultureInfo("en-US"),
-            "he" => CultureInfo.GetCultureInfo("he-IL"),
-            "ja-JP" => CultureInfo.GetCultureInfo("ja-JP"),
-            "ko-KR" => CultureInfo.GetCultureInfo("ko-KR"),
-            "ro-RO" => CultureInfo.GetCultureInfo("ro-RO"),
-            "th" => CultureInfo.GetCultureInfo("th-TH"),
-            "zh-CN" => CultureInfo.GetCultureInfo("zh-CN"),
-            "zh-TW" => CultureInfo.GetCultureInfo("zh-TW"),
-            _ => CultureInfo.GetCultureInfo("en-US")
+            "ar" => "ar",
+            "he" => "he-IL",
+            "th" => "th-TH",
+            "en-UWU" or "en-LOL" => "en-US",
+            _ => language
         };
+
+        try
+        {
+            return CultureInfo.GetCultureInfo(cultureName);
+        }
+        catch (CultureNotFoundException)
+        {
+            string baseLanguage = language.Split('-')[0];
+
+            try
+            {
+                return CultureInfo.GetCultureInfo(baseLanguage);
+            }
+            catch (CultureNotFoundException)
+            {
+                return CultureInfo.GetCultureInfo("en-US");
+            }
+        }
     }
 
     public static string FormatDaysAgo(int days)
@@ -116,11 +131,16 @@ public static class Helpers
             return null;
         }
 
-        return date.DateTime.ToString(
-            includesTime
-                ? "MMMM d, yyyy 'at' h:mm tt"
-                : "MMMM d, yyyy",
-            CultureInfo.InvariantCulture);
+        CultureInfo culture = GetCurrentCulture();
+
+        string formattedDate = date.ToString(
+            includesTime ? "f" : "D",
+            culture);
+
+        string firstTextElement = StringInfo.GetNextTextElement(formattedDate);
+
+        return culture.TextInfo.ToUpper(firstTextElement) +
+               formattedDate[firstTextElement.Length..];
     }
 
     public static MenuFlyoutItem CreateContextMenuItem(

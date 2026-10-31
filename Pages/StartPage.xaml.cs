@@ -24,8 +24,6 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using WinUI3Localizer;
 
-// TODO: fix the gear icon becoming white on a transparent background when the underlying pixels are white
-
 namespace FluentBrowser.Pages;
 
 public sealed partial class StartPage : Page
@@ -67,6 +65,8 @@ public sealed partial class StartPage : Page
 
     public ObservableCollection<BackgroundImageItem> RecentBackgrounds { get; } = new();
 
+    private string _dateTaken = string.Empty;
+
     public StartPage()
     {
         InitializeComponent();
@@ -93,6 +93,7 @@ public sealed partial class StartPage : Page
         localizer.LanguageChanged += OnLanguageChanged;
 
         SetRandomBackgroundDescription();
+        UpdateDateTakenText();
     }
 
     private void StartPage_Unloaded(object sender, RoutedEventArgs e)
@@ -105,6 +106,17 @@ public sealed partial class StartPage : Page
         LanguageChangedEventArgs e)
     {
         SetRandomBackgroundDescription();
+        UpdateDateTakenText();
+    }
+
+    private void UpdateDateTakenText()
+    {
+        string dateText = Helpers.FormatDate(_dateTaken) ?? string.Empty;
+
+        DateTextBlock.Text = dateText;
+        DateField.Visibility = string.IsNullOrWhiteSpace(dateText)
+            ? Visibility.Collapsed
+            : Visibility.Visible;
     }
 
     private string SettingsFilePath => Path.Combine(Paths.CustomBackgrounds, "settings.msgpack");
@@ -1038,14 +1050,8 @@ public sealed partial class StartPage : Page
             ? Visibility.Collapsed
             : Visibility.Visible;
 
-        string cleanedDate = CleanMetadata(dateTaken);
-
-        string dateText = Helpers.FormatDate(cleanedDate) ?? string.Empty;
-
-        DateTextBlock.Text = dateText;
-        DateField.Visibility = string.IsNullOrWhiteSpace(dateText)
-            ? Visibility.Collapsed
-            : Visibility.Visible;
+        _dateTaken = CleanMetadata(dateTaken);
+        UpdateDateTakenText();
 
         string licenseText = CleanMetadata(licenseShortName);
         bool hasLicenseUrl = Uri.TryCreate(
