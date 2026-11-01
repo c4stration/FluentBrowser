@@ -62,13 +62,24 @@ public sealed partial class StartPage : Page
 
     private bool _isUpdatingMode;
     private BackgroundSettings _settings = new();
+    private readonly HashSet<TextBlock> _favoriteNameTextBlocks = [];
+    private Brush? _favoriteNameForeground;
 
     public ObservableCollection<BackgroundImageItem> RecentBackgrounds { get; } = new();
+    public ObservableCollection<FavoriteWebsite> Favorites { get; }
+
+    public event Action<FavoriteWebsite>? FavoriteSelected;
 
     private string _dateTaken = string.Empty;
 
     public StartPage()
+        : this(new ObservableCollection<FavoriteWebsite>())
     {
+    }
+
+    public StartPage(ObservableCollection<FavoriteWebsite> favorites)
+    {
+        Favorites = favorites ?? throw new ArgumentNullException(nameof(favorites));
         InitializeComponent();
 
         BackgroundModeComboBox.SelectionChanged += BackgroundModeComboBox_SelectionChanged;
@@ -99,6 +110,73 @@ public sealed partial class StartPage : Page
     private void StartPage_Unloaded(object sender, RoutedEventArgs e)
     {
         Localizer.Get().LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void FavoriteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: FavoriteWebsite favorite })
+            FavoriteSelected?.Invoke(favorite);
+    }
+
+    private void FavoriteNameTextBlock_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBlock textBlock)
+            return;
+
+        _favoriteNameTextBlocks.Add(textBlock);
+
+        if (_favoriteNameForeground is null)
+            textBlock.ClearValue(TextBlock.ForegroundProperty);
+        else
+            textBlock.Foreground = _favoriteNameForeground;
+    }
+
+    private void FavoriteNameTextBlock_Unloaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBlock textBlock)
+            _favoriteNameTextBlocks.Remove(textBlock);
+    }
+
+    private void SetFavoriteNamesForeground(Brush? foreground)
+    {
+        _favoriteNameForeground = foreground;
+
+        foreach (TextBlock textBlock in _favoriteNameTextBlocks)
+            ApplyFavoriteNameForeground(textBlock, foreground);
+
+        // Update the TextBlocks that are already realized by the ListView too.
+        // The Loaded handler applies the saved foreground to items realized later.
+        UpdateFavoriteNameForegrounds(FavoritesListView, foreground);
+    }
+
+    private static void UpdateFavoriteNameForegrounds(
+        DependencyObject parent,
+        Brush? foreground)
+    {
+        if (parent is TextBlock textBlock)
+        {
+            ApplyFavoriteNameForeground(textBlock, foreground);
+            return;
+        }
+
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+
+        for (int i = 0; i < childCount; i++)
+        {
+            UpdateFavoriteNameForegrounds(
+                VisualTreeHelper.GetChild(parent, i),
+                foreground);
+        }
+    }
+
+    private static void ApplyFavoriteNameForeground(
+        TextBlock textBlock,
+        Brush? foreground)
+    {
+        if (foreground is null)
+            textBlock.ClearValue(TextBlock.ForegroundProperty);
+        else
+            textBlock.Foreground = foreground;
     }
 
     private void OnLanguageChanged(
@@ -1513,13 +1591,19 @@ public sealed partial class StartPage : Page
 
             if (blackContrast >= 3.0)
             {
-                SettingsIcon.Foreground = new SolidColorBrush(Colors.Black);
-                InfoIcon.Foreground = new SolidColorBrush(Colors.Black);
+                var foreground = new SolidColorBrush(Colors.Black);
+                SettingsIcon.Foreground = foreground;
+                InfoIcon.Foreground = foreground;
+                FavoritesTitle.Foreground = foreground;
+                SetFavoriteNamesForeground(foreground);
             }
             else if (whiteContrast >= 3.0)
             {
-                SettingsIcon.Foreground = new SolidColorBrush(Colors.White);
-                InfoIcon.Foreground = new SolidColorBrush(Colors.White);
+                var foreground = new SolidColorBrush(Colors.White);
+                SettingsIcon.Foreground = foreground;
+                InfoIcon.Foreground = foreground;
+                FavoritesTitle.Foreground = foreground;
+                SetFavoriteNamesForeground(foreground);
             }
             else
             {
@@ -1537,6 +1621,8 @@ public sealed partial class StartPage : Page
     {
         SettingsIcon.ClearValue(IconElement.ForegroundProperty);
         InfoIcon.ClearValue(IconElement.ForegroundProperty);
+        FavoritesTitle.ClearValue(TextBlock.ForegroundProperty);
+        SetFavoriteNamesForeground(null);
     }
 
     private void LoadBackgroundSettings()

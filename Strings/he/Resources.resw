@@ -687,4 +687,7 @@
   <data name="ImageLicense.Text" xml:space="preserve">
     <value>רישיון</value>
   </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>מועדפים</value>
+  </data>
 </root>

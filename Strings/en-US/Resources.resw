@@ -688,4 +688,7 @@
   <data name="ImageLicense.Text" xml:space="preserve">
     <value>License</value>
   </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
 </root>

@@ -673,4 +673,7 @@
   <data name="ImageLicense.Text" xml:space="preserve">
     <value>许可证</value>
   </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
 </root>

@@ -697,7 +697,20 @@ public sealed partial class MainWindow
 
     private Page CreatePageInstance(Type pageType)
     {
-        if (Activator.CreateInstance(pageType) is not Page page)
+        Page? page;
+
+        if (pageType == typeof(StartPage))
+        {
+            var startPage = new StartPage(Favorites);
+            startPage.FavoriteSelected += StartPage_FavoriteSelected;
+            page = startPage;
+        }
+        else
+        {
+            page = Activator.CreateInstance(pageType) as Page;
+        }
+
+        if (page is null)
         {
             throw new InvalidOperationException(
                 $"Could not create an instance of {pageType.FullName}.");
@@ -707,6 +720,17 @@ public sealed partial class MainWindow
             ConfigureSettingsPage(settingsPage);
 
         return page;
+    }
+
+    private void StartPage_FavoriteSelected(FavoriteWebsite favorite)
+    {
+        if (SelectedTab is not BrowserTab tab ||
+            !Uri.TryCreate(favorite.Url, UriKind.Absolute, out Uri? uri))
+        {
+            return;
+        }
+
+        Navigate(tab, uri);
     }
 
     private void ConfigureSettingsPage(SettingsPage settingsPage)

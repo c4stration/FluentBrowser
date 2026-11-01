@@ -9,10 +9,90 @@
     xmlns:my="using:FluentBrowser.Controls"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
 
-    <Grid x:Name="RootGrid" Padding="12">
+    <Grid x:Name="RootGrid">
+        <ScrollView Padding="24,0" CornerRadius="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid
+                    Grid.Column="1"
+                    Margin="0,48"
+                    HorizontalAlignment="Stretch">
+
+                    <StackPanel>
+                        <TextBlock
+                            x:Name="FavoritesTitle"
+                            l:Uids.Uid="FavoritesTitle"
+                            Style="{ThemeResource TitleTextBlockStyle}" />
+
+                        <ListView
+                            x:Name="FavoritesListView"
+                            Margin="-16,18"
+                            ItemsSource="{x:Bind Favorites, Mode=OneWay}"
+                            SelectionMode="None">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:WrapPanel
+                                        Margin="-32,0,0,0"
+                                        HorizontalAlignment="Center"
+                                        HorizontalSpacing="-28" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        Width="96"
+                                        Height="84"
+                                        Padding="0"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        Click="FavoriteButton_Click"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{StaticResource AppBarButtonStyle}">
+
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="32" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+
+                                            <Image
+                                                Grid.Row="0"
+                                                Width="32"
+                                                Height="32"
+                                                Margin="0,0,0,-24"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Source="{Binding Favicon}" />
+
+                                            <TextBlock
+                                                Grid.Row="1"
+                                                Margin="0,16,0,0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Top"
+                                                Style="{ThemeResource CaptionTextBlockStyle}"
+                                                Text="{Binding Name}"
+                                                TextAlignment="Center"
+                                                TextWrapping="Wrap" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ScrollView>
+
         <Button
             Width="32"
             Height="32"
+            Margin="0,0,12,12"
             Padding="8"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
@@ -141,6 +221,7 @@
             x:Name="InfoButton"
             Width="32"
             Height="32"
+            Margin="12,0,0,12"
             Padding="8"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"

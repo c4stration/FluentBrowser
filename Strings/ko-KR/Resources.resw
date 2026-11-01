@@ -669,4 +669,7 @@
   <data name="ImageLicense.Text" xml:space="preserve">
     <value>라이선스</value>
   </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>즐겨찾기</value>
+  </data>
 </root>
