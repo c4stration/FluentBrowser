@@ -38,10 +38,6 @@ public sealed partial class MainWindow
         CoreWebView2 core,
         WebView2 webView)
     {
-        // This event is raised by WebView2 while its dangerous-file-extension
-        // policy is being evaluated. Because FluentBrowser owns the download
-        // UI, provide the required decision here instead of leaving the
-        // runtime's hidden dialog waiting at 100%
         core.SaveFileSecurityCheckStarting += async (_, args) =>
         {
             var deferral = args.GetDeferral();
@@ -149,19 +145,13 @@ public sealed partial class MainWindow
 
             await item.LoadIconAsync(download.ResultFilePath);
 
-            DownloadProgress.IsIndeterminate =
-                download.TotalBytesToReceive <= 0;
-
-            DownloadProgress.Value = 0;
-
             download.BytesReceivedChanged += (_, _) =>
             {
                 DispatcherQueue.TryEnqueue(async () =>
                 {
                     item.UpdateProgress();
-
-                    if (!item.IsIndeterminate)
-                        DownloadProgress.Value = item.Progress;
+                    UpdateTaskbarDownloadProgress();
+                    UpdateDownloadProgressRing();
 
                     if (download.TotalBytesToReceive > 0 &&
                         download.BytesReceived >=
@@ -170,8 +160,6 @@ public sealed partial class MainWindow
                             CoreWebView2DownloadState.InProgress)
                     {
                         item.MarkCompleted();
-
-                        DownloadProgress.Value = 100;
 
                         await item.LoadIconAsync(
                             download.ResultFilePath);
@@ -187,12 +175,12 @@ public sealed partial class MainWindow
                 DispatcherQueue.TryEnqueue(async () =>
                 {
                     item.UpdateState();
+                    UpdateTaskbarDownloadProgress();
+                    UpdateDownloadProgressRing();
 
                     switch (download.State)
                     {
                         case CoreWebView2DownloadState.Completed:
-                            DownloadProgress.Value = 100;
-
                             await item.LoadIconAsync(
                                 download.ResultFilePath);
 
@@ -269,6 +257,7 @@ public sealed partial class MainWindow
 
                 args.Cancel = true;
                 Downloads.Remove(item);
+                UpdateDownloadIconVisibility();
             }
             finally
             {
@@ -504,10 +493,14 @@ public sealed partial class MainWindow
 
     private void UpdateDownloadIconVisibility()
     {
+        UpdateTaskbarDownloadProgress();
+        UpdateDownloadProgressRing();
+
         DownloadsButton.Visibility = Visibility.Visible;
 
         ClearCompletedButton.IsEnabled =
-            Downloads.Count > 0;
+            Downloads.Any(item =>
+                item.State != CoreWebView2DownloadState.InProgress);
 
         if (!_downloadIconActivated)
         {
@@ -560,6 +553,54 @@ public sealed partial class MainWindow
         }
     }
 
+    private void UpdateDownloadProgressRing()
+    {
+        DownloadItem[] activeDownloads = Downloads
+            .Where(item => item.State == CoreWebView2DownloadState.InProgress)
+            .ToArray();
+
+        if (activeDownloads.Length == 0)
+        {
+            DownloadProgress.IsIndeterminate = false;
+            DownloadProgress.Value = 0;
+            return;
+        }
+
+        // A percentage is only honest when every active download has a known
+        // size. Do not alternate between individual items while waiting for a
+        // response that does not provide Content-Length.
+        if (activeDownloads.Any(item => item.TotalBytesToReceive <= 0))
+        {
+            DownloadProgress.IsIndeterminate = true;
+            return;
+        }
+
+        ulong bytesReceived = 0;
+        ulong totalBytes = 0;
+
+        foreach (DownloadItem item in activeDownloads)
+        {
+            ulong total = (ulong)item.TotalBytesToReceive;
+            ulong received = (ulong)Math.Clamp(
+                item.BytesReceived,
+                0,
+                item.TotalBytesToReceive);
+
+            bytesReceived += received;
+            totalBytes += total;
+        }
+
+        DownloadProgress.IsIndeterminate = totalBytes == 0;
+
+        if (totalBytes > 0)
+        {
+            DownloadProgress.Value = Math.Clamp(
+                (double)bytesReceived / totalBytes * 100,
+                0,
+                100);
+        }
+    }
+
     private async void RemoveFromList_Click(
         object sender,
         RoutedEventArgs e)
@@ -578,14 +619,14 @@ public sealed partial class MainWindow
         object sender,
         RoutedEventArgs e)
     {
-        List<DownloadItem> completed =
+        List<DownloadItem> downloadsToClear =
             Downloads
                 .Where(item =>
-                    item.State ==
-                    CoreWebView2DownloadState.Completed)
+                    item.State !=
+                    CoreWebView2DownloadState.InProgress)
                 .ToList();
 
-        foreach (DownloadItem item in completed)
+        foreach (DownloadItem item in downloadsToClear)
             Downloads.Remove(item);
 
         UpdateDownloadIconVisibility();

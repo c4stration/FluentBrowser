@@ -745,6 +745,8 @@ public sealed partial class MainWindow
 
         bool isOnInternalPage = SelectedTab is BrowserTab selectedTab &&
             ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage);
+        bool isOnCustomPage = SelectedTab is BrowserTab customPageTab &&
+            customPageTab.Content is StartPage or SettingsPage;
 
         bool waitForSuggestionPopupClose =
             !isOnInternalPage &&
@@ -784,9 +786,19 @@ public sealed partial class MainWindow
         else
         {
             _addressBarUserEditing = false;
-            _addressBarSubmitting = false;
 
             Navigate(tab, target);
+
+            if (isOnCustomPage &&
+                !IsInternalPageUri(target) &&
+                tab.WebView is WebView2 replacementWebView)
+            {
+                QueueAddressBarSubmissionFocus(replacementWebView);
+            }
+            else
+            {
+                _addressBarSubmitting = false;
+            }
         }
     }
 
