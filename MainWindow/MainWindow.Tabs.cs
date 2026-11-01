@@ -495,7 +495,6 @@ public sealed partial class MainWindow
                 Glyph = "\uE767",
                 FontSize = 12
             },
-            Opacity = 0,
             IsHitTestVisible = false
         };
 

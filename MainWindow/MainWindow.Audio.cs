@@ -341,8 +341,9 @@ public sealed partial class MainWindow
     {
         bool visible = core.IsDocumentPlayingAudio || core.IsMuted;
 
-        button.Opacity = visible ? 1 : 0;
-        button.IsHitTestVisible = visible;
+        button.Visibility = visible
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         if (button.Content is FontIcon icon)
             icon.Glyph = core.IsMuted ? "\uE74F" : "\uE767";
@@ -420,5 +421,7 @@ public sealed partial class MainWindow
             if (!tab.IsClosed)
                 CloseTab(tab.TabItem);
         };
+
+        UpdateTabAudioButton(audioButton, core);
     }
 }
