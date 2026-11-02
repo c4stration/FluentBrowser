@@ -690,4 +690,7 @@
   <data name="FavoritesTitle.Text" xml:space="preserve">
     <value>מועדפים</value>
   </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>מועדפים</value>
+  </data>
 </root>

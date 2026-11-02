@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Hashing;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using MessagePack.Resolvers;
 using System.Text.Json;
@@ -324,6 +325,78 @@ public sealed partial class MainWindow
         return Path.Combine(
             Paths.FaviconCache,
             $"{Convert.ToHexString(hash)}.png");
+    }
+
+    private async Task<BitmapImage?> GetFavoriteFavicon32Async(Uri target)
+    {
+        if (target.Scheme != Uri.UriSchemeHttp &&
+            target.Scheme != Uri.UriSchemeHttps)
+        {
+            return null;
+        }
+
+        string faviconUri =
+            $"https://www.google.com/s2/favicons?domain={Uri.EscapeDataString(target.IdnHost)}&sz=32";
+
+        if (TryGetCachedFavicon(faviconUri, out var cached) &&
+            cached is not null)
+        {
+            return cached;
+        }
+
+        BitmapImage? diskFavicon = await LoadFaviconFromDiskAsync(faviconUri);
+
+        if (diskFavicon is not null)
+        {
+            CacheFavicon(faviconUri, diskFavicon);
+            return diskFavicon;
+        }
+
+        try
+        {
+            using var cancellation = new CancellationTokenSource(
+                TimeSpan.FromSeconds(15));
+
+            using var response = await _httpClient.GetAsync(
+                faviconUri,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellation.Token);
+
+            if (!response.IsSuccessStatusCode ||
+                response.Content.Headers.ContentType?.MediaType is not string mediaType ||
+                !mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase) ||
+                response.Content.Headers.ContentLength > 1024 * 1024)
+            {
+                return null;
+            }
+
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(
+                cancellation.Token);
+
+            if (bytes.Length == 0 || bytes.Length > 1024 * 1024)
+                return null;
+
+            var bitmap = new BitmapImage();
+
+            using var stream = new MemoryStream(bytes);
+
+            await bitmap.SetSourceAsync(
+                stream.AsRandomAccessStream());
+
+            CacheFavicon(faviconUri, bitmap);
+            await SaveFaviconToDiskAsync(faviconUri, bytes);
+
+            FaviconCacheChanged?.Invoke(this, EventArgs.Empty);
+
+            return bitmap;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"Failed to retrieve 32x32 favorite favicon: {ex}");
+
+            return null;
+        }
     }
 
     private async Task<BitmapImage?> GetSuggestionFaviconAsync(Uri target)

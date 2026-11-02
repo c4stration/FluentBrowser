@@ -688,4 +688,7 @@
   <data name="FavoritesTitle.Text" xml:space="preserve">
     <value>รายการโปรด</value>
   </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>รายการโปรด</value>
+  </data>
 </root>

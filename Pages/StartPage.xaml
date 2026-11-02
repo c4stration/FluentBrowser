@@ -23,7 +23,7 @@
                     Margin="0,48"
                     HorizontalAlignment="Stretch">
 
-                    <StackPanel>
+                    <StackPanel x:Name="FavoritesCard">
                         <TextBlock
                             x:Name="FavoritesTitle"
                             l:Uids.Uid="FavoritesTitle"
@@ -31,56 +31,57 @@
 
                         <ListView
                             x:Name="FavoritesListView"
-                            Margin="-16,18"
+                            Margin="0,18"
                             ItemsSource="{x:Bind Favorites, Mode=OneWay}"
                             SelectionMode="None">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="MinWidth" Value="0" />
+                                    <Setter Property="MinHeight" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel
-                                        Margin="-32,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        HorizontalSpacing="-28" />
+                                        HorizontalAlignment="Left"
+                                        HorizontalSpacing="12"
+                                        VerticalSpacing="12" />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Button
-                                        Width="96"
-                                        Height="84"
-                                        Padding="0"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"
-                                        Click="FavoriteButton_Click"
-                                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        Style="{StaticResource AppBarButtonStyle}">
+                                    <Grid>
+                                        <Border
+                                            Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="{ThemeResource ControlCornerRadius}" />
 
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="32" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
-
+                                        <Button
+                                            Width="84"
+                                            Height="84"
+                                            Padding="0"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Click="FavoriteButton_Click"
+                                            CornerRadius="{ThemeResource ControlCornerRadius}"
+                                            Style="{ThemeResource AppBarButtonStyle}"
+                                            ToolTipService.ToolTip="{Binding Name}">
                                             <Image
-                                                Grid.Row="0"
                                                 Width="32"
                                                 Height="32"
-                                                Margin="0,0,0,-24"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
-                                                Source="{Binding Favicon}" />
-
-                                            <TextBlock
-                                                Grid.Row="1"
-                                                Margin="0,16,0,0"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Top"
-                                                Style="{ThemeResource CaptionTextBlockStyle}"
-                                                Text="{Binding Name}"
-                                                TextAlignment="Center"
-                                                TextWrapping="Wrap" />
-                                        </Grid>
-                                    </Button>
+                                                Source="{Binding Favicon32}" />
+                                        </Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -117,11 +118,20 @@
                 <MenuFlyout Placement="TopEdgeAlignedRight">
                     <my:ContentMenuFlyoutItem Width="550">
                         <StackPanel Spacing="3">
-                            <TextBlock l:Uids.Uid="CustomizeStartPageHeader" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Margin="0,0,0,8" l:Uids.Uid="CustomizeStartPageHeader" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                            <controls:SettingsCard l:Uids.Uid="FavoritesTitle">
+                                <controls:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE734;" />
+                                </controls:SettingsCard.HeaderIcon>
+
+                                <ToggleSwitch
+                                    x:Name="FavoritesToggleSwitch"
+                                    l:Uids.Uid="General_ToggleSwitch" />
+                            </controls:SettingsCard>
 
                             <my:SettingsControl
                                 x:Name="BackgroundModeCard"
-                                Margin="0,8,0,0"
                                 l:Uids.Uid="StartPageBackgroundSetting"
                                 IsExpander="True">
 

@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +22,7 @@ public sealed class FavoriteWebsite : INotifyPropertyChanged
     private string _name = string.Empty;
     private string _url = string.Empty;
     private ImageSource? _favicon;
+    private ImageSource? _favicon32;
 
     [Key(0)]
     public string Name
@@ -68,6 +70,23 @@ public sealed class FavoriteWebsite : INotifyPropertyChanged
             PropertyChanged?.Invoke(
                 this,
                 new PropertyChangedEventArgs(nameof(Favicon)));
+        }
+    }
+
+    [JsonIgnore]
+    [IgnoreMember]
+    public ImageSource? Favicon32
+    {
+        get => _favicon32;
+        set
+        {
+            if (ReferenceEquals(_favicon32, value))
+                return;
+
+            _favicon32 = value;
+            PropertyChanged?.Invoke(
+                this,
+                new PropertyChangedEventArgs(nameof(Favicon32)));
         }
     }
 
@@ -272,6 +291,7 @@ public sealed partial class MainWindow
         {
             favorite.Url = uri.AbsoluteUri;
             favorite.Favicon = null;
+            favorite.Favicon32 = null;
 
             _ = LoadFavoriteFaviconAsync(favorite);
         }
@@ -288,32 +308,58 @@ public sealed partial class MainWindow
 
         foreach (var item in e.NewItems)
         {
-            if (item is FavoriteWebsite { Favicon: null } favorite)
+            if (item is FavoriteWebsite favorite &&
+                (favorite.Favicon is null || favorite.Favicon32 is null))
+            {
                 _ = LoadFavoriteFaviconAsync(favorite);
+            }
         }
     }
 
     private async Task LoadFavoriteFaviconAsync(FavoriteWebsite favorite)
     {
+        string favoriteUrl = favorite.Url;
+
         if (!Uri.TryCreate(
-                favorite.Url,
+                favoriteUrl,
                 UriKind.Absolute,
-                out var uri))
+                out Uri? uri))
         {
             return;
         }
 
         try
         {
-            var favicon = await GetSuggestionFaviconAsync(uri);
+            Task<BitmapImage?> favicon16Task = GetSuggestionFaviconAsync(uri);
+            Task<BitmapImage?> favicon32Task = GetFavoriteFavicon32Async(uri);
 
-            if (favicon is not null && Favorites.Contains(favorite))
-                favorite.Favicon = favicon;
+            await Task.WhenAll(favicon16Task, favicon32Task);
+
+            if (!Favorites.Contains(favorite) ||
+                !string.Equals(
+                    favorite.Url,
+                    favoriteUrl,
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            BitmapImage? favicon16 = await favicon16Task;
+            BitmapImage? favicon32 = await favicon32Task;
+
+            // Keep the original favicon for the browser chrome favorites bar.
+            if (favicon16 is not null)
+                favorite.Favicon = favicon16;
+
+            // The Start page uses the larger image, falling back to the original
+            // favicon when the size-specific request is unavailable.
+            favorite.Favicon32 = favicon32 ?? favicon16;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(
-                $"Failed to load favorite favicon: {ex}");
+                $"Failed to load favorite favicons: {ex}");
         }
     }
+
 }

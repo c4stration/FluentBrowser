@@ -676,4 +676,7 @@
   <data name="FavoritesTitle.Text" xml:space="preserve">
     <value>お気に入り</value>
   </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
 </root>

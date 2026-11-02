@@ -676,4 +676,7 @@
   <data name="FavoritesTitle.Text" xml:space="preserve">
     <value>收藏夹</value>
   </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
 </root>
