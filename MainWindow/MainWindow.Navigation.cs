@@ -559,14 +559,6 @@ public sealed partial class MainWindow
                 UpdateAddressBar(uri);
             }
 
-            if (IsDisplayedWebView(webView))
-            {
-                ApplyDefaultThemeVisuals();
-
-                webView.DefaultBackgroundColor =
-                    GetDefaultWebViewBackgroundColor();
-            }
-
             if (!ReferenceEquals(tab.Content, tab.HistoryPage))
             {
                 favicon.Source = null;
