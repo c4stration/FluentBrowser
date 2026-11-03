@@ -88,14 +88,14 @@
                                 </controls:SettingsCard.Description>
                                 <StackPanel Orientation="Horizontal">
                                     <Button
+                                        x:Name="StandardFontResetButton"
                                         Margin="0,0,8,0"
                                         Padding="6"
-                                        x:Name="StandardFontResetButton"
-                                        Tag="StandardFont"
-                                        Click="ResetFontButton_Click"
                                         l:Uids.Uid="ResetSetting"
+                                        Click="ResetFontButton_Click"
                                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        Style="{ThemeResource AppBarButtonStyle}"
+                                        Tag="StandardFont">
                                         <FontIcon
                                             FontSize="12"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -118,16 +118,16 @@
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
 
-                                <StackPanel>
+                                <StackPanel Orientation="Horizontal">
                                     <Button
+                                        x:Name="SerifFontResetButton"
                                         Margin="0,0,8,0"
                                         Padding="6"
-                                        x:Name="SerifFontResetButton"
-                                        Tag="SerifFont"
-                                        Click="ResetFontButton_Click"
                                         l:Uids.Uid="ResetSetting"
+                                        Click="ResetFontButton_Click"
                                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        Style="{ThemeResource AppBarButtonStyle}"
+                                        Tag="SerifFont">
                                         <FontIcon
                                             FontSize="12"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -149,16 +149,16 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <StackPanel>
+                                <StackPanel Orientation="Horizontal">
                                     <Button
+                                        x:Name="SansSerifFontResetButton"
                                         Margin="0,0,8,0"
                                         Padding="6"
-                                        x:Name="SansSerifFontResetButton"
-                                        Tag="SansSerifFont"
-                                        Click="ResetFontButton_Click"
                                         l:Uids.Uid="ResetSetting"
+                                        Click="ResetFontButton_Click"
                                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        Style="{ThemeResource AppBarButtonStyle}"
+                                        Tag="SansSerifFont">
                                         <FontIcon
                                             FontSize="12"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -180,16 +180,16 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <StackPanel>
+                                <StackPanel Orientation="Horizontal">
                                     <Button
+                                        x:Name="MonospaceFontResetButton"
                                         Margin="0,0,8,0"
                                         Padding="6"
-                                        x:Name="MonospaceFontResetButton"
-                                        Tag="MonospaceFont"
-                                        Click="ResetFontButton_Click"
                                         l:Uids.Uid="ResetSetting"
+                                        Click="ResetFontButton_Click"
                                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        Style="{ThemeResource AppBarButtonStyle}"
+                                        Tag="MonospaceFont">
                                         <FontIcon
                                             FontSize="12"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
