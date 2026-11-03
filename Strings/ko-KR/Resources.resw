@@ -675,4 +675,7 @@
   <data name="FavoritesTitle.Header" xml:space="preserve">
     <value>즐겨찾기</value>
   </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>설정 초기화</value>
+  </data>
 </root>

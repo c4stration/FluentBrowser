@@ -687,4 +687,7 @@
   <data name="FavoritesTitle.Header" xml:space="preserve">
     <value>المفضلة</value>
   </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>إعادة تعيين الإعداد</value>
+  </data>
 </root>

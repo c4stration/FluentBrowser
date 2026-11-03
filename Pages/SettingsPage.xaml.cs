@@ -1893,6 +1893,69 @@ public sealed partial class SettingsPage : Page, IDisposable
             "MonospaceFont");
     }
 
+    private void ResetFontButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not Button button ||
+            button.Tag is not string settingKey)
+        {
+            return;
+        }
+
+        var (comboBox, previewTextBlock) = settingKey switch
+        {
+            "StandardFont" =>
+                (StandardFontComboBox, StandardFontPreviewTextBlock),
+            "SerifFont" =>
+                (SerifFontComboBox, SerifFontPreviewTextBlock),
+            "SansSerifFont" =>
+                (SansSerifFontComboBox, SansSerifFontPreviewTextBlock),
+            "MonospaceFont" =>
+                (MonospaceFontComboBox, MonospaceFontPreviewTextBlock),
+            _ => throw new ArgumentOutOfRangeException(nameof(button.Tag))
+        };
+
+        bool wasLoadingSettings = _loadingSettings;
+        _loadingSettings = true;
+
+        try
+        {
+            _settings.Values.Remove(settingKey);
+            LoadFontSelection(comboBox, previewTextBlock, settingKey);
+        }
+        finally
+        {
+            _loadingSettings = wasLoadingSettings;
+        }
+
+        if (_mainWindow is not null)
+            _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
+    }
+
+    private void UpdateFontResetButtonVisibility(
+        string settingKey,
+        string fontName)
+    {
+        Button resetButton = settingKey switch
+        {
+            "StandardFont" => StandardFontResetButton,
+            "SerifFont" => SerifFontResetButton,
+            "SansSerifFont" => SansSerifFontResetButton,
+            "MonospaceFont" => MonospaceFontResetButton,
+            _ => throw new ArgumentOutOfRangeException(nameof(settingKey))
+        };
+
+        bool isDefault = string.Equals(
+            fontName.Trim(),
+            GetDefaultFontFamily(settingKey),
+            StringComparison.OrdinalIgnoreCase);
+
+        resetButton.Visibility = isDefault
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+    }
+
     private void LoadFontSelection(
         ComboBox comboBox,
         TextBlock previewTextBlock,
@@ -1903,6 +1966,8 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         if (string.IsNullOrWhiteSpace(fontName))
             fontName = GetDefaultFontFamily(settingKey);
+
+        UpdateFontResetButtonVisibility(settingKey, fontName);
 
         comboBox.SelectedItem = comboBox.Items.Contains(fontName)
             ? fontName
@@ -2006,6 +2071,8 @@ public sealed partial class SettingsPage : Page, IDisposable
             _settings.Values[settingKey] = fontName;
             previewTextBlock.FontFamily = new FontFamily(fontName);
         }
+
+        UpdateFontResetButtonVisibility(settingKey, fontName);
 
         if (_mainWindow is not null)
             _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();

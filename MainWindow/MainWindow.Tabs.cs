@@ -179,6 +179,11 @@ public sealed partial class MainWindow
         {
             reopenItem.IsEnabled = _closedTabs.Count > 0;
         }
+
+        if (MainTabView.TabItems.Count == 0)
+        {
+            Close();
+        }
     }
 
     private void MainTabView_SelectionChanged(

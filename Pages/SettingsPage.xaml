@@ -86,11 +86,28 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <ComboBox
-                                    x:Name="StandardFontComboBox"
-                                    IsEditable="True"
-                                    SelectionChanged="StandardFontComboBox_SelectionChanged"
-                                    TextSubmitted="StandardFontComboBox_TextSubmitted" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button
+                                        Margin="0,0,8,0"
+                                        Padding="6"
+                                        x:Name="StandardFontResetButton"
+                                        Tag="StandardFont"
+                                        Click="ResetFontButton_Click"
+                                        l:Uids.Uid="ResetSetting"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7A7;" />
+                                    </Button>
+
+                                    <ComboBox
+                                        x:Name="StandardFontComboBox"
+                                        IsEditable="True"
+                                        SelectionChanged="StandardFontComboBox_SelectionChanged"
+                                        TextSubmitted="StandardFontComboBox_TextSubmitted" />
+                                </StackPanel>
                             </controls:SettingsCard>
 
                             <controls:SettingsCard l:Uids.Uid="FontType_Serif">
@@ -100,11 +117,29 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <ComboBox
-                                    x:Name="SerifFontComboBox"
-                                    IsEditable="True"
-                                    SelectionChanged="SerifFontComboBox_SelectionChanged"
-                                    TextSubmitted="SerifFontComboBox_TextSubmitted" />
+
+                                <StackPanel>
+                                    <Button
+                                        Margin="0,0,8,0"
+                                        Padding="6"
+                                        x:Name="SerifFontResetButton"
+                                        Tag="SerifFont"
+                                        Click="ResetFontButton_Click"
+                                        l:Uids.Uid="ResetSetting"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7A7;" />
+                                    </Button>
+
+                                    <ComboBox
+                                        x:Name="SerifFontComboBox"
+                                        IsEditable="True"
+                                        SelectionChanged="SerifFontComboBox_SelectionChanged"
+                                        TextSubmitted="SerifFontComboBox_TextSubmitted" />
+                                </StackPanel>
                             </controls:SettingsCard>
 
                             <controls:SettingsCard l:Uids.Uid="FontType_SansSerif">
@@ -114,11 +149,28 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <ComboBox
-                                    x:Name="SansSerifFontComboBox"
-                                    IsEditable="True"
-                                    SelectionChanged="SansSerifFontComboBox_SelectionChanged"
-                                    TextSubmitted="SansSerifFontComboBox_TextSubmitted" />
+                                <StackPanel>
+                                    <Button
+                                        Margin="0,0,8,0"
+                                        Padding="6"
+                                        x:Name="SansSerifFontResetButton"
+                                        Tag="SansSerifFont"
+                                        Click="ResetFontButton_Click"
+                                        l:Uids.Uid="ResetSetting"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7A7;" />
+                                    </Button>
+
+                                    <ComboBox
+                                        x:Name="SansSerifFontComboBox"
+                                        IsEditable="True"
+                                        SelectionChanged="SansSerifFontComboBox_SelectionChanged"
+                                        TextSubmitted="SansSerifFontComboBox_TextSubmitted" />
+                                </StackPanel>
                             </controls:SettingsCard>
 
                             <controls:SettingsCard l:Uids.Uid="FontType_Monospace">
@@ -128,11 +180,28 @@
                                         FontSize="14"
                                         Text="The quick brown fox jumps over the lazy dog." />
                                 </controls:SettingsCard.Description>
-                                <ComboBox
-                                    x:Name="MonospaceFontComboBox"
-                                    IsEditable="True"
-                                    SelectionChanged="MonospaceFontComboBox_SelectionChanged"
-                                    TextSubmitted="MonospaceFontComboBox_TextSubmitted" />
+                                <StackPanel>
+                                    <Button
+                                        Margin="0,0,8,0"
+                                        Padding="6"
+                                        x:Name="MonospaceFontResetButton"
+                                        Tag="MonospaceFont"
+                                        Click="ResetFontButton_Click"
+                                        l:Uids.Uid="ResetSetting"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{ThemeResource AppBarButtonStyle}">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7A7;" />
+                                    </Button>
+
+                                    <ComboBox
+                                        x:Name="MonospaceFontComboBox"
+                                        IsEditable="True"
+                                        SelectionChanged="MonospaceFontComboBox_SelectionChanged"
+                                        TextSubmitted="MonospaceFontComboBox_TextSubmitted" />
+                                </StackPanel>
                             </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
                     </controls:SettingsExpander>

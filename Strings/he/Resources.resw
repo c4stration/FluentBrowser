@@ -693,4 +693,7 @@
   <data name="FavoritesTitle.Header" xml:space="preserve">
     <value>מועדפים</value>
   </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>איפוס ההגדרה</value>
+  </data>
 </root>

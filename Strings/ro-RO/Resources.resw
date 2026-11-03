@@ -675,4 +675,7 @@
   <data name="FavoritesTitle.Header" xml:space="preserve">
     <value>Favorite</value>
   </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Resetează setarea</value>
+  </data>
 </root>
