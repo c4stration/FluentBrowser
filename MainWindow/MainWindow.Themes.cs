@@ -63,6 +63,22 @@ public sealed partial class MainWindow
         WebView2 webView,
         CoreWebView2 core)
     {
+        if (!IsDisplayedWebView(webView) ||
+            !ReferenceEquals(webView.CoreWebView2, core))
+        {
+            return;
+        }
+
+        string source = core.Source;
+
+        bool IsCurrentPage() =>
+            IsDisplayedWebView(webView) &&
+            ReferenceEquals(webView.CoreWebView2, core) &&
+            string.Equals(
+                core.Source,
+                source,
+                StringComparison.OrdinalIgnoreCase);
+
         try
         {
             var settings =
@@ -93,6 +109,9 @@ public sealed partial class MainWindow
                     return meta?.content ?? null;
                 })()
                 """);
+
+            if (!IsCurrentPage())
+                return;
 
             if (string.IsNullOrEmpty(json) ||
                 json == "null")
@@ -163,7 +182,8 @@ public sealed partial class MainWindow
         }
         catch
         {
-            RestoreDefaultTheme(webView);
+            if (IsCurrentPage())
+                RestoreDefaultTheme(webView);
         }
     }
 
@@ -226,6 +246,11 @@ public sealed partial class MainWindow
     private void RestoreDefaultToolbarBackground()
     {
         RestoreDefaultTheme(SelectedWebView);
+
+        VisualStateManager.GoToState(
+            RefreshButton,
+            "NotLoading",
+            false);
     }
 
     private void ApplyDefaultThemeVisuals()

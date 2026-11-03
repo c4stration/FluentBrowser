@@ -32,6 +32,8 @@ public sealed partial class StartPage : Page
     private const string RandomMode = "Random";
     private const string LegacySpotlightMode = "Spotlight";
     private const string NoneMode = "None";
+    private const string BackgroundSettingsLocalSettingKey = "StartPage.BackgroundSettings";
+    private const string FavoritesVisibilityLocalSettingKey = "StartPage.ShowFavorites";
     private const int MaximumRecentBackgrounds = 12;
     private const int RandomBackgroundBatchSize = 10;
     private const int RandomBackgroundRefillThreshold = 3;
@@ -61,7 +63,11 @@ public sealed partial class StartPage : Page
         _randomBackgroundEntries = new(StringComparer.Ordinal);
 
     private bool _isUpdatingMode;
+    private bool _isUpdatingFavorites;
+    private bool _showFavorites = true;
     private BackgroundSettings _settings = new();
+    private readonly HashSet<TextBlock> _favoriteNameTextBlocks = [];
+    private Brush? _favoriteNameForeground;
 
     public ObservableCollection<BackgroundImageItem> RecentBackgrounds { get; } = new();
     public ObservableCollection<FavoriteWebsite> Favorites { get; }
@@ -80,12 +86,16 @@ public sealed partial class StartPage : Page
         Favorites = favorites ?? throw new ArgumentNullException(nameof(favorites));
         InitializeComponent();
 
+        FavoritesToggleSwitch.Toggled += FavoritesToggleSwitch_Toggled;
+        FavoritesToggleSwitch.Loaded += FavoritesToggleSwitch_Loaded;
+
         BackgroundModeComboBox.SelectionChanged += BackgroundModeComboBox_SelectionChanged;
 
         Loaded += StartPage_Loaded;
         Unloaded += StartPage_Unloaded;
 
         LoadBackgroundSettings();
+        LoadFavoritesVisibilitySetting();
         LoadRandomBackgroundCache();
         RefreshRecentBackgrounds();
         SynchronizeModeControls();
@@ -96,6 +106,8 @@ public sealed partial class StartPage : Page
 
     private void StartPage_Loaded(object sender, RoutedEventArgs e)
     {
+        LoadFavoritesVisibilitySetting();
+
         var localizer = Localizer.Get();
 
         localizer.LanguageChanged -= OnLanguageChanged;
@@ -107,13 +119,158 @@ public sealed partial class StartPage : Page
 
     private void StartPage_Unloaded(object sender, RoutedEventArgs e)
     {
+        SaveFavoritesVisibilitySetting(FavoritesToggleSwitch.IsOn);
         Localizer.Get().LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void FavoritesToggleSwitch_Loaded(object sender, RoutedEventArgs e)
+    {
+        LoadFavoritesVisibilitySetting();
     }
 
     private void FavoriteButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { DataContext: FavoriteWebsite favorite })
             FavoriteSelected?.Invoke(favorite);
+    }
+
+    private void FavoritesToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_isUpdatingFavorites || sender is not ToggleSwitch toggleSwitch)
+            return;
+
+        SaveFavoritesVisibilitySetting(toggleSwitch.IsOn);
+    }
+
+    private void LoadFavoritesVisibilitySetting()
+    {
+        try
+        {
+            var values = ApplicationData.Current.LocalSettings.Values;
+
+            if (values.TryGetValue(FavoritesVisibilityLocalSettingKey, out object? value))
+            {
+                switch (value)
+                {
+                    case bool storedBool:
+                        _showFavorites = storedBool;
+                        break;
+                    case string text when bool.TryParse(text, out bool parsedBool):
+                        _showFavorites = parsedBool;
+                        break;
+                    case int number when number is 0 or 1:
+                        _showFavorites = number == 1;
+                        break;
+                    default:
+                        Debug.WriteLine(
+                            $"The saved Favorites visibility value has an unsupported type: {value?.GetType().FullName ?? "null"}.");
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load Favorites visibility: {ex}");
+        }
+
+        _isUpdatingFavorites = true;
+
+        try
+        {
+            FavoritesToggleSwitch.IsOn = _showFavorites;
+            UpdateFavoritesVisibility();
+        }
+        finally
+        {
+            _isUpdatingFavorites = false;
+        }
+
+        // Normalize older string or integer values to a Boolean LocalSettings value.
+        SaveFavoritesVisibilitySetting(_showFavorites);
+    }
+
+    private void SaveFavoritesVisibilitySetting(bool showFavorites)
+    {
+        _showFavorites = showFavorites;
+        UpdateFavoritesVisibility();
+
+        try
+        {
+            ApplicationData.Current.LocalSettings.Values[FavoritesVisibilityLocalSettingKey] =
+                showFavorites;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to save Favorites visibility: {ex}");
+        }
+    }
+
+    private void UpdateFavoritesVisibility()
+    {
+        FavoritesCard.Visibility = _showFavorites
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private void FavoriteNameTextBlock_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBlock textBlock)
+            return;
+
+        _favoriteNameTextBlocks.Add(textBlock);
+
+        if (_favoriteNameForeground is null)
+            textBlock.ClearValue(TextBlock.ForegroundProperty);
+        else
+            textBlock.Foreground = _favoriteNameForeground;
+    }
+
+    private void FavoriteNameTextBlock_Unloaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBlock textBlock)
+            _favoriteNameTextBlocks.Remove(textBlock);
+    }
+
+    private void SetFavoriteNamesForeground(Brush? foreground)
+    {
+        _favoriteNameForeground = foreground;
+
+        foreach (TextBlock textBlock in _favoriteNameTextBlocks)
+            ApplyFavoriteNameForeground(textBlock, foreground);
+
+        // Update the TextBlocks that are already realized by the ListView too.
+        // The Loaded handler applies the saved foreground to items realized later.
+        UpdateFavoriteNameForegrounds(FavoritesListView, foreground);
+    }
+
+    private static void UpdateFavoriteNameForegrounds(
+        DependencyObject parent,
+        Brush? foreground)
+    {
+        if (parent is TextBlock textBlock)
+        {
+            ApplyFavoriteNameForeground(textBlock, foreground);
+            return;
+        }
+
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+
+        for (int i = 0; i < childCount; i++)
+        {
+            UpdateFavoriteNameForegrounds(
+                VisualTreeHelper.GetChild(parent, i),
+                foreground);
+        }
+    }
+
+    private static void ApplyFavoriteNameForeground(
+        TextBlock textBlock,
+        Brush? foreground)
+    {
+        if (foreground is null)
+            textBlock.ClearValue(TextBlock.ForegroundProperty);
+        else
+            textBlock.Foreground = foreground;
     }
 
     private void OnLanguageChanged(
@@ -152,12 +309,6 @@ public sealed partial class StartPage : Page
         return string.IsNullOrWhiteSpace(fileName)
             ? null
             : Path.Combine(Paths.CustomBackgrounds, Path.GetFileName(fileName));
-    }
-
-    private static bool HasDirectory(string? path)
-    {
-        return !string.IsNullOrWhiteSpace(path) &&
-               !string.Equals(path, Path.GetFileName(path), StringComparison.Ordinal);
     }
 
     private void RecentBackgroundsItemsView_SelectionChanged(
@@ -1532,6 +1683,7 @@ public sealed partial class StartPage : Page
                 SettingsIcon.Foreground = foreground;
                 InfoIcon.Foreground = foreground;
                 FavoritesTitle.Foreground = foreground;
+                SetFavoriteNamesForeground(foreground);
             }
             else if (whiteContrast >= 3.0)
             {
@@ -1539,6 +1691,7 @@ public sealed partial class StartPage : Page
                 SettingsIcon.Foreground = foreground;
                 InfoIcon.Foreground = foreground;
                 FavoritesTitle.Foreground = foreground;
+                SetFavoriteNamesForeground(foreground);
             }
             else
             {
@@ -1557,15 +1710,47 @@ public sealed partial class StartPage : Page
         SettingsIcon.ClearValue(IconElement.ForegroundProperty);
         InfoIcon.ClearValue(IconElement.ForegroundProperty);
         FavoritesTitle.ClearValue(TextBlock.ForegroundProperty);
+        SetFavoriteNamesForeground(null);
     }
 
     private void LoadBackgroundSettings()
     {
-        bool rewriteSettings = false;
+        bool loadedSettings = false;
+        bool shouldSaveSettings = false;
 
         try
         {
-            if (File.Exists(SettingsFilePath))
+            var values = ApplicationData.Current.LocalSettings.Values;
+
+            if (values.TryGetValue(BackgroundSettingsLocalSettingKey, out object? savedValue) &&
+                savedValue is string json &&
+                !string.IsNullOrWhiteSpace(json))
+            {
+                try
+                {
+                    var data = JsonSerializer.Deserialize<BackgroundSettingsData>(json);
+
+                    if (data is not null)
+                    {
+                        ApplyBackgroundSettings(data);
+                        loadedSettings = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to read Start Page settings from LocalSettings: {ex}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to access Start Page LocalSettings: {ex}");
+        }
+
+        // Migrate settings saved by older versions of the Start Page.
+        if (!loadedSettings && File.Exists(SettingsFilePath))
+        {
+            try
             {
                 var data = MessagePackSerializer.Deserialize<BackgroundSettingsData>(
                     File.ReadAllBytes(SettingsFilePath),
@@ -1573,51 +1758,71 @@ public sealed partial class StartPage : Page
 
                 if (data is not null)
                 {
-                    var recentFileNames = data.RecentBackgroundFileNames ?? new();
-
-                    rewriteSettings =
-                        HasDirectory(data.SelectedBackgroundFileName) ||
-                        recentFileNames.Any(HasDirectory);
-
-                    _settings = new BackgroundSettings
-                    {
-                        Mode = data.Mode,
-                        SelectedBackgroundPath = ResolveBackgroundPath(data.SelectedBackgroundFileName),
-                        RecentBackgroundPaths = recentFileNames
-                            .Select(ResolveBackgroundPath)
-                            .OfType<string>()
-                            .ToList()
-                    };
+                    ApplyBackgroundSettings(data);
+                    loadedSettings = true;
+                    shouldSaveSettings = true;
                 }
             }
-            else if (File.Exists(LegacySettingsFilePath))
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to migrate MessagePack Start Page settings: {ex}");
+            }
+        }
+
+        if (!loadedSettings && File.Exists(LegacySettingsFilePath))
+        {
+            try
             {
                 _settings = JsonSerializer.Deserialize<BackgroundSettings>(
                     File.ReadAllText(LegacySettingsFilePath)) ?? new();
-
-                rewriteSettings = true;
+                loadedSettings = true;
+                shouldSaveSettings = true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to migrate legacy Start Page settings: {ex}");
             }
         }
-        catch
+
+        if (!loadedSettings)
         {
             _settings = new BackgroundSettings();
+            shouldSaveSettings = true;
         }
 
-        if (_settings.Mode == LegacySpotlightMode)
+        string normalizedMode = _settings.Mode switch
         {
-            _settings.Mode = RandomMode;
-        }
-        else if (_settings.Mode != ImageMode &&
-                 _settings.Mode != RandomMode &&
-                 _settings.Mode != NoneMode)
+            LegacySpotlightMode => RandomMode,
+            RandomMode => RandomMode,
+            NoneMode => NoneMode,
+            _ => ImageMode
+        };
+
+        if (!string.Equals(_settings.Mode, normalizedMode, StringComparison.Ordinal))
         {
-            _settings.Mode = ImageMode;
+            _settings.Mode = normalizedMode;
+            shouldSaveSettings = true;
         }
 
         _settings.RecentBackgroundPaths ??= new();
 
-        if (rewriteSettings)
+        if (shouldSaveSettings)
             SaveBackgroundSettings();
+    }
+
+    private void ApplyBackgroundSettings(BackgroundSettingsData data)
+    {
+        var recentFileNames = data.RecentBackgroundFileNames ?? new();
+
+        _settings = new BackgroundSettings
+        {
+            Mode = data.Mode ?? ImageMode,
+            SelectedBackgroundPath = ResolveBackgroundPath(data.SelectedBackgroundFileName),
+            RecentBackgroundPaths = recentFileNames
+                .Select(ResolveBackgroundPath)
+                .OfType<string>()
+                .ToList()
+        };
     }
 
     private void RefreshRecentBackgrounds()
@@ -1635,6 +1840,11 @@ public sealed partial class StartPage : Page
                 .Take(MaximumRecentBackgrounds)
                 .ToList();
 
+            bool settingsChanged =
+                !_settings.RecentBackgroundPaths.SequenceEqual(
+                    validPaths,
+                    StringComparer.OrdinalIgnoreCase);
+
             _settings.RecentBackgroundPaths = validPaths;
 
             if (string.IsNullOrWhiteSpace(_settings.SelectedBackgroundPath) ||
@@ -1643,7 +1853,11 @@ public sealed partial class StartPage : Page
                     StringComparer.OrdinalIgnoreCase))
             {
                 _settings.SelectedBackgroundPath = validPaths.FirstOrDefault();
+                settingsChanged = true;
             }
+
+            if (settingsChanged)
+                SaveBackgroundSettings();
 
             RecentBackgrounds.Clear();
 
@@ -1848,19 +2062,31 @@ public sealed partial class StartPage : Page
                     .ToList()
             };
 
-            string temporaryPath = SettingsFilePath + ".tmp";
+            string json = JsonSerializer.Serialize(data);
+            ApplicationData.Current.LocalSettings.Values[BackgroundSettingsLocalSettingKey] = json;
 
-            byte[] serializedData = MessagePackSerializer.Serialize(
-                data,
-                MessagePackData.Options);
-
-            File.WriteAllBytes(temporaryPath, serializedData);
-            File.Move(temporaryPath, SettingsFilePath, overwrite: true);
-
-            if (File.Exists(LegacySettingsFilePath))
-                File.Delete(LegacySettingsFilePath);
+            // Remove the old metadata files only after LocalSettings has accepted
+            // the replacement, so a failed write does not discard the old data.
+            TryDeleteSettingsFile(SettingsFilePath);
+            TryDeleteSettingsFile(LegacySettingsFilePath);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to save Start Page background settings: {ex}");
+        }
+    }
+
+    private static void TryDeleteSettingsFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to remove migrated Start Page settings file '{path}': {ex}");
+        }
     }
 
     private static BitmapImage CreateBitmapImage(string path, int decodePixelWidth)
