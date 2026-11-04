@@ -30,6 +30,10 @@ public sealed partial class MainWindow
 
     private int _addressBarAnimationVersion;
     private int _addressBarFocusVersion;
+    private int _addressBarSubmissionFocusVersion;
+    private int _addressBarTabSelectionVersion;
+    private WebView2? _pendingAddressBarFocusWebView;
+    private BrowserTab? _addressBarFocusTab;
     private bool _addressBarFocused;
     private bool _addressBarAnimating;
     private bool _addressBarUserEditing;
@@ -41,8 +45,8 @@ public sealed partial class MainWindow
     private ListView? _addressSuggestionList;
     private Storyboard? _addressSuggestionHeightStoryboard;
     private Uri? _pendingAddressBarUri;
-    private WebView2? _pendingAddressBarFocusWebView;
-    private int _addressBarSubmissionFocusVersion;
+    private bool _addressBarSuppressLostFocus;
+    private bool _addressBarLosingFocusToTabView;
 
     private readonly HttpClient _httpClient = new();
     private readonly HistorySuggestionProvider _historySuggestionProvider = new();
@@ -103,6 +107,9 @@ public sealed partial class MainWindow
 
     private void AddressBar_Loaded(object sender, RoutedEventArgs e)
     {
+        AddressBar.LosingFocus -= AddressBar_LosingFocus;
+        AddressBar.LosingFocus += AddressBar_LosingFocus;
+
         FindAddressBarTextHost();
         InitializeSuggestionPopupAnimation();
 
@@ -131,6 +138,13 @@ public sealed partial class MainWindow
         }
 
         _addressBarUserEditing = true;
+
+        if (SelectedTab is BrowserTab tab)
+        {
+            tab.AddressBarDraft = sender.Text;
+            tab.AddressBarFocused = true;
+            _addressBarFocusTab = tab;
+        }
 
         if (!AreSearchSuggestionsEnabled())
         {
@@ -650,7 +664,11 @@ public sealed partial class MainWindow
         _addressBarSubmitting = false;
         _addressBarFocused = false;
         _addressBarAnimating = false;
+        _addressBarFocusTab = null;
         ++_addressBarAnimationVersion;
+
+        if (SelectedTab is BrowserTab tab)
+            tab.AddressBarFocused = false;
 
         AddressBar.Text = string.Empty;
         ResetAddressBarTextTranslation(false);
@@ -769,6 +787,10 @@ public sealed partial class MainWindow
             return;
         }
 
+        tab.AddressBarDraft = null;
+        tab.AddressBarFocused = false;
+        _addressBarFocusTab = null;
+
         if (tab.WebView is WebView2 webView &&
             !ReferenceEquals(tab.Content, tab.HistoryPage) &&
             !IsInternalPageUri(target))
@@ -802,6 +824,32 @@ public sealed partial class MainWindow
         }
     }
 
+    private void AddressBar_LosingFocus(
+        UIElement sender,
+        Microsoft.UI.Xaml.Input.LosingFocusEventArgs e)
+    {
+        _addressBarLosingFocusToTabView =
+            e.NewFocusedElement is DependencyObject target &&
+            IsWithinElementTree(target, MainTabView);
+    }
+
+    private static bool IsWithinElementTree(
+        DependencyObject element,
+        DependencyObject ancestor)
+    {
+        DependencyObject? current = element;
+
+        while (current is not null)
+        {
+            if (ReferenceEquals(current, ancestor))
+                return true;
+
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return false;
+    }
+
     private void AddressBar_GotFocus(object sender, RoutedEventArgs e)
     {
         if (_addressBarSubmitting)
@@ -812,45 +860,80 @@ public sealed partial class MainWindow
         _addressBarBlurCancellation?.Cancel();
         _addressBarBlurCancellation = null;
 
-        bool freshFocus = !_addressBarUserEditing;
+        BrowserTab? focusedTab = SelectedTab;
+        _addressBarFocusTab = focusedTab;
 
-        if (freshFocus)
+        if (focusedTab is not null)
+            focusedTab.AddressBarFocused = true;
+
+        if (focusedTab?.AddressBarDraft is string draft)
         {
-            CancelSuggestionRequest();
+            AddressBar.Text = draft;
+            _addressBarUserEditing = true;
 
-            if (SelectedTab is BrowserTab selectedTab &&
-                !ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage) &&
-                SelectedWebView?.Source is Uri uri)
-            {
-                AddressBar.Text = GetDisplayUri(uri);
-            }
+            ++_addressBarAnimationVersion;
+            _addressBarFocused = true;
+            _addressBarAnimating = false;
 
             FindAddressBarTextHost();
-            _addressTextBox?.SelectAll();
+            ResetAddressBarTextTranslation(true);
+            _addressTextBox?.Select(draft.Length, 0);
+
+            return;
         }
 
-        _addressBarUserEditing = true;
+        _addressBarUserEditing = false;
+
+        CancelSuggestionRequest();
+
+        if (focusedTab is BrowserTab tab &&
+            !ReferenceEquals(tab.Content, tab.HistoryPage) &&
+            tab.WebView?.Source is Uri uri)
+        {
+            AddressBar.Text = GetDisplayUri(uri);
+        }
+
+        FindAddressBarTextHost();
+        _addressTextBox?.SelectAll();
+
         AnimateAddressBar(true);
     }
 
     private async void AddressBar_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (_addressBarSubmitting)
+        bool losingFocusToTabView = _addressBarLosingFocusToTabView;
+        _addressBarLosingFocusToTabView = false;
+
+        if (_addressBarSubmitting ||
+            _addressBarSuppressLostFocus ||
+            losingFocusToTabView)
+        {
             return;
+        }
+
+        BrowserTab? focusTab = _addressBarFocusTab;
+
+        if (focusTab is null)
+            return;
+
+        int focusVersion = _addressBarFocusVersion;
+        int selectionVersion = _addressBarTabSelectionVersion;
 
         _addressBarBlurCancellation?.Cancel();
 
         var cancellation = new CancellationTokenSource();
         _addressBarBlurCancellation = cancellation;
 
-        int focusVersion = _addressBarFocusVersion;
-
         try
         {
             await Task.Yield();
 
             if (focusVersion != _addressBarFocusVersion ||
-                cancellation.IsCancellationRequested)
+                selectionVersion != _addressBarTabSelectionVersion ||
+                cancellation.IsCancellationRequested ||
+                _addressBarSuppressLostFocus ||
+                !ReferenceEquals(focusTab, SelectedTab) ||
+                !ReferenceEquals(focusTab, _addressBarFocusTab))
             {
                 return;
             }
@@ -862,33 +945,41 @@ public sealed partial class MainWindow
                 return;
             }
 
+            // Actual focus loss within the same tab.
+            focusTab.AddressBarDraft = null;
+            focusTab.AddressBarFocused = false;
+
+            _addressBarFocusTab = null;
             _addressBarUserEditing = false;
 
             CancelSuggestionRequest();
             ClearSuggestions(AddressBar);
 
-            if (SelectedTab?.Content is StartPage)
+            if (focusTab.Content is StartPage)
             {
                 ClearAddressBarForStartPage();
                 return;
             }
 
-            if (SelectedTab is BrowserTab selectedTab &&
-                ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage) &&
-                selectedTab.HistoryPageUri is string internalUri &&
-                Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalUriValue))
+            if (ReferenceEquals(focusTab.Content, focusTab.HistoryPage) &&
+                focusTab.HistoryPageUri is string internalUri &&
+                Uri.TryCreate(
+                    internalUri,
+                    UriKind.Absolute,
+                    out Uri? internalUriValue))
             {
                 UpdateAddressBar(internalUriValue, force: true);
                 AnimateAddressBar(false);
                 return;
             }
 
-            if (SelectedWebView is WebView2 webView)
+            if (focusTab.WebView is WebView2 webView &&
+                ReferenceEquals(SelectedWebView, webView))
             {
                 if (_pendingAddressBarUri is not null)
-                    UpdateAddressBar(_pendingAddressBarUri);
+                    UpdateAddressBar(_pendingAddressBarUri, force: true);
                 else
-                    UpdateAddressBar(webView);
+                    UpdateAddressBar(webView, force: true);
             }
 
             AnimateAddressBar(false);
@@ -1065,6 +1156,55 @@ public sealed partial class MainWindow
         object sender,
         Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
+        if (e.Key == VirtualKey.Escape)
+        {
+            e.Handled = true;
+
+            CancelSuggestionRequest();
+            ClearSuggestions(AddressBar);
+
+            _suggestionTargets.Clear();
+            _suggestionTrainingIds.Clear();
+            _selectedSuggestionTarget = null;
+            _suggestionWasChosen = false;
+
+            _addressBarUserEditing = false;
+
+            if (SelectedTab is BrowserTab escapeTab)
+            {
+                escapeTab.AddressBarDraft = null;
+                escapeTab.AddressBarFocused = true;
+                _addressBarFocusTab = escapeTab;
+
+                if (escapeTab.Content is StartPage)
+                {
+                    ClearAddressBarForStartPage();
+                }
+                else if (ReferenceEquals(escapeTab.Content, escapeTab.HistoryPage) &&
+                         escapeTab.HistoryPageUri is string internalUri &&
+                         Uri.TryCreate(
+                             internalUri,
+                             UriKind.Absolute,
+                             out Uri? internalUriValue))
+                {
+                    AddressBar.Text = GetDisplayUri(internalUriValue);
+                }
+                else if (escapeTab.WebView?.Source is Uri uri)
+                {
+                    AddressBar.Text = GetDisplayUri(uri);
+                }
+                else
+                {
+                    AddressBar.Text = string.Empty;
+                }
+            }
+
+            FindAddressBarTextHost();
+            _addressTextBox?.SelectAll();
+
+            return;
+        }
+
         if (e.Key != VirtualKey.Space)
             return;
 
@@ -1083,6 +1223,9 @@ public sealed partial class MainWindow
         ClearSuggestions(AddressBar);
         _suggestionTargets.Clear();
         _suggestionTrainingIds.Clear();
+        tab.AddressBarDraft = null;
+        tab.AddressBarFocused = false;
+        _addressBarFocusTab = null;
         _addressBarUserEditing = false;
 
         Navigate(tab, target);
@@ -1268,6 +1411,9 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(WebView2 webView, bool force = false)
     {
+        if (SelectedTab?.AddressBarDraft is not null)
+            return;
+
         if (SelectedTab?.Content is StartPage)
         {
             ClearAddressBarForStartPage();
@@ -1289,6 +1435,9 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(Uri uri, bool force = false)
     {
+        if (SelectedTab?.AddressBarDraft is not null)
+            return;
+
         // this is fucking disgusting but at least it works
         if (SelectedTab is BrowserTab tab &&
             ReferenceEquals(tab.Content, tab.HistoryPage) &&
@@ -1310,7 +1459,9 @@ public sealed partial class MainWindow
         }
 
         bool addressBarFocused =
-            _addressBarUserEditing ||
+            SelectedTab is BrowserTab selectedTab &&
+            selectedTab.AddressBarFocused &&
+            ReferenceEquals(_addressBarFocusTab, selectedTab) &&
             AddressBar.FocusState != FocusState.Unfocused;
 
         if (!force && addressBarFocused)

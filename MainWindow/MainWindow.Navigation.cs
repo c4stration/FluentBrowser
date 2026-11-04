@@ -13,8 +13,6 @@ namespace FluentBrowser;
 
 public sealed partial class MainWindow
 {
-    // A navigation that turns into a download completes with ConnectionAborted
-    // Keep the navigation identity so that result is not presented as a broken page when DownloadStarting arrives immediately before or after it!
     private readonly Dictionary<WebView2, DownloadNavigation>
         _downloadNavigations = [];
 
@@ -749,7 +747,7 @@ public sealed partial class MainWindow
                     true);
 
                 UpdateNavigationButtons();
-                UpdateAddressBar(webView, force: true);
+                UpdateAddressBar(webView);
             }
             catch (TaskCanceledException)
             {

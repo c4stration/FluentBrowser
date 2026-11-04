@@ -31,6 +31,8 @@ public sealed partial class MainWindow
         public bool IsInitializing { get; set; } = true;
         public bool WasDiscarded { get; set; }
         public string LastKnownUrl { get; set; } = string.Empty;
+        public string? AddressBarDraft { get; set; }
+        public bool AddressBarFocused { get; set; }
         public FrameworkElement? HistoryPage { get; set; }
         public string? HistoryPageUri { get; set; }
 
@@ -190,6 +192,23 @@ public sealed partial class MainWindow
         object sender,
         SelectionChangedEventArgs e)
     {
+        int selectionVersion = ++_addressBarTabSelectionVersion;
+
+        ++_addressBarFocusVersion;
+
+        _addressBarBlurCancellation?.Cancel();
+        _addressBarBlurCancellation = null;
+
+        _addressBarSuppressLostFocus = true;
+
+        if (_addressBarFocusTab is BrowserTab previousFocusTab)
+            previousFocusTab.AddressBarFocused = false;
+
+        // Keep the previous owner until the address bar actually loses focus.
+        // Otherwise a delayed LostFocus event can be attributed to the newly
+        // selected tab and clear that tab's draft.
+        _addressBarUserEditing = false;
+
         foreach (TabViewItem removedTab in e.RemovedItems.OfType<TabViewItem>())
         {
             if (removedTab.Tag is not BrowserTab previousTab ||
@@ -204,10 +223,21 @@ public sealed partial class MainWindow
         }
 
         if (SelectedTab is not BrowserTab tab)
+        {
+            QueueAddressBarTabSwitchCompletion(selectionVersion);
             return;
+        }
 
         if (tab.WasDiscarded)
             RestoreDiscardedTab(tab);
+
+        bool hasAddressBarDraft = tab.AddressBarDraft is not null;
+
+        tab.AddressBarFocused = hasAddressBarDraft;
+        _addressBarUserEditing = hasAddressBarDraft;
+
+        if (hasAddressBarDraft)
+            AddressBar.Text = tab.AddressBarDraft!;
 
         if (tab.WebView is WebView2 webView)
         {
@@ -221,6 +251,11 @@ public sealed partial class MainWindow
 
         CurrentTabContent.Content = tab.ErrorPage ?? tab.Content;
 
+        // Move focus off the shared address bar before assigning it to the
+        // newly selected tab. This makes the old tab's LostFocus event happen
+        // while tab-switch suppression is active.
+        MoveFocusAwayFromAddressBar(tab);
+
         if (ZoomTeachingTip.IsOpen)
             ZoomTeachingTip.IsOpen = false;
 
@@ -229,11 +264,14 @@ public sealed partial class MainWindow
             if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
                 tab.HistoryPage is not null)
             {
-                if (tab.Content is StartPage)
-                    ClearAddressBarForStartPage();
-                else if (tab.HistoryPageUri is string internalUri &&
-                         Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
-                    UpdateAddressBar(uri, force: true);
+                if (!hasAddressBarDraft)
+                {
+                    if (tab.Content is StartPage)
+                        ClearAddressBarForStartPage();
+                    else if (tab.HistoryPageUri is string internalUri &&
+                             Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
+                        UpdateAddressBar(uri, force: true);
+                }
 
                 LoadingProgressBar.Visibility = Visibility.Collapsed;
                 SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
@@ -244,7 +282,9 @@ public sealed partial class MainWindow
             }
             else
             {
-                UpdateAddressBar(selectedWebView);
+                if (!hasAddressBarDraft)
+                    UpdateAddressBar(selectedWebView, force: true);
+
                 UpdateLoadingUI(selectedWebView);
                 UpdateAudioButton();
                 UpdateNavigationButtons();
@@ -262,7 +302,7 @@ public sealed partial class MainWindow
                     RestoreDefaultToolbarBackground();
                 }
 
-                if (tab.ErrorPage is null)
+                if (tab.ErrorPage is null && !hasAddressBarDraft)
                 {
                     _ = DispatcherQueue.TryEnqueue(() =>
                     {
@@ -281,11 +321,15 @@ public sealed partial class MainWindow
         {
             UpdateZoomControls(100);
 
-            if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
-                tab.HistoryPage is not null &&
-                tab.HistoryPage is not StartPage &&
-                tab.HistoryPageUri is string internalUri &&
-                Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
+            if (hasAddressBarDraft)
+            {
+                UpdateNavigationButtons();
+            }
+            else if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
+                     tab.HistoryPage is not null &&
+                     tab.HistoryPage is not StartPage &&
+                     tab.HistoryPageUri is string internalUri &&
+                     Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
             {
                 UpdateAddressBar(uri, force: true);
                 UpdateNavigationButtons();
@@ -301,6 +345,86 @@ public sealed partial class MainWindow
             SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
             RestoreDefaultToolbarBackground();
         }
+
+        if (hasAddressBarDraft)
+        {
+            ++_addressBarAnimationVersion;
+
+            _addressBarUserEditing = true;
+            _addressBarFocused = true;
+            _addressBarAnimating = false;
+
+            QueueAddressBarDraftFocus(tab, selectionVersion);
+        }
+        else
+        {
+            _addressBarFocusTab = null;
+            _addressBarUserEditing = false;
+            AnimateAddressBar(false);
+            QueueAddressBarTabSwitchCompletion(selectionVersion);
+        }
+    }
+
+    private void MoveFocusAwayFromAddressBar(BrowserTab tab)
+    {
+        if (AddressBar.FocusState == FocusState.Unfocused)
+            return;
+
+        bool movedFocus =
+            tab.ErrorPage is null &&
+            tab.WebView is WebView2 webView &&
+            ReferenceEquals(tab.Content, webView) &&
+            webView.Focus(FocusState.Programmatic);
+
+        if (!movedFocus &&
+            !MainTabView.Focus(FocusState.Programmatic))
+        {
+            tab.TabItem.Focus(FocusState.Programmatic);
+        }
+    }
+
+    private void QueueAddressBarDraftFocus(
+        BrowserTab tab,
+        int selectionVersion)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (selectionVersion != _addressBarTabSelectionVersion)
+                return;
+
+            if (!ReferenceEquals(SelectedTab, tab) ||
+                tab.AddressBarDraft is not string draft)
+            {
+                _addressBarSuppressLostFocus = false;
+                return;
+            }
+
+            AddressBar.Text = draft;
+            AddressBar.Focus(FocusState.Programmatic);
+            _addressBarFocusTab = tab;
+            tab.AddressBarFocused = true;
+
+            FindAddressBarTextHost();
+            ResetAddressBarTextTranslation(true);
+            _addressTextBox?.Select(_addressTextBox.Text.Length, 0);
+
+            // Keep tab-switch blur suppression active until the address bar
+            // has been restored and the focus change has been processed.
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (selectionVersion == _addressBarTabSelectionVersion)
+                    _addressBarSuppressLostFocus = false;
+            });
+        });
+    }
+
+    private void QueueAddressBarTabSwitchCompletion(int selectionVersion)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (selectionVersion == _addressBarTabSelectionVersion)
+                _addressBarSuppressLostFocus = false;
+        });
     }
 
     private TabViewItem CreateNewTab(
