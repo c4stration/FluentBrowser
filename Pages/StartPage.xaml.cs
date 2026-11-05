@@ -512,7 +512,7 @@ public sealed partial class StartPage : Page
 
         if (wasSelected)
         {
-            RootGrid.Background = null;
+            BackgroundImage.Source = null;
         }
 
         try
@@ -694,7 +694,7 @@ public sealed partial class StartPage : Page
 
         if (_settings.Mode == NoneMode)
         {
-            RootGrid.Background = null;
+            BackgroundImage.Source = null;
             return;
         }
 
@@ -713,7 +713,7 @@ public sealed partial class StartPage : Page
         }
         else
         {
-            RootGrid.Background = null;
+            BackgroundImage.Source = null;
         }
     }
 
@@ -758,11 +758,7 @@ public sealed partial class StartPage : Page
 
             entry.LastShownUtcTicks = DateTimeOffset.UtcNow.Ticks;
 
-            RootGrid.Background = new ImageBrush
-            {
-                ImageSource = preparedImage.Value.Image,
-                Stretch = Stretch.UniformToFill
-            };
+            BackgroundImage.Source = preparedImage.Value.Image;
 
             SetImageMetadata(
                 entry.Artist,
@@ -1632,11 +1628,7 @@ public sealed partial class StartPage : Page
                 return;
             }
 
-            RootGrid.Background = new ImageBrush
-            {
-                ImageSource = image,
-                Stretch = Stretch.UniformToFill
-            };
+            BackgroundImage.Source = image;
 
             _ = UpdateIconForegroundFromFileAsync(path, requestId);
         }

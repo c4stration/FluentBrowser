@@ -10,6 +10,12 @@
     Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Grid x:Name="RootGrid">
+        <Image
+            x:Name="BackgroundImage"
+            FlowDirection="LeftToRight"
+            IsHitTestVisible="False"
+            Stretch="UniformToFill" />
+
         <ScrollView Padding="24,0" CornerRadius="0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -118,16 +124,17 @@
                 <MenuFlyout Placement="TopEdgeAlignedRight">
                     <my:ContentMenuFlyoutItem Width="550">
                         <StackPanel Spacing="3">
-                            <TextBlock Margin="0,0,0,8" l:Uids.Uid="CustomizeStartPageHeader" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                Margin="0,0,0,8"
+                                l:Uids.Uid="CustomizeStartPageHeader"
+                                Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
                             <controls:SettingsCard l:Uids.Uid="FavoritesTitle">
                                 <controls:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xE734;" />
                                 </controls:SettingsCard.HeaderIcon>
 
-                                <ToggleSwitch
-                                    x:Name="FavoritesToggleSwitch"
-                                    l:Uids.Uid="General_ToggleSwitch" />
+                                <ToggleSwitch x:Name="FavoritesToggleSwitch" l:Uids.Uid="General_ToggleSwitch" />
                             </controls:SettingsCard>
 
                             <my:SettingsControl

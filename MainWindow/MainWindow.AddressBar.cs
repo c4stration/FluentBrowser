@@ -148,10 +148,7 @@ public sealed partial class MainWindow
 
         if (!AreSearchSuggestionsEnabled())
         {
-            CancelSuggestionRequest();
-            ClearSuggestions(sender);
-            _suggestionTargets.Clear();
-            _suggestionTrainingIds.Clear();
+            ClearSuggestionResults(sender);
             _selectedSuggestionTarget = null;
             _suggestionWasChosen = false;
             return;
@@ -413,11 +410,7 @@ public sealed partial class MainWindow
             if (focusVersion != _addressBarSubmissionFocusVersion)
                 return;
 
-            CancelSuggestionRequest();
-            ClearSuggestions(AddressBar);
-
-            _suggestionTargets.Clear();
-            _suggestionTrainingIds.Clear();
+            ClearSuggestionResults(AddressBar);
 
             if (ReferenceEquals(SelectedWebView, webView))
             {
@@ -629,6 +622,14 @@ public sealed partial class MainWindow
         _suggestionCancellation = null;
     }
 
+    private void ClearSuggestionResults(AutoSuggestBox sender)
+    {
+        CancelSuggestionRequest();
+        ClearSuggestions(sender);
+        _suggestionTargets.Clear();
+        _suggestionTrainingIds.Clear();
+    }
+
     private bool IsCurrentSuggestionRequest(
         AutoSuggestBox sender,
         string query,
@@ -702,10 +703,7 @@ public sealed partial class MainWindow
             _suggestionWasChosen = false;
             _selectedSuggestionTarget = null;
 
-            CancelSuggestionRequest();
-            ClearSuggestions(sender);
-            _suggestionTargets.Clear();
-            _suggestionTrainingIds.Clear();
+            ClearSuggestionResults(sender);
             return;
         }
 
@@ -775,10 +773,7 @@ public sealed partial class MainWindow
         _pendingAddressBarFocusWebView =
             waitForSuggestionPopupClose ? webViewToFocus : null;
 
-        CancelSuggestionRequest();
-        ClearSuggestions(sender);
-        _suggestionTargets.Clear();
-        _suggestionTrainingIds.Clear();
+        ClearSuggestionResults(sender);
 
         if (SelectedTab is not BrowserTab tab)
         {
@@ -961,14 +956,9 @@ public sealed partial class MainWindow
                 return;
             }
 
-            if (ReferenceEquals(focusTab.Content, focusTab.HistoryPage) &&
-                focusTab.HistoryPageUri is string internalUri &&
-                Uri.TryCreate(
-                    internalUri,
-                    UriKind.Absolute,
-                    out Uri? internalUriValue))
+            if (TryGetHistoryPageUri(focusTab, out Uri historyUri))
             {
-                UpdateAddressBar(internalUriValue, force: true);
+                UpdateAddressBar(historyUri, force: true);
                 AnimateAddressBar(false);
                 return;
             }
@@ -1160,11 +1150,7 @@ public sealed partial class MainWindow
         {
             e.Handled = true;
 
-            CancelSuggestionRequest();
-            ClearSuggestions(AddressBar);
-
-            _suggestionTargets.Clear();
-            _suggestionTrainingIds.Clear();
+            ClearSuggestionResults(AddressBar);
             _selectedSuggestionTarget = null;
             _suggestionWasChosen = false;
 
@@ -1180,14 +1166,9 @@ public sealed partial class MainWindow
                 {
                     ClearAddressBarForStartPage();
                 }
-                else if (ReferenceEquals(escapeTab.Content, escapeTab.HistoryPage) &&
-                         escapeTab.HistoryPageUri is string internalUri &&
-                         Uri.TryCreate(
-                             internalUri,
-                             UriKind.Absolute,
-                             out Uri? internalUriValue))
+                else if (TryGetHistoryPageUri(escapeTab, out Uri historyUri))
                 {
-                    AddressBar.Text = GetDisplayUri(internalUriValue);
+                    AddressBar.Text = GetDisplayUri(historyUri);
                 }
                 else if (escapeTab.WebView?.Source is Uri uri)
                 {
@@ -1219,10 +1200,7 @@ public sealed partial class MainWindow
         _suggestionWasChosen = false;
         _selectedSuggestionTarget = null;
 
-        CancelSuggestionRequest();
-        ClearSuggestions(AddressBar);
-        _suggestionTargets.Clear();
-        _suggestionTrainingIds.Clear();
+        ClearSuggestionResults(AddressBar);
         tab.AddressBarDraft = null;
         tab.AddressBarFocused = false;
         _addressBarFocusTab = null;
@@ -1409,6 +1387,31 @@ public sealed partial class MainWindow
         return measurer.DesiredSize.Width;
     }
 
+    private static bool TryGetHistoryPageUri(BrowserTab tab, out Uri uri)
+    {
+        if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
+            tab.HistoryPageUri is string internalUri &&
+            Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? parsedUri) &&
+            parsedUri is not null)
+        {
+            uri = parsedUri;
+            return true;
+        }
+
+        uri = null!;
+        return false;
+    }
+
+    private static bool IsSettingsPageUri(Uri uri) =>
+        string.Equals(
+            uri.Scheme,
+            "fluentbrowser",
+            StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(
+            uri.Host,
+            "settings",
+            StringComparison.OrdinalIgnoreCase);
+
     private void UpdateAddressBar(WebView2 webView, bool force = false)
     {
         if (SelectedTab?.AddressBarDraft is not null)
@@ -1421,11 +1424,9 @@ public sealed partial class MainWindow
         }
 
         if (SelectedTab is BrowserTab tab &&
-            ReferenceEquals(tab.Content, tab.HistoryPage) &&
-            tab.HistoryPageUri is string internalUri &&
-            Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalUriValue))
+            TryGetHistoryPageUri(tab, out Uri historyUri))
         {
-            UpdateAddressBar(internalUriValue, force);
+            UpdateAddressBar(historyUri, force);
             return;
         }
 
@@ -1438,20 +1439,9 @@ public sealed partial class MainWindow
         if (SelectedTab?.AddressBarDraft is not null)
             return;
 
-        // this is fucking disgusting but at least it works
         if (SelectedTab is BrowserTab tab &&
-            ReferenceEquals(tab.Content, tab.HistoryPage) &&
-            tab.HistoryPageUri is string internalUri &&
-            Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? internalPageUri) &&
-            internalPageUri is not null &&
-            string.Equals(
-                internalPageUri.Scheme,
-                "fluentbrowser",
-                StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(
-                internalPageUri.Host,
-                "settings",
-                StringComparison.OrdinalIgnoreCase))
+            TryGetHistoryPageUri(tab, out Uri historyUri) &&
+            IsSettingsPageUri(historyUri))
         {
             _pendingAddressBarUri = null;
             AddressBar.Text = string.Empty;

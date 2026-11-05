@@ -474,8 +474,6 @@ public sealed partial class MainWindow
         if (profile is null)
             return;
 
-        profile.AreWebViewScriptApisEnabledForServiceWorkers = true;
-
         string webTheme =
             _settings.Values["WebTheme"] as string
             ?? "System";
