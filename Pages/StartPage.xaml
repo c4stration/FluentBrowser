@@ -14,6 +14,8 @@
             x:Name="BackgroundImage"
             FlowDirection="LeftToRight"
             IsHitTestVisible="False"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
             Stretch="UniformToFill" />
 
         <ScrollView Padding="24,0" CornerRadius="0">

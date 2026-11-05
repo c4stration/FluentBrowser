@@ -832,7 +832,7 @@
 
                                     <FontIcon
                                         FontFamily="Segoe Fluent Icons"
-                                        FontSize="18"
+                                        FontSize="16"
                                         Glyph="&#xF196;"
                                         Translation="0,0,0">
                                         <FontIcon.TranslationTransition>
@@ -872,7 +872,7 @@
 
                                     <FontIcon
                                         FontFamily="Segoe Fluent Icons"
-                                        FontSize="18"
+                                        FontSize="16"
                                         Glyph="&#xEA86;"
                                         Translation="0,0,0">
                                         <FontIcon.TranslationTransition>
@@ -1034,7 +1034,7 @@
                                         <FontIcon
                                             Name="DownloadIcon"
                                             FontFamily="Segoe Fluent Icons"
-                                            FontSize="18"
+                                            FontSize="16"
                                             Glyph="&#xE896;" />
                                     </Grid>
 
@@ -1173,7 +1173,7 @@
 
                                     <FontIcon
                                         FontFamily="Segoe Fluent Icons"
-                                        FontSize="18"
+                                        FontSize="16"
                                         Glyph="&#xE712;"
                                         Translation="0,0,0">
                                         <FontIcon.TranslationTransition>
