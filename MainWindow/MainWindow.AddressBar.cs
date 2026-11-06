@@ -1447,12 +1447,12 @@ public sealed partial class MainWindow
             AddressBar.Text = string.Empty;
             return;
         }
-
+        
         bool addressBarFocused =
             SelectedTab is BrowserTab selectedTab &&
             selectedTab.AddressBarFocused &&
             ReferenceEquals(_addressBarFocusTab, selectedTab) &&
-            AddressBar.FocusState != FocusState.Unfocused;
+            _addressTextBox?.FocusState != FocusState.Unfocused;
 
         if (!force && addressBarFocused)
             return;
