@@ -17,16 +17,16 @@ jobs:
         with:
           path: src/FluentBrowser
 
-      - name: Check out WinUI3Localizer
+        - name: Check out WinUI3Localizer
         uses: actions/checkout@v4
         with:
           repository: c4stration/WinUI3Localizer
-          path: WinUI3Localizer
+          path: src/WinUI3Localizer
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 8.0.419
 
       - name: Set up MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -74,7 +74,7 @@ jobs:
           $packageDir = Join-Path $env:GITHUB_WORKSPACE "artifacts"
           New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
 
-          msbuild "src/FluentBrowser/FluentBrowser.csproj" `
+          msbuild "src/FluentBrowser/FluentBrowser/FluentBrowser.csproj" `
             /restore `
             /p:Configuration=Release `
             /p:Platform=x64 `
