@@ -17,7 +17,7 @@ jobs:
         with:
           path: src/FluentBrowser
 
-        - name: Check out WinUI3Localizer
+      - name: Check out WinUI3Localizer
         uses: actions/checkout@v4
         with:
           repository: c4stration/WinUI3Localizer
