@@ -87,6 +87,7 @@ jobs:
             /p:AppxBundle=Never `
             /p:UapAppxPackageBuildMode=SideloadOnly `
             /p:PublishTrimmed=false `
+            /p:PublishReadyToRun=false `
             /p:GenerateAppxPackageOnBuild=true
 
           if ($LASTEXITCODE -ne 0) {
