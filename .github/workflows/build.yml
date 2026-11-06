@@ -1,0 +1,160 @@
+name: Build FluentBrowser
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out FluentBrowser
+        uses: actions/checkout@v4
+        with:
+          path: src/FluentBrowser
+
+      - name: Check out WinUI3Localizer
+        uses: actions/checkout@v4
+        with:
+          repository: c4stration/WinUI3Localizer
+          path: WinUI3Localizer
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Prepare package version
+        shell: pwsh
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          if ($env:TAG_NAME -notmatch '^v?(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$') {
+            throw "Release tag must look like v1.2.3 or v1.2.3.4"
+          }
+
+          $version = "$($Matches[1]).$($Matches[2]).$($Matches[3]).$($Matches[4])"
+
+          if ($version.EndsWith(".")) {
+            $version += "0"
+          }
+
+          "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Prepare signing certificate
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          if (-not $env:PFX_BASE64 -or -not $env:PFX_PASSWORD) {
+            throw "Configure WINDOWS_PFX_BASE64 and WINDOWS_PFX_PASSWORD repository secrets."
+          }
+
+          $pfxPath = Join-Path $env:RUNNER_TEMP "FluentBrowser.pfx"
+          [IO.File]::WriteAllBytes(
+            $pfxPath,
+            [Convert]::FromBase64String($env:PFX_BASE64)
+          )
+
+          "PFX_PATH=$pfxPath" >> $env:GITHUB_ENV
+
+      - name: Build MSIX package
+        shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          $packageDir = Join-Path $env:GITHUB_WORKSPACE "artifacts"
+          New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
+
+          msbuild "src/FluentBrowser/FluentBrowser.csproj" `
+            /restore `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:AppxPackageDir="$packageDir/" `
+            /p:AppxPackageSigningEnabled=true `
+            /p:PackageCertificateKeyFile="$env:PFX_PATH" `
+            /p:PackageCertificatePassword="$env:PFX_PASSWORD" `
+            /p:AppxPackageVersion="$env:PACKAGE_VERSION" `
+            /p:AppxBundle=Never `
+            /p:UapAppxPackageBuildMode=SideloadOnly `
+            /p:GenerateAppxPackageOnBuild=true
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "MSIX build failed."
+          }
+
+          $msix = Get-ChildItem $packageDir -Filter "*.msix" -Recurse |
+            Select-Object -First 1
+
+          if (-not $msix) {
+            throw "No MSIX package was generated."
+          }
+
+          Copy-Item $msix.FullName "$packageDir/FluentBrowser.msix"
+
+      - name: Export public certificate
+        shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          $password = ConvertTo-SecureString `
+            $env:PFX_PASSWORD -AsPlainText -Force
+
+          $cert = Import-PfxCertificate `
+            -FilePath "$env:PFX_PATH" `
+            -CertStoreLocation Cert:\CurrentUser\My `
+            -Password $password
+
+          Export-Certificate `
+            -Cert $cert `
+            -FilePath "$env:GITHUB_WORKSPACE/artifacts/FluentBrowser.cer" |
+            Out-Null
+
+      - name: Generate App Installer file
+        shell: pwsh
+        run: |
+          $appInstaller = @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <AppInstaller
+            xmlns="http://schemas.microsoft.com/appx/appinstaller/2018"
+            Uri="https://github.com/c4stration/FluentBrowser/releases/latest/download/FluentBrowser.appinstaller"
+            Version="$env:PACKAGE_VERSION">
+
+            <MainPackage
+              Name="33d0ef7f-84eb-433c-8c79-7dd88fc83366"
+              Publisher="CN=nooby"
+              Version="$env:PACKAGE_VERSION"
+              Uri="https://github.com/c4stration/FluentBrowser/releases/latest/download/FluentBrowser.msix"
+              ProcessorArchitecture="x64" />
+
+            <UpdateSettings>
+              <OnLaunch
+                HoursBetweenUpdateChecks="12"
+                ShowPrompt="true"
+                UpdateBlocksActivation="false" />
+            </UpdateSettings>
+          </AppInstaller>
+          "@
+
+          $appInstaller |
+            Set-Content "$env:GITHUB_WORKSPACE/artifacts/FluentBrowser.appinstaller" -Encoding utf8
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            artifacts/FluentBrowser.msix
+            artifacts/FluentBrowser.appinstaller
+            artifacts/FluentBrowser.cer
+          fail_on_unmatched_files: true
+          overwrite_files: true
