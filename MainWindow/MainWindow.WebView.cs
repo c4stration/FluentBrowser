@@ -35,6 +35,8 @@ public sealed class BrowserExtensionChangedEventArgs : EventArgs
 
 public sealed partial class MainWindow
 {
+    private const string AudioPlaybackMessagePrefix = "fluentbrowser-audio:";
+
     private readonly TaskCompletionSource<CoreWebView2Profile>
         _browserProfileReady = new(
             TaskCreationOptions.RunContinuationsAsynchronously);
@@ -797,9 +799,38 @@ public sealed partial class MainWindow
         WebView2 webView,
         CoreWebView2 core)
     {
-        core.WebMessageReceived += (_, args) =>
+        core.WebMessageReceived += (sender, args) =>
         {
             string message = args.TryGetWebMessageAsString();
+
+            if ((message == $"{AudioPlaybackMessagePrefix}true" ||
+                 message == $"{AudioPlaybackMessagePrefix}false") &&
+                webView.Tag is BrowserTab tab)
+            {
+                bool playing =
+                    message == $"{AudioPlaybackMessagePrefix}true";
+
+                _tabMediaPlayback[core] = playing;
+
+                if (playing)
+                {
+                    CancelTabAudio(webView);
+                    UpdateTabAudioButton(tab.AudioButton, core);
+
+                    if (ReferenceEquals(SelectedWebView, webView))
+                        UpdateAudioButton();
+                }
+                else
+                {
+                    ReplaceAudioCancellation(webView);
+                    _ = DelayBeforeHidingAudioButtonAsync(
+                        webView,
+                        tab.AudioButton,
+                        core);
+                }
+
+                return;
+            }
 
             if (ReferenceEquals(SelectedWebView, webView) &&
                 _webViewShortcutTokens.TryGetValue(
@@ -821,6 +852,9 @@ public sealed partial class MainWindow
         await core.AddScriptToExecuteOnDocumentCreatedAsync(
             BuildWebViewShortcutBridgeScript(token));
 
+        await core.AddScriptToExecuteOnDocumentCreatedAsync(
+            BuildAudioMonitorScript());
+
         Windows.UI.Color accentColor =
             ((Microsoft.UI.Xaml.Media.SolidColorBrush)
                 Application.Current.Resources[
@@ -830,6 +864,83 @@ public sealed partial class MainWindow
         await core.AddScriptToExecuteOnDocumentCreatedAsync(
             BuildSelectionColorScript(accentColor));
     }
+
+    private static string BuildAudioMonitorScript() =>
+        $$"""
+        (() => {
+            if (window.top !== window.self)
+                return;
+
+            const media = new Set();
+            let previousState = null;
+
+            const isPlaying = element =>
+                !element.paused &&
+                !element.ended &&
+                !element.muted &&
+                element.volume > 0;
+
+            const update = () => {
+                const playing = [...media].some(isPlaying);
+
+                if (playing === previousState)
+                    return;
+
+                previousState = playing;
+                window.chrome.webview.postMessage(
+                    "{{AudioPlaybackMessagePrefix}}" + playing);
+            };
+
+            const register = element => {
+                if (!(element instanceof HTMLMediaElement) ||
+                    media.has(element)) {
+                    return;
+                }
+
+                media.add(element);
+
+                for (const event of [
+                    "play",
+                    "playing",
+                    "pause",
+                    "ended",
+                    "emptied",
+                    "volumechange"
+                ]) {
+                    element.addEventListener(event, update);
+                }
+
+                update();
+            };
+
+            const scan = root => {
+                if (root instanceof HTMLMediaElement)
+                    register(root);
+
+                root.querySelectorAll?.("audio, video")
+                    .forEach(register);
+            };
+
+            const observer = new MutationObserver(records => {
+                for (const record of records) {
+                    for (const node of record.addedNodes)
+                        scan(node);
+                }
+            });
+
+            scan(document);
+            observer.observe(document, {
+                childList: true,
+                subtree: true
+            });
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                () => scan(document),
+                { once: true }
+            );
+        })();
+        """;
 
     private static string BuildSelectionColorScript(
         Windows.UI.Color accentColor)

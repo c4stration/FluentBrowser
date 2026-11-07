@@ -525,33 +525,50 @@
                                         Style="{ThemeResource TextBlockButtonStyle}" />
                                 </StackPanel>
                             </controls:SettingsCard>
-                            <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                            <controls:SettingsCard HorizontalContentAlignment="Stretch" ContentAlignment="Left">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Margin="0,0,0,5" l:Uids.Uid="Deps" />
-                                    <HyperlinkButton
-                                        Content="WinUI3Localizer"
-                                        NavigateUri="https://github.com/AndrewKeepCoding/WinUI3Localizer"
-                                        Style="{ThemeResource TextBlockButtonStyle}" />
-                                    <HyperlinkButton
-                                        Margin="0,-5,0,0"
-                                        Content="Windows Community Toolkit"
-                                        NavigateUri="https://github.com/CommunityToolkit/Windows"
-                                        Style="{ThemeResource TextBlockButtonStyle}" />
-                                    <HyperlinkButton
-                                        Margin="0,-5,0,0"
-                                        Content="Microsoft Edge WebView2"
-                                        NavigateUri="https://learn.microsoft.com/microsoft-edge/webview2/"
-                                        Style="{ThemeResource TextBlockButtonStyle}" />
-                                    <HyperlinkButton
-                                        Margin="0,-5,0,0"
-                                        Content="System.IO.Hashing"
-                                        NavigateUri="https://github.com/dotnet/runtime/tree/main/src/libraries/System.IO.Hashing"
-                                        Style="{ThemeResource TextBlockButtonStyle}" />
-                                    <HyperlinkButton
-                                        Margin="0,-5,0,0"
-                                        Content="MessagePack"
-                                        NavigateUri="https://github.com/MessagePack-CSharp/MessagePack-CSharp"
-                                        Style="{ThemeResource TextBlockButtonStyle}" />
+                                    
+                                    <my:ColumnMajorWrapPanel PreferredColumnWidth="240">
+                                        <HyperlinkButton
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Content="WinUI3Localizer"
+                                            NavigateUri="https://github.com/AndrewKeepCoding/WinUI3Localizer"
+                                            Style="{ThemeResource TextBlockButtonStyle}" />
+
+                                        <HyperlinkButton
+                                            Margin="0,-5,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Content="Windows Community Toolkit"
+                                            NavigateUri="https://github.com/CommunityToolkit/Windows"
+                                            Style="{ThemeResource TextBlockButtonStyle}" />
+
+                                        <HyperlinkButton
+                                            Margin="0,-5,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Content="Microsoft Edge WebView2"
+                                            NavigateUri="https://learn.microsoft.com/microsoft-edge/webview2/"
+                                            Style="{ThemeResource TextBlockButtonStyle}" />
+
+                                        <HyperlinkButton
+                                            Margin="0,-5,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Content="System.IO.Hashing"
+                                            NavigateUri="https://github.com/dotnet/runtime/tree/main/src/libraries/System.IO.Hashing"
+                                            Style="{ThemeResource TextBlockButtonStyle}" />
+
+                                        <HyperlinkButton
+                                            Margin="0,-5,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Content="MessagePack"
+                                            NavigateUri="https://github.com/MessagePack-CSharp/MessagePack-CSharp"
+                                            Style="{ThemeResource TextBlockButtonStyle}" />
+                                    </my:ColumnMajorWrapPanel>
                                 </StackPanel>
                             </controls:SettingsCard>
                         </controls:SettingsExpander.Items>

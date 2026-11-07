@@ -175,7 +175,7 @@ public sealed partial class MainWindow
             if (core is null || core.IsSuspended)
                 return;
 
-            if (core.IsDocumentPlayingAudio ||
+            if (IsTabPlayingAudio(core) ||
                 core.ContainsFullScreenElement)
             {
                 return;
@@ -218,7 +218,7 @@ public sealed partial class MainWindow
         CoreWebView2? core = candidate.CoreWebView2;
 
         if (core is null ||
-            core.IsDocumentPlayingAudio ||
+            IsTabPlayingAudio(core) ||
             core.ContainsFullScreenElement)
         {
             return false;
@@ -283,6 +283,9 @@ public sealed partial class MainWindow
     private void CleanupWebViewTracking(WebView2 webView)
     {
         CancelTabAudio(webView);
+
+        if (webView.CoreWebView2 is { } core)
+            _tabMediaPlayback.Remove(core);
 
         _loadingWebViews.Remove(webView);
         RemoveLoadProgressTracking(webView);

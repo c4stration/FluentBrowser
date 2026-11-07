@@ -24,7 +24,14 @@ public sealed partial class MainWindow
     private readonly Dictionary<WebView2, CancellationTokenSource>
         _tabAudioCancellation = new();
 
-    private static void ConfigureTabAudioButton(
+    private readonly Dictionary<CoreWebView2, bool>
+        _tabMediaPlayback = new();
+
+    private bool IsTabPlayingAudio(CoreWebView2 core) =>
+        core.IsDocumentPlayingAudio ||
+        (_tabMediaPlayback.TryGetValue(core, out bool playing) && playing);
+
+    private void ConfigureTabAudioButton(
         WebView2 webView,
         Button audioButton)
     {
@@ -54,7 +61,7 @@ public sealed partial class MainWindow
         ReplaceAudioCancellation(webView);
 
         if (webView.CoreWebView2 is not { } core ||
-            !core.IsDocumentPlayingAudio)
+            !IsTabPlayingAudio(core))
         {
             return;
         }
@@ -123,7 +130,7 @@ public sealed partial class MainWindow
             return;
         }
 
-        if (currentCore.IsDocumentPlayingAudio || currentCore.IsMuted)
+        if (IsTabPlayingAudio(currentCore) || currentCore.IsMuted)
             currentCore.IsMuted = !currentCore.IsMuted;
         else
             MuteAllPlayingTabs();
@@ -183,14 +190,15 @@ public sealed partial class MainWindow
             return;
 
         var menu = new MenuFlyout();
-        bool currentPlaying = currentCore.IsDocumentPlayingAudio;
+        bool currentPlaying = IsTabPlayingAudio(currentCore);
 
         var playingTabs = MainTabView.TabItems
             .OfType<TabViewItem>()
             .Where(tab =>
                 tab.Tag is BrowserTab browserTab &&
                 browserTab.WebView is WebView2 webView &&
-                webView.CoreWebView2?.IsDocumentPlayingAudio == true)
+                webView.CoreWebView2 is { } core &&
+                IsTabPlayingAudio(core))
             .ToList();
 
         foreach (var tab in playingTabs)
@@ -276,7 +284,7 @@ public sealed partial class MainWindow
     {
         foreach (var (_, core) in GetTabCores())
         {
-            if (core.IsDocumentPlayingAudio)
+            if (IsTabPlayingAudio(core))
                 core.IsMuted = true;
         }
     }
@@ -286,7 +294,7 @@ public sealed partial class MainWindow
         foreach (var (_, core) in GetTabCores())
         {
             if (!ReferenceEquals(core, currentCore) &&
-                core.IsDocumentPlayingAudio)
+                IsTabPlayingAudio(core))
             {
                 core.IsMuted = true;
             }
@@ -317,7 +325,7 @@ public sealed partial class MainWindow
         }
 
         bool anyPlaying = GetTabCores()
-            .Any(x => x.Core.IsDocumentPlayingAudio);
+            .Any(x => IsTabPlayingAudio(x.Core));
 
         bool muted = currentCore.IsMuted;
         bool show = anyPlaying || muted;
@@ -335,11 +343,11 @@ public sealed partial class MainWindow
                     : "AccentTextFillColorPrimaryBrush"];
     }
 
-    private static void UpdateTabAudioButton(
+    private void UpdateTabAudioButton(
         Button button,
         CoreWebView2 core)
     {
-        bool visible = core.IsDocumentPlayingAudio || core.IsMuted;
+        bool visible = IsTabPlayingAudio(core) || core.IsMuted;
 
         button.Visibility = visible
             ? Visibility.Visible
@@ -368,7 +376,7 @@ public sealed partial class MainWindow
                 webView,
                 audioButton);
 
-            if (!core.IsDocumentPlayingAudio)
+            if (!IsTabPlayingAudio(core))
             {
                 await DelayBeforeHidingAudioButtonAsync(
                     webView,
