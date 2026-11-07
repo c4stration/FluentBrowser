@@ -690,4 +690,7 @@
   <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
     <value>إعادة تعيين الإعداد</value>
   </data>
+  <data name="AppVersion" xml:space="preserve">
+    <value>الإصدار {0}</value>
+  </data>
 </root>

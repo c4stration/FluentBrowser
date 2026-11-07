@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Windows.System;
@@ -26,6 +27,7 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
     private readonly HashSet<uint> _pressedKeys = new();
 
     private bool _dialogOpen;
+    private bool _disposed;
 
     private HotkeySettings _draftSettings = new();
     private HotkeySettings _originalSettings = new();
@@ -175,7 +177,7 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
         object sender,
         RoutedEventArgs e)
     {
-        if (_dialogOpen)
+        if (_disposed || _dialogOpen)
         {
             return;
         }
@@ -211,6 +213,11 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
         ContentDialog sender,
         ContentDialogOpenedEventArgs args)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         InstallKeyboardHook();
 
         _dialogContent.Focus(FocusState.Programmatic);
@@ -359,7 +366,7 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
 
     private void InstallKeyboardHook()
     {
-        if (_keyboardHook != IntPtr.Zero)
+        if (_disposed || _keyboardHook != IntPtr.Zero)
         {
             return;
         }
@@ -378,9 +385,15 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
             return;
         }
 
-        UnhookWindowsHookEx(_keyboardHook);
-        _keyboardHook = IntPtr.Zero;
+        if (!UnhookWindowsHookEx(_keyboardHook))
+        {
+            Debug.WriteLine(
+                $"Failed to remove keyboard hook: {Marshal.GetLastWin32Error()}");
 
+            return;
+        }
+
+        _keyboardHook = IntPtr.Zero;
         _pressedKeys.Clear();
     }
 
@@ -480,7 +493,6 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
             return false;
         }
 
-        // Capture function keys so F1–F12 can be bound alone.
         if (IsFunctionKey(key))
         {
             return false;
@@ -583,7 +595,6 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
         bool hasModifier =
             settings.Keys.Any(IsModifier);
 
-        // Function keys are valid without a modifier (e.g. F11, F12).
         bool functionKeyOnly =
             settings.Keys.Count == 1 &&
             IsFunctionKey(settings.Keys[0]);
@@ -769,15 +780,31 @@ public sealed partial class ShortcutControl : UserControl, IDisposable
     {
         RemoveKeyboardHook();
 
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        RemoveKeyboardHook();
+
+        if (_dialogOpen)
+        {
+            _shortcutDialog.Hide();
+            _dialogOpen = false;
+        }
+
         _shortcutDialog.Opened -= ShortcutDialog_Opened;
         _shortcutDialog.Closing -= ShortcutDialog_Closing;
         _shortcutDialog.PrimaryButtonClick -=
             ShortcutDialog_PrimaryButtonClick;
 
-        _dialogContent.ResetClick -=
-            DialogContent_ResetClick;
-        _dialogContent.ClearClick -=
-            DialogContent_ClearClick;
+        _dialogContent.ResetClick -= DialogContent_ResetClick;
+        _dialogContent.ClearClick -= DialogContent_ClearClick;
+
+        Loaded -= ShortcutControl_Loaded;
+        Unloaded -= ShortcutControl_Unloaded;
+
+        ShortcutChanged = null;
     }
 
     [DllImport(

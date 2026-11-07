@@ -505,9 +505,9 @@
                             <ImageIcon Source="/Assets/StoreLogo.png" />
                         </controls:SettingsExpander.HeaderIcon>
                         <TextBlock
+                            x:Name="VersionTextBlock"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            IsTextSelectionEnabled="True"
-                            Text="Version 0.14.0" />
+                            IsTextSelectionEnabled="True" />
                         <controls:SettingsExpander.Items>
                             <controls:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
                                 <StackPanel Orientation="Vertical">

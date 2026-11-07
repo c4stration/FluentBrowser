@@ -18,6 +18,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -74,10 +75,10 @@ public sealed partial class SettingsPage : Page, IDisposable
     private int _extensionLoadVersion;
 
     private static readonly Lazy<string[]> InstalledFontFamilies = new(() =>
-    CanvasTextFormat.GetSystemFontFamilies(ApplicationLanguages.Languages)
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
-        .ToArray());
+        CanvasTextFormat.GetSystemFontFamilies(ApplicationLanguages.Languages)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
+            .ToArray());
 
     public SettingsPage()
     {
@@ -119,9 +120,12 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadAskEveryDownload();
         LoadAllShortcuts();
         LoadInstalledFonts();
+        LoadVersion();
 
         CustomSitesListView.ItemsSource = _customSites;
         CustomSitesListView.DragItemsCompleted += CustomSitesListView_DragItemsCompleted;
+
+        Localizer.Get().LanguageChanged += OnLanguageChanged;
 
         _loadingSettings = false;
 
@@ -166,6 +170,8 @@ public sealed partial class SettingsPage : Page, IDisposable
         FindOnPageShortcutControl.ShortcutChanged -=
             FindOnPageShortcutControl_ShortcutChanged;
 
+        Localizer.Get().LanguageChanged -= OnLanguageChanged;
+
         NewTabShortcutControl.Dispose();
         CloseTabShortcutControl.Dispose();
         ReopenTabShortcutControl.Dispose();
@@ -193,6 +199,12 @@ public sealed partial class SettingsPage : Page, IDisposable
         SearchEngineChanged = null;
     }
 
+    private void OnLanguageChanged(
+        object? sender,
+        LanguageChangedEventArgs e)
+    {
+        LoadVersion();
+    }
 
     private async void MainWindow_BrowserExtensionsReset(
         object? sender,
@@ -318,6 +330,16 @@ public sealed partial class SettingsPage : Page, IDisposable
             "Acrylic" => 2,
             _ => 0
         };
+    }
+
+    private void LoadVersion()
+    {
+        var version = Package.Current.Id.Version;
+
+        VersionTextBlock.Text = string.Format(
+            LocalizerExtensions.GetLocalizedString("AppVersion"),
+            $"{version.Major}.{version.Minor}.{version.Build}"
+        );
     }
 
     private void LoadTheme()

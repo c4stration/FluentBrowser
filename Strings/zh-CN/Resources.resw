@@ -682,4 +682,7 @@
   <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
     <value>重置设置</value>
   </data>
+  <data name="AppVersion" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
 </root>
