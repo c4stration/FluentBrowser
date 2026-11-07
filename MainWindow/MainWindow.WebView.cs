@@ -56,9 +56,6 @@ public sealed partial class MainWindow
     private readonly Dictionary<WebView2, string>
         _webViewShortcutTokens = [];
 
-    private readonly Dictionary<WebView2, string>
-        _webViewBackgroundScriptIds = [];
-
     private bool _middleClickPending;
     private InputKeyboardSource? _keyboardSource;
     public event EventHandler<BrowserExtensionChangedEventArgs>? BrowserExtensionChanged;
@@ -800,11 +797,6 @@ public sealed partial class MainWindow
         WebView2 webView,
         CoreWebView2 core)
     {
-        await ApplyWebViewBackgroundAsync(
-            webView,
-            core,
-            applyToCurrentDocument: false);
-
         core.WebMessageReceived += (sender, args) =>
         {
             string message = args.TryGetWebMessageAsString();
@@ -1128,106 +1120,6 @@ public sealed partial class MainWindow
             _ = webView.CoreWebView2.ExecuteScriptAsync(
                 BuildWebViewShortcutBridgeScript(token));
         }
-    }
-
-    private async Task ApplyWebViewBackgroundAsync(
-        WebView2 webView,
-        CoreWebView2 core,
-        bool applyToCurrentDocument = true)
-    {
-        try
-        {
-            if (_webViewBackgroundScriptIds.Remove(
-                    webView,
-                    out string? previousScriptId))
-            {
-                core.RemoveScriptToExecuteOnDocumentCreated(
-                    previousScriptId);
-            }
-
-            string script = BuildWebViewBackgroundScript();
-
-            string scriptId =
-                await core.AddScriptToExecuteOnDocumentCreatedAsync(
-                    script);
-
-            if (!ReferenceEquals(webView.CoreWebView2, core))
-            {
-                core.RemoveScriptToExecuteOnDocumentCreated(scriptId);
-                return;
-            }
-
-            _webViewBackgroundScriptIds[webView] = scriptId;
-
-            if (applyToCurrentDocument)
-                await core.ExecuteScriptAsync(script);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(
-                $"Failed to apply WebView background: {ex}");
-        }
-    }
-
-    private string BuildWebViewBackgroundScript()
-    {
-        var color =
-            ((Microsoft.UI.Xaml.Media.SolidColorBrush)
-                Application.Current.Resources[
-                    "LayerFillColorDefaultBrush"])
-            .Color;
-
-        string background =
-            $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}";
-
-        return $$"""
-        (() => {
-            if (window.top !== window.self)
-                return;
-
-            const styleId = "__fluentbrowser_layer_fill_background";
-            const css = `
-                html::before {
-                    content: "";
-                    position: fixed;
-                    inset: 0;
-                    background: {{background}};
-                    z-index: -2147483648;
-                    pointer-events: none;
-                }
-            `;
-
-            const apply = () => {
-                if (!document.head)
-                    return false;
-
-                let style = document.getElementById(styleId);
-
-                if (!style) {
-                    style = document.createElement("style");
-                    style.id = styleId;
-                    document.head.appendChild(style);
-                }
-
-                if (style.textContent !== css)
-                    style.textContent = css;
-
-                return true;
-            };
-
-            if (!apply()) {
-                const observer = new MutationObserver((_, observer) => {
-                    if (apply())
-                        observer.disconnect();
-                });
-
-                observer.observe(document, {
-                    childList: true,
-                    subtree: true
-                });
-            }
-        })();
-        """;
     }
 
     private string BuildWebViewShortcutBridgeScript(string token)

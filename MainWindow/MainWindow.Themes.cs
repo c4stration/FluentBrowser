@@ -26,15 +26,6 @@ public sealed partial class MainWindow
 
         Toolbar.ActualThemeChanged += (_, _) =>
         {
-            foreach (BrowserTab tab in _browserTabs.Values)
-            {
-                if (tab.WebView is { } tabWebView &&
-                    tabWebView.CoreWebView2 is { } core)
-                {
-                    _ = ApplyWebViewBackgroundAsync(tabWebView, core);
-                }
-            }
-
             if (_pageThemeColorApplied)
                 return;
 
@@ -158,7 +149,11 @@ public sealed partial class MainWindow
                 color;
 
             webView.DefaultBackgroundColor =
-                Windows.UI.Color.FromArgb(0, 0, 0, 0);
+                Windows.UI.Color.FromArgb(
+                    255,
+                    color.R,
+                    color.G,
+                    color.B);
 
             int dimAmount =
                 requestedTheme == ElementTheme.Light
@@ -298,8 +293,20 @@ public sealed partial class MainWindow
             defaultColor;
     }
 
-    private Windows.UI.Color GetDefaultWebViewBackgroundColor() =>
-        Windows.UI.Color.FromArgb(0, 0, 0, 0);
+    private Windows.UI.Color GetDefaultWebViewBackgroundColor()
+    {
+        return Toolbar.ActualTheme == ElementTheme.Dark
+            ? Windows.UI.Color.FromArgb(
+                255,
+                0x20,
+                0x20,
+                0x20)
+            : Windows.UI.Color.FromArgb(
+                255,
+                0xF3,
+                0xF3,
+                0xF3);
+    }
 
     private static ElementTheme GetContrastingTheme(
         Windows.UI.Color color)
