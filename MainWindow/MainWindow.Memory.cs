@@ -296,6 +296,7 @@ public sealed partial class MainWindow
         _downloadNavigations.Remove(webView);
 
         _suspendingWebViews.Remove(webView);
+        _webViewBackgroundScriptIds.Remove(webView);
 
         if (_certificateErrorDecisions.Remove(
                 webView,

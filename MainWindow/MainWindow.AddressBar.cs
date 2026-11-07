@@ -696,9 +696,12 @@ public sealed partial class MainWindow
         AutoSuggestBox sender,
         AutoSuggestBoxQuerySubmittedEventArgs args)
     {
+        AddressBarSuggestion? chosenSuggestion =
+            args.ChosenSuggestion as AddressBarSuggestion;
+
         string text = args.QueryText.Trim();
 
-        if (string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text) && chosenSuggestion is null)
         {
             _suggestionWasChosen = false;
             _selectedSuggestionTarget = null;
@@ -709,8 +712,12 @@ public sealed partial class MainWindow
 
         Uri target;
 
-        if (_suggestionWasChosen &&
-            _selectedSuggestionTarget is Uri selectedTarget)
+        if (chosenSuggestion is not null)
+        {
+            target = chosenSuggestion.Target;
+        }
+        else if (_suggestionWasChosen &&
+                 _selectedSuggestionTarget is Uri selectedTarget)
         {
             target = selectedTarget;
         }
@@ -731,8 +738,7 @@ public sealed partial class MainWindow
                 GetSearchEngine());
         }
 
-        if (_suggestionWasChosen &&
-            args.ChosenSuggestion is AddressBarSuggestion chosenSuggestion &&
+        if (chosenSuggestion is not null &&
             _suggestionTrainingIds.TryGetValue(
                 chosenSuggestion.Display,
                 out var trainingId))
@@ -923,24 +929,22 @@ public sealed partial class MainWindow
         {
             await Task.Yield();
 
-            if (focusVersion != _addressBarFocusVersion ||
+            // NIGHTMARE FUEL INCOMING!!!
+            if (_suggestionWasChosen ||
+                _selectedSuggestionTarget is not null ||
+                focusVersion != _addressBarFocusVersion ||
                 selectionVersion != _addressBarTabSelectionVersion ||
                 cancellation.IsCancellationRequested ||
                 _addressBarSuppressLostFocus ||
                 !ReferenceEquals(focusTab, SelectedTab) ||
-                !ReferenceEquals(focusTab, _addressBarFocusTab))
-            {
-                return;
-            }
-
-            if (_addressBarContextFlyoutOpen ||
+                !ReferenceEquals(focusTab, _addressBarFocusTab) ||
+                _addressBarContextFlyoutOpen ||
                 AddressBar.FocusState != FocusState.Unfocused ||
                 (!_addressBarSubmitting && AddressBar.IsSuggestionListOpen))
             {
                 return;
             }
 
-            // Actual focus loss within the same tab.
             focusTab.AddressBarDraft = null;
             focusTab.AddressBarFocused = false;
 

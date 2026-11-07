@@ -979,6 +979,7 @@
                                                     <WebView2
                                                         x:Name="ExtensionWebView"
                                                         Width="400"
+                                                        DefaultBackgroundColor="Transparent"
                                                         Height="400"
                                                         Margin="0,36,0,0"
                                                         HorizontalAlignment="Center"
