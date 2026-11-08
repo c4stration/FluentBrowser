@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -79,6 +80,9 @@ public sealed partial class SettingsPage : Page, IDisposable
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
             .ToArray());
+    private static readonly Lazy<Task<string[]>> InstalledMathFontFamiliesTask =
+        new(() => Task.Run(GetInstalledMathFontFamilies));
+    private const uint MathTableTag = 0x4854414D;
 
     public SettingsPage()
     {
@@ -129,11 +133,119 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         _loadingSettings = false;
 
-        if (_mainWindow is not null)
-            _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
-
         UpdateSystemLanguageInfoBar();
         LoadFaviconCacheDescription();
+
+        MathFontPreviewControl.MathML = """
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+              <semantics>
+                <mrow>
+                  <mover accent="true">
+                    <mi>f</mi>
+                    <mo>^</mo>
+                  </mover>
+                  <mo>(</mo>
+                  <mi>x</mi>
+                  <mo>)</mo>
+                  <mo>=</mo>
+                  <munderover>
+                    <mo>∑</mo>
+                    <mrow>
+                      <mi>k</mi>
+                      <mo>=</mo>
+                      <mn>0</mn>
+                    </mrow>
+                    <mi>n</mi>
+                  </munderover>
+                  <mfrac>
+                    <mrow>
+                      <mi>n</mi>
+                      <mo>!</mo>
+                    </mrow>
+                    <mrow>
+                      <mi>k</mi>
+                      <mo>!</mo>
+                      <mo>(</mo>
+                      <mi>n</mi>
+                      <mo>−</mo>
+                      <mi>k</mi>
+                      <mo>)</mo>
+                      <mo>!</mo>
+                    </mrow>
+                  </mfrac>
+                  <msup>
+                    <mi>a</mi>
+                    <mrow>
+                      <mi>n</mi>
+                      <mo>−</mo>
+                      <mi>k</mi>
+                    </mrow>
+                  </msup>
+                  <msup>
+                    <mi>b</mi>
+                    <mi>k</mi>
+                  </msup>
+                  <mo>+</mo>
+                  <mfrac>
+                    <mrow>
+                      <msqrt>
+                        <mrow>
+                          <msup>
+                            <mi>x</mi>
+                            <mn>2</mn>
+                          </msup>
+                          <mo>+</mo>
+                          <msup>
+                            <mi>y</mi>
+                            <mn>2</mn>
+                          </msup>
+                        </mrow>
+                      </msqrt>
+                    </mrow>
+                    <mrow>
+                      <mn>1</mn>
+                      <mo>+</mo>
+                      <mi>x</mi>
+                    </mrow>
+                  </mfrac>
+                  <mo>+</mo>
+                  <munder>
+                    <mo>∫</mo>
+                    <mn>0</mn>
+                  </munder>
+                  <msup>
+                    <mi>e</mi>
+                    <mrow>
+                      <mo>−</mo>
+                      <mi>t</mi>
+                    </mrow>
+                  </msup>
+                  <mi>d</mi>
+                  <mi>t</mi>
+                  <mo>+</mo>
+                  <menclose notation="box">
+                    <mrow>
+                      <msub>
+                        <mi>x</mi>
+                        <mn>1</mn>
+                      </msub>
+                      <mo>+</mo>
+                      <msubsup>
+                        <mi>x</mi>
+                        <mn>2</mn>
+                        <mn>3</mn>
+                      </msubsup>
+                    </mrow>
+                  </menclose>
+                </mrow>
+                <annotation encoding="application/x-tex">
+                  f(x) = sum_{k=0}^{n} binom(n,k) a^{n-k} b^k
+                  + sqrt(x^2+y^2)/(1+x) + integral_0^infinity e^{-t} dt
+                  + (x_1 + x_2^3)
+                </annotation>
+              </semantics>
+            </math>
+            """;
 
         var available = Localizer.Get().GetAvailableLanguages();
         Debug.WriteLine("Available languages: " + string.Join(", ", available));
@@ -1885,6 +1997,8 @@ public sealed partial class SettingsPage : Page, IDisposable
                 global::FluentBrowser.MainWindow.DefaultSansSerifFontFamily,
             "MonospaceFont" =>
                 global::FluentBrowser.MainWindow.DefaultMonospaceFontFamily,
+            "MathFont" =>
+                global::FluentBrowser.MainWindow.DefaultMathFontFamily,
             _ => throw new ArgumentOutOfRangeException(nameof(settingKey))
         };
 
@@ -1913,6 +2027,364 @@ public sealed partial class SettingsPage : Page, IDisposable
             MonospaceFontComboBox,
             MonospaceFontPreviewTextBlock,
             "MonospaceFont");
+
+        LoadMathFontSelection();
+        _ = LoadInstalledMathFontsAsync();
+    }
+
+    private async Task LoadInstalledMathFontsAsync()
+    {
+        try
+        {
+            string[] fonts = await InstalledMathFontFamiliesTask.Value;
+
+            if (_isDisposed)
+                return;
+
+            bool wasLoadingSettings = _loadingSettings;
+            _loadingSettings = true;
+
+            try
+            {
+                MathFontComboBox.ItemsSource = fonts;
+                LoadMathFontSelection();
+            }
+            finally
+            {
+                _loadingSettings = wasLoadingSettings;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load mathematical fonts: {ex}");
+        }
+    }
+
+    private void LoadMathFontSelection()
+    {
+        string fontName = _settings.Values["MathFont"] as string
+            ?? GetDefaultFontFamily("MathFont");
+
+        UpdateFontResetButtonVisibility("MathFont", fontName);
+
+        MathFontComboBox.SelectedItem = MathFontComboBox.Items.Contains(fontName)
+            ? fontName
+            : null;
+        MathFontComboBox.Text = fontName;
+        MathFontPreviewControl.MathFontFamily = fontName;
+    }
+
+    private static string[] GetInstalledMathFontFamilies()
+    {
+        var mathFonts = new List<string>();
+
+        IDWriteFactoryNative? factory = null;
+        IDWriteFontCollectionNative? collection = null;
+
+        try
+        {
+            Guid factoryId = typeof(IDWriteFactoryNative).GUID;
+
+            Marshal.ThrowExceptionForHR(
+                DWriteCreateFactory(0, ref factoryId, out factory));
+
+            Marshal.ThrowExceptionForHR(
+                factory.GetSystemFontCollection(out collection, true));
+
+            uint familyCount = collection.GetFontFamilyCount();
+
+            for (uint i = 0; i < familyCount; i++)
+            {
+                IDWriteFontFamilyNative? family = null;
+                IDWriteLocalizedStringsNative? names = null;
+
+                try
+                {
+                    if (collection.GetFontFamily(i, out family) < 0)
+                        continue;
+
+                    if (family.GetFamilyNames(out names) < 0)
+                        continue;
+
+                    string? familyName = GetFontFamilyName(names);
+
+                    if (!string.IsNullOrWhiteSpace(familyName) &&
+                        HasMathTable(family))
+                    {
+                        mathFonts.Add(familyName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to inspect font family: {ex}");
+                }
+                finally
+                {
+                    ReleaseComObject(names);
+                    ReleaseComObject(family);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to enumerate mathematical fonts: {ex}");
+        }
+        finally
+        {
+            ReleaseComObject(collection);
+            ReleaseComObject(factory);
+        }
+
+        return mathFonts
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
+    }
+
+    private static string? GetFontFamilyName(
+        IDWriteLocalizedStringsNative names)
+    {
+        if (names.GetCount() == 0)
+            return null;
+
+        uint nameIndex = 0;
+
+        foreach (string language in ApplicationLanguages.Languages)
+        {
+            if (names.FindLocaleName(
+                    language,
+                    out uint index,
+                    out bool exists) >= 0 &&
+                exists)
+            {
+                nameIndex = index;
+                break;
+            }
+        }
+
+        if (names.GetStringLength(nameIndex, out uint length) < 0 ||
+            length == 0 ||
+            length >= int.MaxValue)
+        {
+            return null;
+        }
+
+        var name = new StringBuilder((int)length + 1);
+
+        return names.GetString(nameIndex, name, length + 1) >= 0
+            ? name.ToString()
+            : null;
+    }
+
+    private static bool HasMathTable(IDWriteFontFamilyNative family)
+    {
+        uint fontCount = family.GetFontCount();
+
+        for (uint i = 0; i < fontCount; i++)
+        {
+            IDWriteFontNative? font = null;
+            IDWriteFontFaceNative? face = null;
+
+            try
+            {
+                if (family.GetFont(i, out font) < 0)
+                    continue;
+
+                if (font.CreateFontFace(out face) < 0)
+                    continue;
+
+                int result = face.TryGetFontTable(
+                    MathTableTag,
+                    out _,
+                    out _,
+                    out IntPtr tableContext,
+                    out bool exists);
+
+                if (result >= 0 && exists)
+                {
+                    face.ReleaseFontTable(tableContext);
+                    return true;
+                }
+            }
+            finally
+            {
+                ReleaseComObject(face);
+                ReleaseComObject(font);
+            }
+        }
+
+        return false;
+    }
+
+    private static void ReleaseComObject(object? value)
+    {
+        if (value is not null && Marshal.IsComObject(value))
+            Marshal.ReleaseComObject(value);
+    }
+
+    [DllImport("dwrite.dll", ExactSpelling = true)]
+    private static extern int DWriteCreateFactory(
+    uint factoryType,
+    [In] ref Guid iid,
+    [MarshalAs(UnmanagedType.Interface)]
+    out IDWriteFactoryNative factory);
+
+    [ComImport]
+    [Guid("B859EE5A-D838-4B5B-A2E8-1ADC7D93DB48")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteFactoryNative
+    {
+        [PreserveSig]
+        int GetSystemFontCollection(
+            [MarshalAs(UnmanagedType.Interface)]
+        out IDWriteFontCollectionNative collection,
+            [MarshalAs(UnmanagedType.Bool)] bool checkForUpdates);
+    }
+
+    [ComImport]
+    [Guid("A84CEE02-3EEA-4EEE-A827-87C1A02A0FCC")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteFontCollectionNative
+    {
+        [PreserveSig]
+        uint GetFontFamilyCount();
+
+        [PreserveSig]
+        int GetFontFamily(
+            uint index,
+            [MarshalAs(UnmanagedType.Interface)]
+        out IDWriteFontFamilyNative family);
+
+        [PreserveSig]
+        int FindFamilyName(
+            [MarshalAs(UnmanagedType.LPWStr)] string familyName,
+            out uint index,
+            [MarshalAs(UnmanagedType.Bool)] out bool exists);
+    }
+
+    [ComImport]
+    [Guid("DA20D8EF-812A-4C43-9802-62EC4ABD7ADD")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteFontFamilyNative
+    {
+        [PreserveSig]
+        int GetFontCollection(
+            [MarshalAs(UnmanagedType.Interface)]
+        out IDWriteFontCollectionNative collection);
+
+        [PreserveSig]
+        uint GetFontCount();
+
+        [PreserveSig]
+        int GetFont(
+            uint index,
+            [MarshalAs(UnmanagedType.Interface)]
+        out IDWriteFontNative font);
+
+        [PreserveSig]
+        int GetFamilyNames(
+            [MarshalAs(UnmanagedType.Interface)]
+        out IDWriteLocalizedStringsNative names);
+    }
+
+    [ComImport]
+    [Guid("ACD16696-8C14-4F5D-877E-FE3FC1D32737")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteFontNative
+    {
+        [PreserveSig] int GetFontFamily(out IDWriteFontFamilyNative family);
+        [PreserveSig] uint GetWeight();
+        [PreserveSig] uint GetStretch();
+        [PreserveSig] uint GetStyle();
+        [PreserveSig] int IsSymbolFont();
+
+        [PreserveSig]
+        int GetFaceNames(out IDWriteLocalizedStringsNative names);
+
+        [PreserveSig]
+        int GetInformationalStrings(
+            uint informationalStringId,
+            out IDWriteLocalizedStringsNative strings,
+            [MarshalAs(UnmanagedType.Bool)] out bool exists);
+
+        [PreserveSig] uint GetSimulations();
+        [PreserveSig] void GetMetrics(IntPtr metrics);
+
+        [PreserveSig]
+        int HasCharacter(
+            uint unicodeValue,
+            [MarshalAs(UnmanagedType.Bool)] out bool exists);
+
+        [PreserveSig]
+        int CreateFontFace(out IDWriteFontFaceNative fontFace);
+    }
+
+    [ComImport]
+    [Guid("5F49804D-7024-4D43-BFA9-D25984F53849")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteFontFaceNative
+    {
+        [PreserveSig] uint GetType();
+        [PreserveSig] int GetFiles(ref uint numberOfFiles, IntPtr fontFiles);
+        [PreserveSig] uint GetIndex();
+        [PreserveSig] uint GetSimulations();
+        [PreserveSig] int IsSymbolFont();
+        [PreserveSig] void GetMetrics(IntPtr metrics);
+        [PreserveSig] ushort GetGlyphCount();
+
+        [PreserveSig]
+        int GetDesignGlyphMetrics(
+            IntPtr glyphIndices,
+            uint glyphCount,
+            IntPtr glyphMetrics,
+            [MarshalAs(UnmanagedType.Bool)] bool isSideways);
+
+        [PreserveSig]
+        int GetGlyphIndices(
+            IntPtr codePoints,
+            uint codePointCount,
+            IntPtr glyphIndices);
+
+        [PreserveSig]
+        int TryGetFontTable(
+            uint openTypeTableTag,
+            out IntPtr tableData,
+            out uint tableSize,
+            out IntPtr tableContext,
+            [MarshalAs(UnmanagedType.Bool)] out bool exists);
+
+        [PreserveSig]
+        void ReleaseFontTable(IntPtr tableContext);
+    }
+
+    [ComImport]
+    [Guid("08256209-099A-4B34-B86D-C22B110E7771")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDWriteLocalizedStringsNative
+    {
+        [PreserveSig] uint GetCount();
+
+        [PreserveSig]
+        int FindLocaleName(
+            [MarshalAs(UnmanagedType.LPWStr)] string localeName,
+            out uint index,
+            [MarshalAs(UnmanagedType.Bool)] out bool exists);
+
+        [PreserveSig] int GetLocaleNameLength(uint index, out uint length);
+
+        [PreserveSig]
+        int GetLocaleName(
+            uint index,
+            [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder localeName,
+            uint size);
+
+        [PreserveSig] int GetStringLength(uint index, out uint length);
+
+        [PreserveSig]
+        int GetString(
+            uint index,
+            [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder stringBuffer,
+            uint size);
     }
 
     private void ResetFontButton_Click(
@@ -1922,6 +2394,27 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (sender is not Button button ||
             button.Tag is not string settingKey)
         {
+            return;
+        }
+
+        if (settingKey == "MathFont")
+        {
+            bool wasLoadingMathSettings = _loadingSettings;
+            _loadingSettings = true;
+
+            try
+            {
+                _settings.Values.Remove(settingKey);
+                LoadMathFontSelection();
+            }
+            finally
+            {
+                _loadingSettings = wasLoadingMathSettings;
+            }
+
+            if (_mainWindow is not null)
+                _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
+
             return;
         }
 
@@ -1965,6 +2458,7 @@ public sealed partial class SettingsPage : Page, IDisposable
             "SerifFont" => SerifFontResetButton,
             "SansSerifFont" => SansSerifFontResetButton,
             "MonospaceFont" => MonospaceFontResetButton,
+            "MathFont" => MathFontResetButton,
             _ => throw new ArgumentOutOfRangeException(nameof(settingKey))
         };
 
@@ -1997,6 +2491,44 @@ public sealed partial class SettingsPage : Page, IDisposable
         comboBox.Text = fontName;
 
         ApplyFontPreview(comboBox, previewTextBlock);
+    }
+
+    private void MathFontComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e) =>
+        UpdateMathFontSelection();
+
+    private void MathFontComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e) =>
+        UpdateMathFontSelection(e.Text);
+
+    private void UpdateMathFontSelection(string? submittedText = null)
+    {
+        if (_loadingSettings)
+            return;
+
+        string fontName = (
+            submittedText
+            ?? MathFontComboBox.SelectedItem as string
+            ?? MathFontComboBox.Text).Trim();
+
+        if (string.IsNullOrWhiteSpace(fontName))
+        {
+            _settings.Values.Remove("MathFont");
+            fontName = GetDefaultFontFamily("MathFont");
+            MathFontComboBox.Text = fontName;
+        }
+        else
+        {
+            _settings.Values["MathFont"] = fontName;
+        }
+
+        UpdateFontResetButtonVisibility("MathFont", fontName);
+        MathFontPreviewControl.MathFontFamily = fontName;
+
+        if (_mainWindow is not null)
+            _ = _mainWindow.ApplyWebFontFamiliesToAllTabsAsync();
     }
 
     private void StandardFontComboBox_SelectionChanged(

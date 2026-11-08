@@ -68,6 +68,7 @@ public sealed partial class MainWindow
     internal const string DefaultSerifFontFamily = "Times New Roman";
     internal const string DefaultSansSerifFontFamily = "Arial";
     internal const string DefaultMonospaceFontFamily = "Courier New";
+    internal const string DefaultMathFontFamily = "Cambria Math";
     private static readonly string[] FontScriptCodes =
     [
         "Arab", "Armn", "Beng", "Bopo", "Cher", "Copt", "Cyrl",
@@ -672,7 +673,10 @@ public sealed partial class MainWindow
                     DefaultSansSerifFontFamily),
                 ["fixed"] = GetConfiguredFontFamily(
                     "MonospaceFont",
-                    DefaultMonospaceFontFamily)
+                    DefaultMonospaceFontFamily),
+                ["math"] = GetConfiguredFontFamily(
+                    "MathFont",
+                    DefaultMathFontFamily)
             };
 
             string parameters = JsonSerializer.Serialize(new

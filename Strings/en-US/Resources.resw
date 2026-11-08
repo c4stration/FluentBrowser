@@ -700,4 +700,7 @@
   <data name="AppVersion" xml:space="preserve">
     <value>Version {0}</value>
   </data>
+  <data name="FontType_Math.Header" xml:space="preserve">
+    <value>Mathematical</value>
+  </data>
 </root>

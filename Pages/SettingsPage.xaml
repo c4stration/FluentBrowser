@@ -203,6 +203,38 @@
                                         TextSubmitted="MonospaceFontComboBox_TextSubmitted" />
                                 </StackPanel>
                             </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="FontType_Math">
+                                <controls:SettingsCard.Description>
+                                    <my:MathMLControl
+                                        x:Name="MathFontPreviewControl"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </controls:SettingsCard.Description>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button
+                                        x:Name="MathFontResetButton"
+                                        Margin="0,0,8,0"
+                                        Padding="6"
+                                        l:Uids.Uid="ResetSetting"
+                                        Click="ResetFontButton_Click"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        Style="{ThemeResource AppBarButtonStyle}"
+                                        Tag="MathFont">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Glyph="&#xE7A7;" />
+                                    </Button>
+
+                                    <ComboBox
+                                        x:Name="MathFontComboBox"
+                                        IsEditable="True"
+                                        SelectionChanged="MathFontComboBox_SelectionChanged"
+                                        TextSubmitted="MathFontComboBox_TextSubmitted" />
+                                </StackPanel>
+                            </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
                     </controls:SettingsExpander>
 
@@ -216,7 +248,7 @@
                         Title="Your system language isn’t available!"
                         IsClosable="True"
                         IsOpen="False"
-                        Message="We don’t currently have translations for your system language. If you’d like to help translate FluentBrowser, please visit the Crowdin project."
+                        Message="We don’t currently have translations for your system language. If you'd like to help translate FluentBrowser, please visit the Crowdin project."
                         Severity="Warning">
                         <InfoBar.ActionButton>
                             <HyperlinkButton Content="Open Crowdin" NavigateUri="https://crowdin.com/project/fluentbrowser" />
@@ -528,7 +560,7 @@
                             <controls:SettingsCard HorizontalContentAlignment="Stretch" ContentAlignment="Left">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Margin="0,0,0,5" l:Uids.Uid="Deps" />
-                                    
+
                                     <my:ColumnMajorWrapPanel PreferredColumnWidth="240">
                                         <HyperlinkButton
                                             HorizontalAlignment="Stretch"
