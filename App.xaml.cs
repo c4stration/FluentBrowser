@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
@@ -101,8 +102,15 @@ namespace FluentBrowser
             AppNotificationManager sender,
             AppNotificationActivatedEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine(
-                "Notification invoked.");
+            if (args.Arguments.TryGetValue("url", out string? url) &&
+                MainWindow is MainWindow mainWindow &&
+                Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttp ||
+                 uri.Scheme == Uri.UriSchemeHttps))
+            {
+                mainWindow.DispatcherQueue.TryEnqueue(
+                    () => mainWindow.OpenNewTab(uri.AbsoluteUri));
+            }
         }
 
         public static void ApplyBackdropMaterial(string material)

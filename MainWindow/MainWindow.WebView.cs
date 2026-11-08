@@ -1339,6 +1339,7 @@ public sealed partial class MainWindow
             var notification = args.Notification;
 
             var builder = new AppNotificationBuilder()
+                .AddArgument("url", args.SenderOrigin)
                 .AddText(notification.Title)
                 .AddText(notification.Body);
 

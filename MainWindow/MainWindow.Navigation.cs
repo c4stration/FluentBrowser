@@ -435,7 +435,7 @@ public sealed partial class MainWindow
         }
     }
 
-    private void OpenNewTab(string url, bool autoSelect = true)
+    public void OpenNewTab(string url, bool autoSelect = true)
     {
         var tab = CreateNewTab(url);
 
