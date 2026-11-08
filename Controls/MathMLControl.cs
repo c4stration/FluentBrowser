@@ -316,7 +316,6 @@ public sealed class MathMLControl : RichEditBox
 
             int controlEnd = start + marker.Length;
 
-            // Exclude \moMathPara.
             if (controlEnd < rtf.Length &&
                 char.IsLetter(rtf[controlEnd]))
             {
@@ -332,7 +331,6 @@ public sealed class MathMLControl : RichEditBox
                 start,
                 end - start + 1);
 
-            // Replace every font reference inside this math zone.
             bool hasFontReference = Regex.IsMatch(
                 mathZone,
                 @"\\f\d+(?![a-zA-Z])");
@@ -342,7 +340,6 @@ public sealed class MathMLControl : RichEditBox
                 @"\\f\d+(?![a-zA-Z])",
                 _ => fontControl);
 
-            // Insert a font reference if none existed.
             if (!hasFontReference)
             {
                 updatedMathZone = updatedMathZone.Insert(
