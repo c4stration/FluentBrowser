@@ -6,7 +6,9 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:systemai="http://schemas.microsoft.com/appx/manifest/systemai/windows10"
-  IgnorableNamespaces="uap rescap systemai">
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  IgnorableNamespaces="uap rescap systemai com desktop">
 
   <Identity
     Name="33d0ef7f-84eb-433c-8c79-7dd88fc83366"
@@ -43,6 +45,24 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+
+      <Extensions>
+        <desktop:Extension Category="windows.toastNotificationActivation">
+            <desktop:ToastNotificationActivation
+                ToastActivatorCLSID="1920DBA9-0F64-4F0D-8A4B-5E207B812E61" />
+        </desktop:Extension>
+
+        <com:Extension Category="windows.comServer">
+            <com:ComServer>
+                <com:ExeServer
+                    Executable="FluentBrowser.exe"
+                    Arguments="----AppNotificationActivated:"
+                    DisplayName="FluentBrowser">
+                    <com:Class Id="1920DBA9-0F64-4F0D-8A4B-5E207B812E61" />
+                </com:ExeServer>
+            </com:ComServer>
+        </com:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

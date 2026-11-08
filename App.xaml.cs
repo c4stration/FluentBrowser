@@ -1,23 +1,13 @@
-﻿using Microsoft.UI.Composition.SystemBackdrops;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
 using Microsoft.Windows.Globalization;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using WinUI3Localizer;
 
@@ -64,14 +54,34 @@ namespace FluentBrowser
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
         protected override async void OnLaunched(
-            Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+            LaunchActivatedEventArgs args)
         {
+            var notificationManager = AppNotificationManager.Default;
+
+            notificationManager.NotificationInvoked += OnNotificationInvoked;
+
+            System.Diagnostics.Debug.WriteLine(
+                $"process: {Environment.ProcessPath}");
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"package: {Windows.ApplicationModel.Package.Current.Id.FullName}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"package identity unavailable: {ex.Message}");
+            }
+
+            notificationManager.Register();
+
             await InitializeLocalizerAsync();
 
             var options = new CoreWebView2EnvironmentOptions
             {
                 AreBrowserExtensionsEnabled = true,
-                AdditionalBrowserArguments = "--disable-lcd-text",
+                AdditionalBrowserArguments = "--disable-lcd-text", // kek
                 ScrollBarStyle = CoreWebView2ScrollbarStyle.FluentOverlay
             };
 
@@ -84,10 +94,15 @@ namespace FluentBrowser
             _window = new MainWindow();
             _window.Activate();
 
-            // Training is CPU-intensive and must not delay the first interactive UI.
-            // The trainer serializes duplicate launch requests and reports failures to
-            // the debug output instead of surfacing an unobserved task exception.
             _ = SuggestionModelTrainer.TrainInBackgroundAsync();
+        }
+
+        private void OnNotificationInvoked(
+            AppNotificationManager sender,
+            AppNotificationActivatedEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                "Notification invoked.");
         }
 
         public static void ApplyBackdropMaterial(string material)

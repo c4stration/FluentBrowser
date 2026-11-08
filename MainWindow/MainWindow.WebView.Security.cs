@@ -159,7 +159,6 @@ public sealed partial class MainWindow
                 var dialog = new ContentDialog
                 {
                     Title = null,
-
                     Content =
                         args.Kind == CoreWebView2ScriptDialogKind.Prompt
                             ? new StackPanel
@@ -174,11 +173,8 @@ public sealed partial class MainWindow
                             : messageBlock,
 
                     PrimaryButtonText = "OK",
-
                     DefaultButton = ContentDialogButton.Primary,
-
                     XamlRoot = webView.XamlRoot,
-
                     Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
                 };
 

@@ -5,6 +5,8 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.WebUI;
 
 namespace FluentBrowser;
 
@@ -791,6 +794,8 @@ public sealed partial class MainWindow
             core,
             audioButton,
             favicon);
+        ConfigurePermissionHandling(core, webView);
+        ConfigureNotificationHandling(core);
     }
 
     private async Task ConfigureWebMessageHandlingAsync(
@@ -1277,6 +1282,82 @@ public sealed partial class MainWindow
         };
     }
 
+    private void ConfigurePermissionHandling(
+        CoreWebView2 core,
+        WebView2 webView)
+    {
+        core.PermissionRequested += async (_, args) =>
+        {
+            if (args.PermissionKind !=
+                CoreWebView2PermissionKind.Notifications)
+            {
+                return;
+            }
+
+            var deferral = args.GetDeferral();
+
+            try
+            {
+                var messageBlock = new TextBlock
+                {
+                    Text = $"{args.Uri} wants to send notifications",
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Allow notifications?",
+                    Content = messageBlock,
+
+                    PrimaryButtonText = "Allow",
+                    CloseButtonText = "Block",
+
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = webView.XamlRoot,
+                    Style = (Style)Application.Current.Resources["FixedContentDialogStyle"],
+                };
+
+                var result = await dialog.ShowAsync();
+
+                args.State = result == ContentDialogResult.Primary
+                    ? CoreWebView2PermissionState.Allow
+                    : CoreWebView2PermissionState.Deny;
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        };
+    }
+
+    private void ConfigureNotificationHandling(CoreWebView2 core)
+    {
+        core.NotificationReceived += (_, args) =>
+        {
+            args.Handled = true;
+
+            var notification = args.Notification;
+
+            var builder = new AppNotificationBuilder()
+                .AddText(notification.Title)
+                .AddText(notification.Body);
+
+            static Uri? GetUri(string? value) =>
+                Uri.TryCreate(value, UriKind.Absolute, out var uri) ? uri : null;
+
+            if (GetUri(notification.IconUri) is { } iconUri)
+                builder.SetAppLogoOverride(iconUri);
+
+            if (GetUri(notification.BodyImageUri) is { } heroUri)
+                builder.SetHeroImage(heroUri);
+
+            var appNotification = builder.BuildNotification();
+
+            AppNotificationManager.Default.Show(appNotification);
+            notification.ReportShown();
+        };
+    }
+
     private void ConfigureStatusBarHandling(CoreWebView2 core)
     {
         core.StatusBarTextChanged += (_, _) =>
@@ -1296,8 +1377,8 @@ public sealed partial class MainWindow
     }
 
     private void ConvertInternalTabToWeb(
-    BrowserTab tab,
-    Uri target)
+        BrowserTab tab,
+        Uri target)
     {
         if (tab.Content is StartPage or SettingsPage)
         {
