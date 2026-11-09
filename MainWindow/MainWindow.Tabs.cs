@@ -33,6 +33,9 @@ public sealed partial class MainWindow
         public string LastKnownUrl { get; set; } = string.Empty;
         public string? AddressBarDraft { get; set; }
         public bool AddressBarFocused { get; set; }
+        public int AddressBarSelectionStart { get; set; }
+        public int AddressBarSelectionLength { get; set; }
+        public bool AddressBarSelectionSaved { get; set; }
         public FrameworkElement? HistoryPage { get; set; }
         public string? HistoryPageUri { get; set; }
 
@@ -59,6 +62,7 @@ public sealed partial class MainWindow
             ExtensionTabId = extensionTabId;
             TabItem = tabItem;
             Content = content;
+            AddressBarFocused = content is StartPage;
             Title = title;
             ProgressRing = progressRing;
             AudioButton = audioButton;
@@ -67,9 +71,6 @@ public sealed partial class MainWindow
         }
     }
 
-    // Closed and duplicated tabs must not keep the original Page or WebView2
-    // alive.  URLs are immutable and are all that the synthetic internal-page
-    // history needs in order to reproduce Back/Forward behavior.
     private abstract record TabNavigationSnapshot;
 
     private sealed record WebTabSnapshot(string Url) : TabNavigationSnapshot;
@@ -192,6 +193,12 @@ public sealed partial class MainWindow
         object sender,
         SelectionChangedEventArgs e)
     {
+        if (_addressBarFocusTab is BrowserTab previousFocusTab &&
+            !ReferenceEquals(previousFocusTab, SelectedTab))
+        {
+            SaveAddressBarSelection(previousFocusTab);
+        }
+
         int selectionVersion = ++_addressBarTabSelectionVersion;
 
         ++_addressBarFocusVersion;
@@ -201,12 +208,6 @@ public sealed partial class MainWindow
 
         _addressBarSuppressLostFocus = true;
 
-        if (_addressBarFocusTab is BrowserTab previousFocusTab)
-            previousFocusTab.AddressBarFocused = false;
-
-        // Keep the previous owner until the address bar actually loses focus.
-        // Otherwise a delayed LostFocus event can be attributed to the newly
-        // selected tab and clear that tab's draft.
         _addressBarUserEditing = false;
 
         foreach (TabViewItem removedTab in e.RemovedItems.OfType<TabViewItem>())
@@ -231,13 +232,14 @@ public sealed partial class MainWindow
         if (tab.WasDiscarded)
             RestoreDiscardedTab(tab);
 
-        bool hasAddressBarDraft = tab.AddressBarDraft is not null;
+        bool restoreAddressBarFocus = tab.AddressBarFocused;
+        bool restoreAddressBarDraft =
+            restoreAddressBarFocus && tab.AddressBarDraft is not null;
 
-        tab.AddressBarFocused = hasAddressBarDraft;
-        _addressBarUserEditing = hasAddressBarDraft;
+        _addressBarUserEditing = restoreAddressBarDraft;
 
-        if (hasAddressBarDraft)
-            AddressBar.Text = tab.AddressBarDraft!;
+        if (restoreAddressBarDraft)
+            SetAddressBarTextWithoutSavingSelection(tab.AddressBarDraft!);
 
         if (tab.WebView is WebView2 webView)
         {
@@ -251,9 +253,6 @@ public sealed partial class MainWindow
 
         CurrentTabContent.Content = tab.ErrorPage ?? tab.Content;
 
-        // Move focus off the shared address bar before assigning it to the
-        // newly selected tab. This makes the old tab's LostFocus event happen
-        // while tab-switch suppression is active.
         MoveFocusAwayFromAddressBar(tab);
 
         if (ZoomTeachingTip.IsOpen)
@@ -264,7 +263,7 @@ public sealed partial class MainWindow
             if (ReferenceEquals(tab.Content, tab.HistoryPage) &&
                 tab.HistoryPage is not null)
             {
-                if (!hasAddressBarDraft)
+                if (!restoreAddressBarDraft)
                 {
                     if (tab.Content is StartPage)
                         ClearAddressBarForStartPage();
@@ -282,7 +281,7 @@ public sealed partial class MainWindow
             }
             else
             {
-                if (!hasAddressBarDraft)
+                if (!restoreAddressBarDraft)
                     UpdateAddressBar(selectedWebView, force: true);
 
                 UpdateLoadingUI(selectedWebView);
@@ -302,7 +301,7 @@ public sealed partial class MainWindow
                     RestoreDefaultToolbarBackground();
                 }
 
-                if (tab.ErrorPage is null && !hasAddressBarDraft)
+                if (tab.ErrorPage is null && !restoreAddressBarFocus)
                 {
                     _ = DispatcherQueue.TryEnqueue(() =>
                     {
@@ -321,7 +320,7 @@ public sealed partial class MainWindow
         {
             UpdateZoomControls(100);
 
-            if (hasAddressBarDraft)
+            if (restoreAddressBarDraft)
             {
                 UpdateNavigationButtons();
             }
@@ -346,15 +345,15 @@ public sealed partial class MainWindow
             RestoreDefaultToolbarBackground();
         }
 
-        if (hasAddressBarDraft)
+        if (restoreAddressBarFocus)
         {
             ++_addressBarAnimationVersion;
 
-            _addressBarUserEditing = true;
+            _addressBarUserEditing = restoreAddressBarDraft;
             _addressBarFocused = true;
             _addressBarAnimating = false;
 
-            QueueAddressBarDraftFocus(tab, selectionVersion);
+            QueueAddressBarFocusRestore(tab, selectionVersion);
         }
         else
         {
@@ -367,7 +366,7 @@ public sealed partial class MainWindow
 
     private void MoveFocusAwayFromAddressBar(BrowserTab tab)
     {
-        if (AddressBar.FocusState == FocusState.Unfocused)
+        if (!IsAddressBarTextBoxFocused())
             return;
 
         bool movedFocus =
@@ -383,7 +382,7 @@ public sealed partial class MainWindow
         }
     }
 
-    private void QueueAddressBarDraftFocus(
+    private void QueueAddressBarFocusRestore(
         BrowserTab tab,
         int selectionVersion)
     {
@@ -393,27 +392,59 @@ public sealed partial class MainWindow
                 return;
 
             if (!ReferenceEquals(SelectedTab, tab) ||
-                tab.AddressBarDraft is not string draft)
+                !tab.AddressBarFocused)
             {
                 _addressBarSuppressLostFocus = false;
                 return;
             }
 
-            AddressBar.Text = draft;
+            bool hadSavedSelection = tab.AddressBarSelectionSaved;
+            int savedStart = tab.AddressBarSelectionStart;
+            int savedLength = tab.AddressBarSelectionLength;
+            string? draftAtRestore = tab.AddressBarDraft;
+
+            void ApplySavedSelection()
+            {
+                tab.AddressBarSelectionStart = savedStart;
+                tab.AddressBarSelectionLength = savedLength;
+                tab.AddressBarSelectionSaved = hadSavedSelection;
+
+                RestoreAddressBarSelection(
+                    tab,
+                    tab.AddressBarDraft?.Length ?? 0,
+                    tab.Content is StartPage ? 0 : AddressBar.Text.Length);
+            }
+
+            BeginAddressBarProgrammaticUpdate();
+
+            SetAddressBarTextWithoutSavingSelection(
+                GetAddressBarFocusedText(tab));
+
             AddressBar.Focus(FocusState.Programmatic);
             _addressBarFocusTab = tab;
             tab.AddressBarFocused = true;
+            _addressBarUserEditing = tab.AddressBarDraft is not null;
 
             FindAddressBarTextHost();
             ResetAddressBarTextTranslation(true);
-            _addressTextBox?.Select(_addressTextBox.Text.Length, 0);
 
-            // Keep tab-switch blur suppression active until the address bar
-            // has been restored and the focus change has been processed.
+            ApplySavedSelection();
+
             DispatcherQueue.TryEnqueue(() =>
             {
-                if (selectionVersion == _addressBarTabSelectionVersion)
-                    _addressBarSuppressLostFocus = false;
+                if (selectionVersion != _addressBarTabSelectionVersion)
+                    return;
+
+                if (ReferenceEquals(SelectedTab, tab) &&
+                    tab.AddressBarFocused &&
+                    IsAddressBarTextBoxFocused() &&
+                    ReferenceEquals(tab.AddressBarDraft, draftAtRestore))
+                {
+                    BeginAddressBarProgrammaticUpdate();
+                    ApplySavedSelection();
+                }
+
+                _addressBarSuppressLostFocus = false;
             });
         });
     }

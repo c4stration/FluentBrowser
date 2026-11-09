@@ -71,6 +71,7 @@ public sealed class MathMLControl : RichEditBox
 
         Loaded += MathMLControl_Loaded;
         Unloaded += MathMLControl_Unloaded;
+        ActualThemeChanged += MathMLControl_ActualThemeChanged;
     }
 
     private void OnFlowDirectionChanged(
@@ -111,8 +112,6 @@ public sealed class MathMLControl : RichEditBox
     {
         _isLoaded = true;
 
-        Resources["TextControlForegroundPointerOver"] = Foreground;
-
         if (!_isMathModeEnabled)
         {
             TextDocument.SetMathMode(RichEditMathMode.MathOnly);
@@ -120,11 +119,53 @@ public sealed class MathMLControl : RichEditBox
         }
 
         UpdateMathML(MathML);
+
+        DispatcherQueue.TryEnqueue(() => ApplyDocumentForeground());
     }
 
     private void MathMLControl_Unloaded(object sender, RoutedEventArgs e)
     {
         _isLoaded = false;
+    }
+
+    private void MathMLControl_ActualThemeChanged(
+        FrameworkElement sender,
+        object args)
+    {
+        if (!_isLoaded || !_isMathModeEnabled)
+            return;
+
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (_isLoaded && _isMathModeEnabled)
+                UpdateMathML(MathML);
+        });
+    }
+
+    private void ApplyDocumentForeground()
+    {
+        if (!_isLoaded ||
+            !_isMathModeEnabled ||
+            Foreground is not SolidColorBrush foreground)
+        {
+            return;
+        }
+
+        bool wasReadOnly = IsReadOnly;
+
+        try
+        {
+            IsReadOnly = false;
+
+            ITextRange range = TextDocument.GetRange(0, 0);
+            range.SetRange(0, range.StoryLength);
+
+            range.CharacterFormat.ForegroundColor = foreground.Color;
+        }
+        finally
+        {
+            IsReadOnly = wasReadOnly;
+        }
     }
 
     private void UpdateMathML(string? mathML)
@@ -180,6 +221,8 @@ public sealed class MathMLControl : RichEditBox
             TextSetOptions.FormatRtf |
             TextSetOptions.ApplyRtfDocumentDefaults,
             rtf);
+
+        ApplyDocumentForeground();
     }
 
     private static string SetMathFontInRtf(

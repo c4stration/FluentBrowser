@@ -209,7 +209,12 @@
                                     <my:MathMLControl
                                         x:Name="MathFontPreviewControl"
                                         FontSize="16"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                        <my:MathMLControl.Resources>
+                                            <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="{ThemeResource TextFillColorSecondary}" />
+                                            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+                                        </my:MathMLControl.Resources>
+                                    </my:MathMLControl>
                                 </controls:SettingsCard.Description>
 
                                 <StackPanel Orientation="Horizontal">

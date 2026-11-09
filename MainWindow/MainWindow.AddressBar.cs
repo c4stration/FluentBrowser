@@ -46,6 +46,7 @@ public sealed partial class MainWindow
     private Storyboard? _addressSuggestionHeightStoryboard;
     private Uri? _pendingAddressBarUri;
     private bool _addressBarSuppressLostFocus;
+    private int _addressBarProgrammaticTextUpdates;
     private bool _addressBarLosingFocusToTabView;
 
     private readonly HttpClient _httpClient = new();
@@ -144,6 +145,7 @@ public sealed partial class MainWindow
             tab.AddressBarDraft = sender.Text;
             tab.AddressBarFocused = true;
             _addressBarFocusTab = tab;
+            SaveAddressBarSelection(tab);
         }
 
         if (!AreSearchSuggestionsEnabled())
@@ -663,16 +665,22 @@ public sealed partial class MainWindow
         _pendingAddressBarUri = null;
         _addressBarUserEditing = false;
         _addressBarSubmitting = false;
-        _addressBarFocused = false;
+        bool keepAddressBarFocus =
+            IsAddressBarTextBoxFocused() &&
+            _addressBarFocusTab is BrowserTab focusedTab &&
+            ReferenceEquals(focusedTab, SelectedTab) &&
+            focusedTab.AddressBarFocused;
+
+        _addressBarFocused = keepAddressBarFocus;
         _addressBarAnimating = false;
-        _addressBarFocusTab = null;
+
+        if (!keepAddressBarFocus)
+            _addressBarFocusTab = null;
+
         ++_addressBarAnimationVersion;
 
-        if (SelectedTab is BrowserTab tab)
-            tab.AddressBarFocused = false;
-
-        AddressBar.Text = string.Empty;
-        ResetAddressBarTextTranslation(false);
+        SetAddressBarTextWithoutSavingSelection(string.Empty);
+        ResetAddressBarTextTranslation(keepAddressBarFocus);
     }
 
     private string GetSearchEngine() =>
@@ -790,6 +798,9 @@ public sealed partial class MainWindow
 
         tab.AddressBarDraft = null;
         tab.AddressBarFocused = false;
+        tab.AddressBarSelectionStart = 0;
+        tab.AddressBarSelectionLength = 0;
+        tab.AddressBarSelectionSaved = false;
         _addressBarFocusTab = null;
 
         if (tab.WebView is WebView2 webView &&
@@ -832,6 +843,13 @@ public sealed partial class MainWindow
         _addressBarLosingFocusToTabView =
             e.NewFocusedElement is DependencyObject target &&
             IsWithinElementTree(target, MainTabView);
+
+        if (_addressBarLosingFocusToTabView &&
+            _addressBarFocusTab is BrowserTab tab &&
+            ReferenceEquals(tab, SelectedTab))
+        {
+            SaveAddressBarSelection(tab);
+        }
     }
 
     private static bool IsWithinElementTree(
@@ -867,9 +885,10 @@ public sealed partial class MainWindow
         if (focusedTab is not null)
             focusedTab.AddressBarFocused = true;
 
-        if (focusedTab?.AddressBarDraft is string draft)
+        if (focusedTab is BrowserTab tab &&
+            tab.AddressBarDraft is string draft)
         {
-            AddressBar.Text = draft;
+            SetAddressBarTextWithoutSavingSelection(draft);
             _addressBarUserEditing = true;
 
             ++_addressBarAnimationVersion;
@@ -878,7 +897,7 @@ public sealed partial class MainWindow
 
             FindAddressBarTextHost();
             ResetAddressBarTextTranslation(true);
-            _addressTextBox?.Select(draft.Length, 0);
+            RestoreAddressBarSelection(tab, draft.Length, 0);
 
             return;
         }
@@ -887,15 +906,26 @@ public sealed partial class MainWindow
 
         CancelSuggestionRequest();
 
-        if (focusedTab is BrowserTab tab &&
-            !ReferenceEquals(tab.Content, tab.HistoryPage) &&
-            tab.WebView?.Source is Uri uri)
+        if (focusedTab is BrowserTab currentTab &&
+            !ReferenceEquals(currentTab.Content, currentTab.HistoryPage) &&
+            currentTab.WebView?.Source is Uri uri)
         {
-            AddressBar.Text = GetDisplayUri(uri);
+            SetAddressBarTextWithoutSavingSelection(GetDisplayUri(uri));
         }
 
         FindAddressBarTextHost();
-        _addressTextBox?.SelectAll();
+
+        if (focusedTab is BrowserTab selectedTab)
+        {
+            RestoreAddressBarSelection(
+                selectedTab,
+                0,
+                _addressTextBox?.Text.Length ?? 0);
+        }
+        else
+        {
+            _addressTextBox?.SelectAll();
+        }
 
         AnimateAddressBar(true);
     }
@@ -905,17 +935,16 @@ public sealed partial class MainWindow
         bool losingFocusToTabView = _addressBarLosingFocusToTabView;
         _addressBarLosingFocusToTabView = false;
 
-        if (_addressBarSubmitting ||
-            _addressBarSuppressLostFocus ||
-            losingFocusToTabView)
-        {
-            return;
-        }
-
         BrowserTab? focusTab = _addressBarFocusTab;
+
+        if (_addressBarSubmitting || _addressBarSuppressLostFocus)
+            return;
 
         if (focusTab is null)
             return;
+
+        if (!losingFocusToTabView)
+            SaveAddressBarSelection(focusTab);
 
         int focusVersion = _addressBarFocusVersion;
         int selectionVersion = _addressBarTabSelectionVersion;
@@ -927,9 +956,11 @@ public sealed partial class MainWindow
 
         try
         {
-            await Task.Yield();
+            if (losingFocusToTabView)
+                await Task.Delay(100, cancellation.Token);
+            else
+                await Task.Yield();
 
-            // NIGHTMARE FUEL INCOMING!!!
             if (_suggestionWasChosen ||
                 _selectedSuggestionTarget is not null ||
                 focusVersion != _addressBarFocusVersion ||
@@ -939,7 +970,7 @@ public sealed partial class MainWindow
                 !ReferenceEquals(focusTab, SelectedTab) ||
                 !ReferenceEquals(focusTab, _addressBarFocusTab) ||
                 _addressBarContextFlyoutOpen ||
-                AddressBar.FocusState != FocusState.Unfocused ||
+                IsAddressBarTextBoxFocused() ||
                 (!_addressBarSubmitting && AddressBar.IsSuggestionListOpen))
             {
                 return;
@@ -947,6 +978,9 @@ public sealed partial class MainWindow
 
             focusTab.AddressBarDraft = null;
             focusTab.AddressBarFocused = false;
+            focusTab.AddressBarSelectionStart = 0;
+            focusTab.AddressBarSelectionLength = 0;
+            focusTab.AddressBarSelectionSaved = false;
 
             _addressBarFocusTab = null;
             _addressBarUserEditing = false;
@@ -990,6 +1024,115 @@ public sealed partial class MainWindow
         }
     }
 
+    private void SetAddressBarTextWithoutSavingSelection(string text)
+    {
+        BeginAddressBarProgrammaticUpdate();
+        AddressBar.Text = text;
+    }
+
+    private void BeginAddressBarProgrammaticUpdate()
+    {
+        _addressBarProgrammaticTextUpdates++;
+
+        if (!AddressBar.DispatcherQueue.TryEnqueue(() =>
+                _addressBarProgrammaticTextUpdates--))
+        {
+            _addressBarProgrammaticTextUpdates--;
+        }
+    }
+
+    private string GetAddressBarFocusedText(BrowserTab tab)
+    {
+        if (tab.AddressBarDraft is string draft)
+            return draft;
+
+        if (tab.Content is StartPage)
+            return string.Empty;
+
+        if (TryGetHistoryPageUri(tab, out Uri historyUri))
+        {
+            return IsSettingsPageUri(historyUri)
+                ? string.Empty
+                : GetDisplayUri(historyUri);
+        }
+
+        if (tab.WebView?.Source is Uri uri)
+            return GetDisplayUri(uri);
+
+        return AddressBar.Text;
+    }
+
+    private void AddressBarTextBox_SelectionChanged(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not TextBox textBox ||
+            _addressBarProgrammaticTextUpdates > 0 ||
+            textBox.FocusState == FocusState.Unfocused ||
+            _addressBarFocusTab is not BrowserTab tab ||
+            !ReferenceEquals(tab, SelectedTab))
+        {
+            return;
+        }
+
+        SaveAddressBarSelection(tab);
+    }
+
+    private void SaveAddressBarSelection(BrowserTab tab)
+    {
+        FindAddressBarTextHost();
+
+        if (_addressTextBox is null)
+            return;
+
+        int textLength = _addressTextBox.Text.Length;
+        int selectionStart = Math.Clamp(
+            _addressTextBox.SelectionStart,
+            0,
+            textLength);
+        int selectionLength = Math.Clamp(
+            _addressTextBox.SelectionLength,
+            0,
+            textLength - selectionStart);
+
+        tab.AddressBarSelectionStart = selectionStart;
+        tab.AddressBarSelectionLength = selectionLength;
+        tab.AddressBarSelectionSaved = true;
+    }
+
+    private bool IsAddressBarTextBoxFocused()
+    {
+        FindAddressBarTextHost();
+
+        return _addressTextBox is not null &&
+            _addressTextBox.FocusState != FocusState.Unfocused;
+    }
+
+    private void RestoreAddressBarSelection(
+        BrowserTab tab,
+        int defaultStart,
+        int defaultLength)
+    {
+        FindAddressBarTextHost();
+
+        if (_addressTextBox is null)
+            return;
+
+        int textLength = _addressTextBox.Text.Length;
+        int start = tab.AddressBarSelectionSaved
+            ? Math.Clamp(tab.AddressBarSelectionStart, 0, textLength)
+            : Math.Clamp(defaultStart, 0, textLength);
+        int length = tab.AddressBarSelectionSaved
+            ? Math.Clamp(
+                tab.AddressBarSelectionLength,
+                0,
+                textLength - start)
+            : Math.Clamp(defaultLength, 0, textLength - start);
+
+        _addressTextBox.Select(start, length);
+        SaveAddressBarSelection(tab);
+    }
+
     private void FindAddressBarTextHost()
     {
         if (_addressTextBox is null)
@@ -998,6 +1141,9 @@ public sealed partial class MainWindow
 
             if (_addressTextBox is null)
                 return;
+
+            _addressTextBox.SelectionChanged +=
+                AddressBarTextBox_SelectionChanged;
 
             if (_addressTextBox.ContextFlyout is { } contextFlyout)
             {
@@ -1164,6 +1310,9 @@ public sealed partial class MainWindow
             {
                 escapeTab.AddressBarDraft = null;
                 escapeTab.AddressBarFocused = true;
+                escapeTab.AddressBarSelectionStart = 0;
+                escapeTab.AddressBarSelectionLength = 0;
+                escapeTab.AddressBarSelectionSaved = false;
                 _addressBarFocusTab = escapeTab;
 
                 if (escapeTab.Content is StartPage)
@@ -1172,20 +1321,27 @@ public sealed partial class MainWindow
                 }
                 else if (TryGetHistoryPageUri(escapeTab, out Uri historyUri))
                 {
-                    AddressBar.Text = GetDisplayUri(historyUri);
+                    SetAddressBarTextWithoutSavingSelection(GetDisplayUri(historyUri));
                 }
                 else if (escapeTab.WebView?.Source is Uri uri)
                 {
-                    AddressBar.Text = GetDisplayUri(uri);
+                    SetAddressBarTextWithoutSavingSelection(GetDisplayUri(uri));
                 }
                 else
                 {
-                    AddressBar.Text = string.Empty;
+                    SetAddressBarTextWithoutSavingSelection(string.Empty);
                 }
             }
 
             FindAddressBarTextHost();
             _addressTextBox?.SelectAll();
+
+            if (SelectedTab is BrowserTab selectedTab)
+            {
+                selectedTab.AddressBarFocused = true;
+                _addressBarFocusTab = selectedTab;
+                SaveAddressBarSelection(selectedTab);
+            }
 
             return;
         }
@@ -1207,6 +1363,9 @@ public sealed partial class MainWindow
         ClearSuggestionResults(AddressBar);
         tab.AddressBarDraft = null;
         tab.AddressBarFocused = false;
+        tab.AddressBarSelectionStart = 0;
+        tab.AddressBarSelectionLength = 0;
+        tab.AddressBarSelectionSaved = false;
         _addressBarFocusTab = null;
         _addressBarUserEditing = false;
 
@@ -1418,8 +1577,12 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(WebView2 webView, bool force = false)
     {
-        if (SelectedTab?.AddressBarDraft is not null)
+        if (SelectedTab is BrowserTab focusedTab &&
+            focusedTab.AddressBarFocused &&
+            focusedTab.AddressBarDraft is not null)
+        {
             return;
+        }
 
         if (SelectedTab?.Content is StartPage)
         {
@@ -1440,18 +1603,22 @@ public sealed partial class MainWindow
 
     private void UpdateAddressBar(Uri uri, bool force = false)
     {
-        if (SelectedTab?.AddressBarDraft is not null)
+        if (SelectedTab is BrowserTab focusedTab &&
+            focusedTab.AddressBarFocused &&
+            focusedTab.AddressBarDraft is not null)
+        {
             return;
+        }
 
-        if (SelectedTab is BrowserTab tab &&
-            TryGetHistoryPageUri(tab, out Uri historyUri) &&
+        if (SelectedTab is BrowserTab historyTab &&
+            TryGetHistoryPageUri(historyTab, out Uri historyUri) &&
             IsSettingsPageUri(historyUri))
         {
             _pendingAddressBarUri = null;
-            AddressBar.Text = string.Empty;
+            SetAddressBarTextWithoutSavingSelection(string.Empty);
             return;
         }
-        
+
         bool addressBarFocused =
             SelectedTab is BrowserTab selectedTab &&
             selectedTab.AddressBarFocused &&
@@ -1464,9 +1631,10 @@ public sealed partial class MainWindow
         if (force || _pendingAddressBarUri is not null)
             _pendingAddressBarUri = null;
 
-        AddressBar.Text = addressBarFocused
-            ? GetDisplayUri(uri)
-            : GetAddressName(uri);
+        SetAddressBarTextWithoutSavingSelection(
+            addressBarFocused
+                ? GetDisplayUri(uri)
+                : GetAddressName(uri));
     }
 
     private static string GetDisplayUri(Uri uri) =>

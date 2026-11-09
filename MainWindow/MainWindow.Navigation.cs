@@ -240,6 +240,14 @@ public sealed partial class MainWindow
         tab.ErrorPage = null;
         tab.Content = page;
 
+        if (createdPage && page is StartPage)
+        {
+            tab.AddressBarFocused = true;
+            tab.AddressBarSelectionStart = 0;
+            tab.AddressBarSelectionLength = 0;
+            tab.AddressBarSelectionSaved = false;
+        }
+
         if (createdPage && page is SettingsPage settingsPage)
             _ = LoadSettingsPageExtensionsAsync(settingsPage);
 
@@ -264,10 +272,21 @@ public sealed partial class MainWindow
         CurrentTabContent.Content = page;
 
         if (page is StartPage)
+        {
             ClearAddressBarForStartPage();
+
+            if (tab.AddressBarFocused)
+            {
+                QueueAddressBarFocusRestore(
+                    tab,
+                    _addressBarTabSelectionVersion);
+            }
+        }
         else if (tab.HistoryPageUri is string internalUri &&
                  Uri.TryCreate(internalUri, UriKind.Absolute, out Uri? uri))
+        {
             UpdateAddressBar(uri, force: true);
+        }
 
         LoadingProgressBar.Visibility = Visibility.Collapsed;
         SetAddressBarTrailingButtonVisible(AudioToggleButton, false);
@@ -277,8 +296,8 @@ public sealed partial class MainWindow
     }
 
     private void ShowInternalHistoryEntry(
-    BrowserTab tab,
-    string targetUri)
+        BrowserTab tab,
+        string targetUri)
     {
         if (!Uri.TryCreate(
                 targetUri,
@@ -305,6 +324,14 @@ public sealed partial class MainWindow
         tab.HistoryPageUri = uri.AbsoluteUri;
         tab.Content = page;
         tab.ErrorPage = null;
+
+        if (createdPage && page is StartPage)
+        {
+            tab.AddressBarFocused = true;
+            tab.AddressBarSelectionStart = 0;
+            tab.AddressBarSelectionLength = 0;
+            tab.AddressBarSelectionSaved = false;
+        }
 
         if (createdPage && page is SettingsPage settingsPage)
             _ = LoadSettingsPageExtensionsAsync(settingsPage);
@@ -807,7 +834,6 @@ public sealed partial class MainWindow
 
         if (args.NavigationKind == CoreWebView2NavigationKind.BackOrForward)
         {
-
             return;
         }
 
