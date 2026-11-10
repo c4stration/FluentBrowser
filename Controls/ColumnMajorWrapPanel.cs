@@ -14,6 +14,13 @@ public sealed class ColumnMajorWrapPanel : Panel
             typeof(ColumnMajorWrapPanel),
             new PropertyMetadata(240d, OnPreferredColumnWidthChanged));
 
+    public static readonly DependencyProperty MaximumColumnWidthProperty =
+        DependencyProperty.Register(
+            nameof(MaximumColumnWidth),
+            typeof(double),
+            typeof(ColumnMajorWrapPanel),
+            new PropertyMetadata(301d, OnLayoutPropertyChanged));
+
     private int _visibleChildCount;
     private int _columnCount = 1;
 
@@ -23,10 +30,35 @@ public sealed class ColumnMajorWrapPanel : Panel
         set => SetValue(PreferredColumnWidthProperty, value);
     }
 
+    public double MaximumColumnWidth
+    {
+        get => (double)GetValue(MaximumColumnWidthProperty);
+        set => SetValue(MaximumColumnWidthProperty, value);
+    }
+
     private static void OnPreferredColumnWidthChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is ColumnMajorWrapPanel panel)
             panel.InvalidateMeasure();
+    }
+
+    private static void OnLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is ColumnMajorWrapPanel panel)
+            panel.InvalidateMeasure();
+    }
+
+    private double GetColumnWidth(double availableWidth)
+    {
+        if (double.IsInfinity(availableWidth))
+            return availableWidth;
+
+        double maximum = MaximumColumnWidth;
+
+        if (!double.IsFinite(maximum) || maximum < 1)
+            maximum = 301d;
+
+        return Math.Min(availableWidth / _columnCount, maximum);
     }
 
     protected override Size MeasureOverride(Size availableSize)
@@ -53,14 +85,19 @@ public sealed class ColumnMajorWrapPanel : Panel
         if (!double.IsFinite(preferredWidth) || preferredWidth < 1)
             preferredWidth = 240;
 
+        double maximumWidth = MaximumColumnWidth;
+
+        if (!double.IsFinite(maximumWidth) || maximumWidth < 1)
+            maximumWidth = 301d;
+
         _columnCount = infiniteWidth
             ? 1
             : (int)Math.Clamp(
-                availableWidth / preferredWidth,
+                Math.Ceiling(availableWidth / maximumWidth),
                 1d,
-                (double)_visibleChildCount);
+                _visibleChildCount);
 
-        double columnWidth = availableWidth / _columnCount;
+        double columnWidth = GetColumnWidth(availableWidth);
 
         int itemsPerColumn = _visibleChildCount / _columnCount;
         int extraItems = _visibleChildCount % _columnCount;
@@ -121,7 +158,7 @@ public sealed class ColumnMajorWrapPanel : Panel
             return finalSize;
         }
 
-        double columnWidth = finalSize.Width / _columnCount;
+        double columnWidth = GetColumnWidth(finalSize.Width);
 
         int itemsPerColumn = _visibleChildCount / _columnCount;
         int extraItems = _visibleChildCount % _columnCount;

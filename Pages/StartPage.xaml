@@ -300,7 +300,7 @@
 
                                 <StackPanel x:Name="LicenseField">
                                     <TextBlock
-                                        l:Uids.Uid="ImageLicense"
+                                        l:Uids.Uid="License"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{ThemeResource CaptionTextBlockStyle}" />
 

@@ -666,7 +666,10 @@
   <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
     <value>Vezi licența</value>
   </data>
-  <data name="ImageLicense.Text" xml:space="preserve">
+  <data name="License.Text" xml:space="preserve">
+    <value>Licență</value>
+  </data>
+  <data name="License.Content" xml:space="preserve">
     <value>Licență</value>
   </data>
   <data name="FavoritesTitle.Text" xml:space="preserve">

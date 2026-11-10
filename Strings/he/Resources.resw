@@ -684,7 +684,10 @@
   <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
     <value>הצגת הרישיון</value>
   </data>
-  <data name="ImageLicense.Text" xml:space="preserve">
+  <data name="License.Text" xml:space="preserve">
+    <value>רישיון</value>
+  </data>
+  <data name="License.Content" xml:space="preserve">
     <value>רישיון</value>
   </data>
   <data name="FavoritesTitle.Text" xml:space="preserve">

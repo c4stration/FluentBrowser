@@ -670,7 +670,10 @@
   <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
     <value>查看许可证</value>
   </data>
-  <data name="ImageLicense.Text" xml:space="preserve">
+  <data name="License.Text" xml:space="preserve">
+    <value>许可证</value>
+  </data>
+  <data name="License.Content" xml:space="preserve">
     <value>许可证</value>
   </data>
   <data name="FavoritesTitle.Text" xml:space="preserve">
