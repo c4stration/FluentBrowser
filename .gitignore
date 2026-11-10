@@ -11,6 +11,5 @@ TestResults/
 .DS_Store
 Thumbs.db
 publish/
-*.generated.cs
 .env
 .env.*
