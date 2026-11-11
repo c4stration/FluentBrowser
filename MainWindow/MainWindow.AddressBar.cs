@@ -139,6 +139,8 @@ public sealed partial class MainWindow
         }
 
         _addressBarUserEditing = true;
+        _suggestionWasChosen = false;
+        _selectedSuggestionTarget = null;
 
         if (SelectedTab is BrowserTab tab)
         {

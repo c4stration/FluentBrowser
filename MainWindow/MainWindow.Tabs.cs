@@ -30,6 +30,7 @@ public sealed partial class MainWindow
         public bool IsClosed { get; set; }
         public bool IsInitializing { get; set; } = true;
         public bool WasDiscarded { get; set; }
+        public DateTime LastDeactivatedUtc { get; set; } = DateTime.UtcNow;
         public string LastKnownUrl { get; set; } = string.Empty;
         public string? AddressBarDraft { get; set; }
         public bool AddressBarFocused { get; set; }
@@ -93,7 +94,25 @@ public sealed partial class MainWindow
         tab.HistoryPage is not null &&
         ReferenceEquals(tab.Content, tab.HistoryPage);
 
+    private const int MaxClosedTabs = 25;
+
     private readonly Stack<ClosedTab> _closedTabs = [];
+
+    private void PushClosedTab(ClosedTab closedTab)
+    {
+        _closedTabs.Push(closedTab);
+
+        if (_closedTabs.Count <= MaxClosedTabs)
+            return;
+
+        // Stack enumerates newest-first; keep the newest entries only.
+        ClosedTab[] keep = [.. _closedTabs.Take(MaxClosedTabs).Reverse()];
+
+        _closedTabs.Clear();
+
+        foreach (ClosedTab entry in keep)
+            _closedTabs.Push(entry);
+    }
 
     private void TabView_AddButtonClick(TabView sender, object args)
     {
@@ -122,9 +141,12 @@ public sealed partial class MainWindow
 
         browserTab.IsClosed = true;
 
+        if (ReferenceEquals(_addressBarFocusTab, browserTab))
+            _addressBarFocusTab = null;
+
         if (CaptureNavigationSnapshot(browserTab) is { } snapshot)
         {
-            _closedTabs.Push(new ClosedTab(
+            PushClosedTab(new ClosedTab(
                 snapshot,
                 MainTabView.TabItems.IndexOf(tab)));
         }
@@ -213,11 +235,15 @@ public sealed partial class MainWindow
         foreach (TabViewItem removedTab in e.RemovedItems.OfType<TabViewItem>())
         {
             if (removedTab.Tag is not BrowserTab previousTab ||
-                previousTab.WebView is not WebView2 previousWebView ||
                 ReferenceEquals(SelectedTab, previousTab))
             {
                 continue;
             }
+
+            previousTab.LastDeactivatedUtc = DateTime.UtcNow;
+
+            if (previousTab.WebView is not WebView2 previousWebView)
+                continue;
 
             previousWebView.Visibility = Visibility.Collapsed;
             _ = SuspendBackgroundTabAsync(previousTab);
@@ -243,8 +269,13 @@ public sealed partial class MainWindow
 
         if (tab.WebView is WebView2 webView)
         {
-            if (webView.CoreWebView2 is { IsSuspended: true } core)
-                core.Resume();
+            if (webView.CoreWebView2 is { } resumeCore)
+            {
+                if (resumeCore.IsSuspended)
+                    resumeCore.Resume();
+
+                SetTabMemoryTarget(resumeCore, low: false);
+            }
 
             webView.Visibility = ReferenceEquals(tab.Content, tab.HistoryPage)
                 ? Visibility.Collapsed
@@ -508,6 +539,53 @@ public sealed partial class MainWindow
             favicon,
             url,
             initializeNavigation);
+
+        return tab;
+    }
+
+    private TabViewItem CreateDiscardedTab(string url, string? title = null)
+    {
+        var tab = new TabViewItem
+        {
+            HorizontalContentAlignment = HorizontalAlignment.Stretch
+        };
+
+        var header = CreateTabHeader(
+            out var titleBlock,
+            out var progressRing,
+            out var audioButton,
+            out var favicon);
+
+        titleBlock.Text = !string.IsNullOrWhiteSpace(title)
+            ? title
+            : Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)
+                ? uri.Host
+                : url;
+
+        progressRing.IsActive = false;
+        progressRing.Visibility = Visibility.Collapsed;
+        audioButton.Visibility = Visibility.Collapsed;
+
+        tab.Header = header;
+
+        var browserTab = new BrowserTab(
+            _nextExtensionTabId++,
+            tab,
+            new Grid(),
+            titleBlock,
+            progressRing,
+            audioButton,
+            favicon)
+        {
+            LastKnownUrl = url,
+            WasDiscarded = true,
+            IsInitializing = false
+        };
+
+        tab.Tag = browserTab;
+
+        _browserTabs[tab] = browserTab;
+        _extensionTabMap[browserTab.ExtensionTabId] = browserTab;
 
         return tab;
     }
@@ -1002,6 +1080,20 @@ public sealed partial class MainWindow
                 {
                     webView.Reload();
                 }
+                else if (tab.Tag is BrowserTab { WasDiscarded: true })
+                {
+                    MainTabView.SelectedItem = tab;
+                }
+                break;
+
+            case "hibernate":
+                if (tab.Tag is BrowserTab hibernateTab)
+                    DiscardTab(hibernateTab, "tab menu");
+                break;
+
+            case "hibernateOthers":
+                if (tab.Tag is BrowserTab keepTab)
+                    DiscardAllExcept(keepTab, "tab menu");
                 break;
 
             case "duplicate":
@@ -1067,6 +1159,8 @@ public sealed partial class MainWindow
 
     private void CloseOtherTabs(TabViewItem selectedTab)
     {
+        MainTabView.SelectedItem = selectedTab;
+
         foreach (var tab in MainTabView.TabItems
                      .OfType<TabViewItem>()
                      .Where(tab => !ReferenceEquals(tab, selectedTab))
@@ -1084,6 +1178,8 @@ public sealed partial class MainWindow
 
         if (index < 0)
             return;
+
+        MainTabView.SelectedItem = selectedTab;
 
         foreach (var tab in MainTabView.TabItems
                      .OfType<TabViewItem>()

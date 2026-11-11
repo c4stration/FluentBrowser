@@ -11,4 +11,7 @@ public sealed class BrowserSession
 
     [Key(1)]
     public int SelectedTabIndex { get; set; }
+
+    [Key(2)]
+    public List<string?> TabTitles { get; set; } = [];
 }

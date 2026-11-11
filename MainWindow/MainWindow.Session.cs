@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Path = System.IO.Path;
+using System.Linq;
 
 namespace FluentBrowser;
 
@@ -105,10 +105,13 @@ public sealed partial class MainWindow
 
             try
             {
-                foreach (string url in session.TabUrls)
+                var entries = new List<(string Url, string? Title)>();
+                int selectedEntry = -1;
+
+                for (int i = 0; i < session.TabUrls.Count; i++)
                 {
                     if (!Uri.TryCreate(
-                            url,
+                            session.TabUrls[i],
                             UriKind.Absolute,
                             out Uri? uri) ||
                         (uri.Scheme != Uri.UriSchemeHttp &&
@@ -117,20 +120,45 @@ public sealed partial class MainWindow
                         continue;
                     }
 
-                    AddNewTab(
-                        CreateNewTab(uri.AbsoluteUri),
-                        false);
+                    if (i == session.SelectedTabIndex)
+                        selectedEntry = entries.Count;
+
+                    entries.Add((
+                        uri.AbsoluteUri,
+                        session.TabTitles?.ElementAtOrDefault(i)));
                 }
 
-                if (MainTabView.TabItems.Count == 0)
+                if (entries.Count == 0)
                     return false;
 
-                int selectedIndex = Math.Clamp(
-                    session.SelectedTabIndex,
-                    0,
-                    MainTabView.TabItems.Count - 1);
+                if (selectedEntry < 0)
+                {
+                    selectedEntry = Math.Clamp(
+                        session.SelectedTabIndex,
+                        0,
+                        entries.Count - 1);
+                }
 
-                MainTabView.SelectedIndex = selectedIndex;
+                TabViewItem selectedTab =
+                    CreateNewTab(entries[selectedEntry].Url);
+
+                MainTabView.TabItems.Add(selectedTab);
+                MainTabView.SelectedItem = selectedTab;
+
+                for (int i = 0; i < entries.Count; i++)
+                {
+                    if (i == selectedEntry)
+                        continue;
+
+                    TabViewItem tab = CreateDiscardedTab(
+                        entries[i].Url,
+                        entries[i].Title);
+
+                    if (i < selectedEntry)
+                        MainTabView.TabItems.Insert(i, tab);
+                    else
+                        MainTabView.TabItems.Add(tab);
+                }
 
                 return true;
             }
@@ -153,6 +181,7 @@ public sealed partial class MainWindow
         try
         {
             var tabUrls = new List<string>();
+            var tabTitles = new List<string?>();
             int selectedTabIndex = -1;
 
             foreach (object item in MainTabView.TabItems)
@@ -198,6 +227,11 @@ public sealed partial class MainWindow
                 }
 
                 tabUrls.Add(uri.AbsoluteUri);
+
+                tabTitles.Add(
+                    string.IsNullOrWhiteSpace(browserTab.Title.Text)
+                        ? null
+                        : browserTab.Title.Text);
             }
 
             if (tabUrls.Count == 0)
@@ -209,6 +243,7 @@ public sealed partial class MainWindow
             var session = new BrowserSession
             {
                 TabUrls = tabUrls,
+                TabTitles = tabTitles,
                 SelectedTabIndex =
                     selectedTabIndex >= 0
                         ? selectedTabIndex

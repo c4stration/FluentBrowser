@@ -3,11 +3,13 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Windows.Storage;
 using Windows.System;
 
 namespace FluentBrowser;
@@ -16,6 +18,13 @@ public sealed partial class MainWindow
 {
     private readonly System.Collections.Generic.HashSet<WebView2>
         _suspendingWebViews = [];
+
+    private const int DefaultIdleDiscardMinutes = 30;
+
+    private const int PressureKeepRecentTabs = 2;
+
+    private DispatcherTimer? _idleTabTimer;
+    private bool _idleDiscardRunning;
 
     private int _memoryReliefQueued;
     private int _memoryReliefRequested;
@@ -29,6 +38,14 @@ public sealed partial class MainWindow
         MemoryManager.AppMemoryUsageLimitChanging +=
             MemoryManager_AppMemoryUsageLimitChanging;
 
+        _idleTabTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMinutes(1)
+        };
+
+        _idleTabTimer.Tick += IdleTabTimer_Tick;
+        _idleTabTimer.Start();
+
         Debug.WriteLine(
             $"tab memory management initialized; " +
             $"usage level: {MemoryManager.AppMemoryUsageLevel}, " +
@@ -38,6 +55,13 @@ public sealed partial class MainWindow
     private void ShutdownTabMemoryManagement()
     {
         _isWindowClosing = true;
+
+        if (_idleTabTimer is not null)
+        {
+            _idleTabTimer.Stop();
+            _idleTabTimer.Tick -= IdleTabTimer_Tick;
+            _idleTabTimer = null;
+        }
 
         MemoryManager.AppMemoryUsageIncreased -=
             MemoryManager_AppMemoryUsageIncreased;
@@ -113,7 +137,10 @@ public sealed partial class MainWindow
                     $"usage level: {MemoryManager.AppMemoryUsageLevel}; " +
                     $"usage: {MemoryManager.AppMemoryUsage:N0} bytes.");
 
-                await DiscardBackgroundWebViewsAsync(reason);
+                await DiscardBackgroundWebViewsAsync(
+                    reason,
+                    minIdle: null,
+                    keepMostRecent: PressureKeepRecentTabs);
             }
             while (Interlocked.Exchange(
                        ref _memoryReliefRequested,
@@ -181,6 +208,8 @@ public sealed partial class MainWindow
                 return;
             }
 
+            SetTabMemoryTarget(core, low: true);
+
             bool suspended = await core.TrySuspendAsync();
 
             Debug.WriteLine(
@@ -207,6 +236,7 @@ public sealed partial class MainWindow
         if (tab.IsClosed ||
             tab.IsInitializing ||
             tab.WasDiscarded ||
+            IsInternalPageDisplayed(tab) ||
             ReferenceEquals(SelectedTab, tab) ||
             string.IsNullOrWhiteSpace(tab.LastKnownUrl) ||
             tab.WebView is not WebView2 candidate ||
@@ -228,56 +258,149 @@ public sealed partial class MainWindow
         return true;
     }
 
-    private async Task DiscardBackgroundWebViewsAsync(string reason)
+    private static int GetIdleDiscardMinutes() =>
+        ApplicationData.Current.LocalSettings.Values["TabDiscardMinutes"]
+            is int minutes
+            ? minutes
+            : DefaultIdleDiscardMinutes;
+
+    private async void IdleTabTimer_Tick(object? sender, object e)
+    {
+        if (_isWindowClosing || _idleDiscardRunning)
+            return;
+
+        int minutes = GetIdleDiscardMinutes();
+
+        if (minutes <= 0)
+            return;
+
+        _idleDiscardRunning = true;
+
+        try
+        {
+            await DiscardBackgroundWebViewsAsync(
+                "idle timeout",
+                minIdle: TimeSpan.FromMinutes(minutes),
+                keepMostRecent: 0);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"idle tab discard failed: {ex}");
+        }
+        finally
+        {
+            _idleDiscardRunning = false;
+        }
+    }
+
+    private static void SetTabMemoryTarget(CoreWebView2 core, bool low)
+    {
+        try
+        {
+            core.MemoryUsageTargetLevel = low
+                ? CoreWebView2MemoryUsageTargetLevel.Low
+                : CoreWebView2MemoryUsageTargetLevel.Normal;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"failed to set memory target level: {ex.Message}");
+        }
+    }
+
+    private async Task DiscardBackgroundWebViewsAsync(
+        string reason,
+        TimeSpan? minIdle = null,
+        int keepMostRecent = 0)
     {
         int discarded = 0;
+        DateTime now = DateTime.UtcNow;
 
-        foreach (BrowserTab tab in _browserTabs.Values.ToArray())
+        List<BrowserTab> candidates = [.. _browserTabs.Values
+            .Where(tab => TryGetDiscardableWebView(tab, out _))
+            .OrderBy(tab => tab.LastDeactivatedUtc)];
+
+        if (keepMostRecent > 0)
         {
-            if (!TryGetDiscardableWebView(
-                    tab,
-                    out WebView2 webView))
+            candidates = [.. candidates.Take(
+                Math.Max(0, candidates.Count - keepMostRecent))];
+        }
+
+        foreach (BrowserTab tab in candidates)
+        {
+            if (_isWindowClosing)
+                break;
+
+            if (minIdle is TimeSpan idle &&
+                now - tab.LastDeactivatedUtc < idle)
             {
                 continue;
             }
 
-            string url = tab.LastKnownUrl;
-
-            if (string.IsNullOrWhiteSpace(url))
+            if (!DiscardTab(tab, reason))
                 continue;
-
-            FrameworkElement oldContent = tab.Content;
-            Page? oldErrorPage = tab.ErrorPage;
-
-            if (ReferenceEquals(CurrentTabContent.Content, oldContent) ||
-                ReferenceEquals(CurrentTabContent.Content, oldErrorPage))
-            {
-                CurrentTabContent.Content = null;
-            }
-
-            webView.Visibility = Visibility.Collapsed;
-
-            tab.Content = new Grid();
-            tab.ErrorPage = null;
-            tab.WebView = null;
-            tab.WasDiscarded = true;
-
-            CleanupWebViewTracking(webView);
-
-            webView.Tag = null;
-            webView.Close();
 
             discarded++;
-
-            Debug.WriteLine(
-                $"discarded background tab {tab.ExtensionTabId}: {url}; " +
-                $"reason: {reason}.");
 
             await Task.Yield();
         }
 
         Debug.WriteLine(
             $"memory relief finished; discarded {discarded} tab(s).");
+    }
+
+    private bool DiscardTab(BrowserTab tab, string reason)
+    {
+        if (!TryGetDiscardableWebView(tab, out WebView2 webView))
+            return false;
+
+        DiscardTabCore(tab, webView, reason);
+        return true;
+    }
+
+    private int DiscardAllExcept(BrowserTab keep, string reason)
+    {
+        int discarded = 0;
+
+        foreach (BrowserTab tab in _browserTabs.Values.ToArray())
+        {
+            if (!ReferenceEquals(tab, keep) && DiscardTab(tab, reason))
+                discarded++;
+        }
+
+        return discarded;
+    }
+
+    private void DiscardTabCore(
+        BrowserTab tab,
+        WebView2 webView,
+        string reason)
+    {
+        string url = tab.LastKnownUrl;
+
+        FrameworkElement oldContent = tab.Content;
+        Page? oldErrorPage = tab.ErrorPage;
+
+        if (ReferenceEquals(CurrentTabContent.Content, oldContent) ||
+            ReferenceEquals(CurrentTabContent.Content, oldErrorPage))
+        {
+            CurrentTabContent.Content = null;
+        }
+
+        webView.Visibility = Visibility.Collapsed;
+
+        tab.Content = new Grid();
+        tab.ErrorPage = null;
+        tab.WebView = null;
+        tab.WasDiscarded = true;
+
+        CleanupWebViewTracking(webView);
+
+        webView.Tag = null;
+        webView.Close();
+
+        Debug.WriteLine(
+            $"discarded background tab {tab.ExtensionTabId}: {url}; " +
+            $"reason: {reason}.");
     }
 
     private void CleanupWebViewTracking(WebView2 webView)
