@@ -30,6 +30,7 @@ public sealed partial class StartPage : Page
 {
     private const string ImageMode = "Image";
     private const string RandomMode = "Random";
+    private const string AuroraMode = "Aurora";
     private const string LegacySpotlightMode = "Spotlight";
     private const string NoneMode = "None";
     private const string BackgroundSettingsLocalSettingKey = "StartPage.BackgroundSettings";
@@ -584,6 +585,7 @@ public sealed partial class StartPage : Page
         var mode = selectedMode switch
         {
             RandomMode => RandomMode,
+            AuroraMode => AuroraMode,
             NoneMode => NoneMode,
             _ => ImageMode
         };
@@ -637,6 +639,7 @@ public sealed partial class StartPage : Page
         _settings.Mode = mode switch
         {
             RandomMode => RandomMode,
+            AuroraMode => AuroraMode,
             NoneMode => NoneMode,
             _ => ImageMode
         };
@@ -655,6 +658,7 @@ public sealed partial class StartPage : Page
             var selectedMode = _settings.Mode switch
             {
                 RandomMode => RandomMode,
+                AuroraMode => AuroraMode,
                 NoneMode => NoneMode,
                 _ => ImageMode
             };
@@ -691,8 +695,11 @@ public sealed partial class StartPage : Page
         InfoButton.Visibility = _settings.Mode == RandomMode
             ? Visibility.Visible
             : Visibility.Collapsed;
+        AuroraBackground.Visibility = _settings.Mode == AuroraMode
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
-        if (_settings.Mode == NoneMode)
+        if (_settings.Mode == NoneMode || _settings.Mode == AuroraMode)
         {
             BackgroundImage.Source = null;
             return;
@@ -1786,6 +1793,7 @@ public sealed partial class StartPage : Page
         {
             LegacySpotlightMode => RandomMode,
             RandomMode => RandomMode,
+            AuroraMode => AuroraMode,
             NoneMode => NoneMode,
             _ => ImageMode
         };

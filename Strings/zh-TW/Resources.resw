@@ -687,4 +687,13 @@
   <data name="FontType_Math.Header" xml:space="preserve">
     <value>數學</value>
   </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>你好！</value>
+  </data>
+  <data name="HelloDescription.Text" xml:space="preserve">
+    <value>你想直接開始瀏覽網頁，還是先進行一些設定？</value>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>極光</value>
+  </data>
 </root>

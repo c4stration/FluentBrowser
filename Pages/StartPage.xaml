@@ -18,6 +18,11 @@
             VerticalAlignment="Center"
             Stretch="UniformToFill" />
 
+        <my:AuroraControl
+            x:Name="AuroraBackground"
+            IsHitTestVisible="False"
+            Visibility="Collapsed" />
+
         <ScrollView Padding="24,0" CornerRadius="0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -155,6 +160,7 @@
                                 <ComboBox x:Name="BackgroundModeComboBox" SelectedIndex="0">
                                     <ComboBoxItem l:Uids.Uid="ImageBackgroundOption" Tag="Image" />
                                     <ComboBoxItem l:Uids.Uid="RandomBackgroundOption" Tag="Random" />
+                                    <ComboBoxItem l:Uids.Uid="AuroraBackgroundOption" Tag="Aurora" />
                                     <ComboBoxItem l:Uids.Uid="NoneBackgroundOption" Tag="None" />
                                 </ComboBox>
 

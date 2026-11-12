@@ -687,4 +687,13 @@
   <data name="FontType_Math.Header" xml:space="preserve">
     <value>수학</value>
   </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>안녕하세요!</value>
+  </data>
+  <data name="HelloDescription.Text" xml:space="preserve">
+    <value>바로 웹 브라우징을 시작하시겠어요, 아니면 먼저 몇 가지 설정을 하시겠어요?</value>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>오로라</value>
+  </data>
 </root>

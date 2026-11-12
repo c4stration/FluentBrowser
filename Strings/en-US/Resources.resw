@@ -706,4 +706,13 @@
   <data name="FontType_Math.Header" xml:space="preserve">
     <value>Mathematical</value>
   </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>Hello!</value>
+  </data>
+  <data name="HelloDescription.Text" xml:space="preserve">
+    <value>Would you like to jump straight into browsing or configure a few things first?</value>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>Aurora</value>
+  </data>
 </root>

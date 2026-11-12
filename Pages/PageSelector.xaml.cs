@@ -30,7 +30,9 @@ public sealed partial class PageSelector : Page
         _pages = Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(type =>
-                type.Namespace == "FluentBrowser.Pages" &&
+                type.Namespace?.StartsWith(
+                    "FluentBrowser.Pages",
+                    StringComparison.Ordinal) == true &&
                 typeof(Page).IsAssignableFrom(type) &&
                 !type.IsAbstract &&
                 type != typeof(PageSelector))

@@ -83,8 +83,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Testing\favicon.png" />
+    <None Remove="Controls\AuroraControl.xaml" />
     <None Remove="Controls\ScrollableItemsControl.xaml" />
     <None Remove="Controls\ShortcutControl\ShortcutDialogContentControl.xaml" />
+    <None Remove="Pages\Setup\Hello.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\CantOpenPage.xaml">
@@ -95,9 +97,15 @@
     <Page Update="Controls\ScrollableItemsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Update="Controls\AuroraControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="Controls\ShortcutControl\ShortcutControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Pages\Setup\Hello.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Pages\StartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -705,4 +705,13 @@
   <data name="FontType_Math.Header" xml:space="preserve">
     <value>מתמטי</value>
   </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>שלום!</value>
+  </data>
+  <data name="HelloDescription.Text" xml:space="preserve">
+    <value>האם תרצה להתחיל לגלוש מיד או להגדיר כמה דברים קודם?</value>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>אורורה</value>
+  </data>
 </root>
