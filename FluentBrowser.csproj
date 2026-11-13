@@ -82,6 +82,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Strings\th\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Assets\Testing\favicon.png" />
     <None Remove="Controls\AuroraControl.xaml" />
     <None Remove="Controls\ScrollableItemsControl.xaml" />

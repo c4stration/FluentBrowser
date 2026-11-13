@@ -265,18 +265,21 @@
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="LanguageComboBox" SelectionChanged="LanguageComboBox_SelectionChanged">
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />
-                            <ComboBoxItem l:Uids.Uid="ar" Content="العربية" />
-                            <ComboBoxItem l:Uids.Uid="zh-CN" Content="中文（中华人民共和国）" />
-                            <ComboBoxItem l:Uids.Uid="zh-TW" Content="中文（台灣）" />
-                            <ComboBoxItem l:Uids.Uid="en-US" Content="English (United States)" />
-                            <ComboBoxItem l:Uids.Uid="en-GB" Content="English (United Kingdom)" />
-                            <ComboBoxItem l:Uids.Uid="he" Content="עברית" />
-                            <ComboBoxItem l:Uids.Uid="ja-JP" Content="日本語" />
-                            <ComboBoxItem l:Uids.Uid="ko-KR" Content="한국어" />
-                            <ComboBoxItem l:Uids.Uid="ro-RO" Content="Română" />
-                            <ComboBoxItem l:Uids.Uid="th" Content="ไทย" />
-                            <ComboBoxItem l:Uids.Uid="en-UWU" Content="UwU (Republic of UwU)" />
-                            <ComboBoxItem l:Uids.Uid="en-LOL" Content="LOLCAT (Kingdom of Cats)" />
+                            <ComboBoxItem Content="العربية" />
+                            <ComboBoxItem Content="中文（中华人民共和国）" />
+                            <ComboBoxItem Content="中文（台灣）" />
+                            <ComboBoxItem Content="Deutsch" />
+                            <ComboBoxItem Content="English (United States)" />
+                            <ComboBoxItem Content="English (United Kingdom)" />
+                            <ComboBoxItem Content="עברית" />
+                            <ComboBoxItem Content="Русский" />
+                            <ComboBoxItem Content="Українська" />
+                            <ComboBoxItem Content="日本語" />
+                            <ComboBoxItem Content="한국어" />
+                            <ComboBoxItem Content="Română" />
+                            <ComboBoxItem Content="ไทย" />
+                            <ComboBoxItem Content="UwU (Republic of UwU)" />
+                            <ComboBoxItem Content="LOLCAT (Kingdom of Cats)" />
                         </ComboBox>
                     </controls:SettingsCard>
                     <controls:SettingsCard

@@ -289,14 +289,12 @@
     <value>แปล</value>
   </data>
   <data name="TextDirection.Header" xml:space="preserve">
-    <value>ทิศทางข้อความ</value>
-    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
-  </data>
-  <data name="TextDirection.Description" xml:space="preserve">
-    <value>หากคุณไม่คุ้นเคยกับการอ่านข้อความจากขวาไปซ้ายที่นี่ คุณสามารถตั้งค่าทิศทางข้อความของแอปเป็นจากซ้ายไปขวาได้</value>
-    <comment>แสดงเฉพาะสำหรับภาษา RTL ดังนั้นจึงไม่จำเป็นต้องมีสตริงสำหรับภาษา LTR</comment>
+    <value></value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="TextDirection.Description" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>

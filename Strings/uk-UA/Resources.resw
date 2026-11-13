@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>Виберіть тему програми</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>Тема програми</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>Мова інтерфейсу</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>Переклади не гарантують 100% точності. Тексти для деяких мов надано машинним перекладом або учасниками спільноти.</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>Параметри</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>Темна</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>Світла</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>Системна</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>Пошук або введення URL</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>Оновити</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>Дублювати вкладку</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>Закрити вкладку</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>Закрити інші вкладки</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>Закрити вкладки праворуч</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Назад (Alt + ←)</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Перейти на нещодавно відкриту сторінку.</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Вперед (Alt + →)</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Перейти на сторінку, з якої ви нещодавно повернулися.</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Додатково</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Відкрити додаткові параметри браузера.</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>Нова вкладка</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>Дублювати вкладку</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>Збільшити</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>Зменшити</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>Скинути масштаб</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>Знайти на сторінці</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>Друк</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>Переглянути код сторінки</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>Засоби розробника</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>Показувати повну адресу сайту</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>Показувати повну адресу в адресному рядку, а не лише домен</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>Кольори</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>Мова</value>
+  </data>
+  <data name="AppearanceSection.Text" xml:space="preserve">
+    <value>Оформлення</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>Додатково</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Знайти параметр</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>Вкладки</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>Однакова</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>За довжиною заголовка</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>Компактна</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>Режим ширини вкладок</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>У компактному режимі неактивні вкладки стискаються до розміру піктограми</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>Матеріал</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>Виберіть матеріал фону вікна</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>Адресний рядок</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026. Усі права захищено.</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>Залежності</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>Про програму</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Увімк.</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Вимк.</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>Показувати підказки пошуку</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>Показувати пошукові та браузерні підказки під час введення в адресному рядку. Функція в бета-версії, можливі дивні пропозиції</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>Посилання</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>Перекласти</value>
+  </data>
+  <data name="TextDirection.Header" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TextDirection.Description" xml:space="preserve">
+    <value />
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="RightToLeft.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>Розширення</value>
+  </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>Розширення</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>Додати розширення</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>Положення нової вкладки</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>Вказує, де з’являються нові вкладки в рядку</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>Після останньої вкладки</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>Після поточної вкладки</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>Запитувати, куди зберігати кожне завантаження</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>Вибрати папку</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>Папка завантажень</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>Завантаження</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>Очистити кеш</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>Відтінок сайту</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>Дозволяє сайтам забарвлювати інтерфейс браузера своїм кольором теми</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>Пошукова система</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>Виберіть пошукову систему для пошуку та підказок</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>Тема сторінки</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>Виберіть тему для вебсторінок</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>Як у програмі</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>Зберігає піктограми сайтів локально для швидшого завантаження ({0})</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>Кеш піктограм</value>
+  </data>
+  <data name="CantOpenPageTitle" xml:space="preserve">
+    <value>Не вдалося відкрити сторінку!</value>
+    <comment>Make it kinda cute</comment>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>Не вдалося знайти адресу «{0}». Можливо, помилка в адресі?</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>Не вдалося підключитися до «{0}».</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>Сервер «{0}» недоступний.</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>Час очікування з’єднання з «{0}» минув.</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>Інтернет пропав, поки відкривалася «{0}».</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>З’єднання з «{0}» було скинуто.</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>З’єднання з «{0}» було перервано.</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>«{0}» використовує прострочений сертифікат. Термін дії закінчився {1}. Це може бути помилкою налаштування або спробою перехоплення з’єднання. Годинник комп’ютера зараз показує {2}. Усе правильно? Якщо ні, виправте час і оновіть сторінку.</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>«{0}» використовує недійсний сертифікат безпеки.</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>Щось пішло не так під час відкриття «{0}».</value>
+  </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>Відкрити закриту вкладку</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>Немає активних завантажень</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>Завантаження</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>Завершено</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>Перервано</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>Скасовано</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>Відхилено</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>Неможливо безпечно завантажити</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>Видалити зі списку</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>Очистити завершені</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Видаляє завершені завантаження зі списку. Файли з комп’ютера не видаляються.</value>
+  </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>Сполучення клавіш</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>Налаштування сполучень клавіш для дій браузера</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>Відкрити нову вкладку</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>Закрити поточну вкладку</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>Відкрити закриту вкладку</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>Фокус на адресному рядку</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>Оновити поточну вкладку</value>
+  </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>Вкладка праворуч</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>Вкладка ліворуч</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>Знайти</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>Враховувати регістр</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>Ціле слово</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>Знайти на сторінці</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0} дн. тому</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>день тому</value>
+  </data>
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
+    <value>Перейти на сторінку</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>Поведінка під час запуску</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>Виберіть, що відбувається під час запуску браузера</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>Продовжити з того місця, де зупинилися</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>Відкрити нову вкладку</value>
+  </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>Відкрити вибрані сайти</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>Додати</value>
+  </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Пошук</value>
+  </data>
+  <data name="CustomizeToolbar.Text" xml:space="preserve">
+    <value>Налаштувати панель інструментів...</value>
+  </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>Перетягніть потрібні елементи на панель...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="ToolbarItemDevTools" xml:space="preserve">
+    <value>Засоби розробника</value>
+  </data>
+  <data name="ToolbarItemExtensions" xml:space="preserve">
+    <value>Розширення</value>
+  </data>
+  <data name="ToolbarItemDownloads" xml:space="preserve">
+    <value>Завантаження</value>
+  </data>
+  <data name="ToolbarItemMore" xml:space="preserve">
+    <value>Більше</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Виділити все</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>Вирізати</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Копіювати</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Вставити</value>
+  </data>
+  <data name="WebBack" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>Вихідний код</value>
+  </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>Зберегти зображення як...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>Копіювати зображення</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>Копіювати посилання на зображення</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>Відкрити зображення в новій вкладці</value>
+  </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>Відкрити посилання в новій вкладці</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>Копіювати посилання</value>
+  </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>Елементи</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>Зберегти</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>Відкріпити</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>Усі елементи вже на панелі інструментів!</value>
+  </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>Немає інтернету!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>Спочатку підключіться до інтернету! Довідка {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>тут</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>Очікування інтернету...</value>
+  </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>По центру</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>Вирівнювання адреси</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>Виберіть вирівнювання тексту в адресному рядку</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>Ліворуч</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>Праворуч</value>
+  </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Додати до вибраного</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Ім’я</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>Додати до вибраного?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>Видалити з вибраного</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>Змінити вибране</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Змінити</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>Фон</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>Налаштувати стартову сторінку</value>
+    <comment>Don't know if "start" should be capitalized because Start is the name of the page</comment>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>Зображення</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>Випадковий</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>Немає</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>Випадкові фонові зображення від {0}.</value>
+  </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>Шрифти</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>Стандартний</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>Із засічками</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>Без засічок</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>Моноширинний</value>
+  </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>За замовчуванням</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>Відомості про зображення</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>Автор</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>Опис</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>Дата зйомки</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>Переглянути ліцензію</value>
+  </data>
+  <data name="License.Text" xml:space="preserve">
+    <value>Ліцензія</value>
+  </data>
+  <data name="License.Content" xml:space="preserve">
+    <value>Ліцензія</value>
+  </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>Вибране</value>
+  </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>Вибране</value>
+  </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Скинути параметр</value>
+  </data>
+  <data name="AppVersion" xml:space="preserve">
+    <value>Версія {0}</value>
+  </data>
+  <data name="FontType_Math.Header" xml:space="preserve">
+    <value>Математичний</value>
+  </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>Привіт!</value>
+    <comment>Kept for future use</comment>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>Аврора</value>
+  </data>
+</root>

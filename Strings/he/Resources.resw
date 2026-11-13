@@ -292,11 +292,9 @@
   </data>
   <data name="TextDirection.Header" xml:space="preserve">
     <value>כיוון הטקסט</value>
-    <comment>מוצג רק עבור שפות RTL, לכן אין צורך במחרוזות עבור שפות LTR</comment>
   </data>
   <data name="TextDirection.Description" xml:space="preserve">
     <value>אם אינכם רגילים לקרוא מימין לשמאל כאן, תוכלו להגדיר את כיוון הטקסט של האפליקציה משמאל לימין</value>
-    <comment>מוצג רק עבור שפות RTL, לכן אין צורך במחרוזות עבור שפות LTR</comment>
   </data>
   <data name="LeftToRight.Content" xml:space="preserve">
     <value>משמאל לימין</value>

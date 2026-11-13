@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTheme.Description" xml:space="preserve">
+    <value>Anzuzeigendes App-Design auswählen</value>
+  </data>
+  <data name="AppTheme.Header" xml:space="preserve">
+    <value>App-Design</value>
+  </data>
+  <data name="DisplayLanguage.Header" xml:space="preserve">
+    <value>Anzeigesprache</value>
+  </data>
+  <data name="DisplayLanguage.Description" xml:space="preserve">
+    <value>Übersetzungen sind nicht garantiert 100 % korrekt. Die übersetzten Texte für einige Sprachen stammen von maschineller Übersetzung oder Community-Beiträgen.</value>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>Dunkel</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>Hell</value>
+  </data>
+  <data name="UseSystemSetting.Content" xml:space="preserve">
+    <value>Systemeinstellung verwenden</value>
+  </data>
+  <data name="AddressBar.PlaceholderText" xml:space="preserve">
+    <value>Im Web suchen oder URL eingeben</value>
+  </data>
+  <data name="TabContextRefresh.Text" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="TabContextDuplicate.Text" xml:space="preserve">
+    <value>Tab duplizieren</value>
+  </data>
+  <data name="TabContextClose.Text" xml:space="preserve">
+    <value>Tab schließen</value>
+  </data>
+  <data name="TabContextCloseOther.Text" xml:space="preserve">
+    <value>Andere Tabs schließen</value>
+  </data>
+  <data name="TabContextCloseRight.Text" xml:space="preserve">
+    <value>Tabs rechts schließen</value>
+  </data>
+  <data name="BackButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Zurück (Alt + Linkspfeil)</value>
+  </data>
+  <data name="BackButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Zur zuletzt geöffneten Webseite navigieren.</value>
+  </data>
+  <data name="ForwardButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Vorwärts (Alt + Rechtspfeil)</value>
+  </data>
+  <data name="ForwardButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Zur Seite navigieren, von der Sie kürzlich zurückgegangen sind.</value>
+  </data>
+  <data name="MoreButtonTooltipTitle.Text" xml:space="preserve">
+    <value>Weitere Optionen</value>
+  </data>
+  <data name="MoreButtonTooltipDescription.Text" xml:space="preserve">
+    <value>Zusätzliche Browseroptionen öffnen.</value>
+  </data>
+  <data name="NewTabMenuItem.Text" xml:space="preserve">
+    <value>Neuer Tab</value>
+  </data>
+  <data name="DuplicateTabMenuItem.Text" xml:space="preserve">
+    <value>Tab duplizieren</value>
+  </data>
+  <data name="ZoomInMenuItem.Text" xml:space="preserve">
+    <value>Vergrößern</value>
+  </data>
+  <data name="ZoomOutMenuItem.Text" xml:space="preserve">
+    <value>Verkleinern</value>
+  </data>
+  <data name="ResetZoomMenuItem.Text" xml:space="preserve">
+    <value>Zoom zurücksetzen</value>
+  </data>
+  <data name="FindMenuItem.Text" xml:space="preserve">
+    <value>Auf Seite suchen</value>
+  </data>
+  <data name="PrintMenuItem.Text" xml:space="preserve">
+    <value>Drucken</value>
+  </data>
+  <data name="ViewSourceMenuItem.Text" xml:space="preserve">
+    <value>Seitenquelltext anzeigen</value>
+  </data>
+  <data name="DevToolsMenuItem.Text" xml:space="preserve">
+    <value>Entwicklertools</value>
+  </data>
+  <data name="FullWebAddress.Header" xml:space="preserve">
+    <value>Vollständige Websiteadresse anzeigen</value>
+  </data>
+  <data name="FullWebAddress.Description" xml:space="preserve">
+    <value>Die vollständige Websiteadresse in der Adressleiste anzeigen, anstatt nur die Domain</value>
+  </data>
+  <data name="ColorsSection.Text" xml:space="preserve">
+    <value>Farben</value>
+  </data>
+  <data name="LanguageSection.Text" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="AppearanceSection.Text" xml:space="preserve">
+    <value>Darstellung</value>
+  </data>
+  <data name="AdvancedSection.Text" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <data name="SettingSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Einstellung suchen</value>
+  </data>
+  <data name="TabsSection.Text" xml:space="preserve">
+    <value>Tabs</value>
+  </data>
+  <data name="EqualTabWidth.Content" xml:space="preserve">
+    <value>Gleich</value>
+  </data>
+  <data name="TitleTabWidth.Content" xml:space="preserve">
+    <value>Titellänge</value>
+  </data>
+  <data name="CompactTabWidth.Content" xml:space="preserve">
+    <value>Kompakt</value>
+  </data>
+  <data name="TabWidth.Header" xml:space="preserve">
+    <value>Tab-Breitenmodus</value>
+  </data>
+  <data name="TabWidth.Description" xml:space="preserve">
+    <value>Im Kompaktmodus werden nicht fokussierte Tabs auf die Größe eines Symbols verkleinert</value>
+  </data>
+  <data name="BackdropMaterial.Header" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="BackdropMaterial.Description" xml:space="preserve">
+    <value>Hintergrundmaterial für das Fenster auswählen</value>
+  </data>
+  <data name="Mica.Content" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="MicaAlt.Content" xml:space="preserve">
+    <value>Mica Alt</value>
+  </data>
+  <data name="Acrylic.Content" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="AddressBarSection.Text" xml:space="preserve">
+    <value>Adressleiste</value>
+  </data>
+  <data name="AboutExpander.Description" xml:space="preserve">
+    <value>© 2026. Alle Rechte vorbehalten.</value>
+  </data>
+  <data name="Deps.Text" xml:space="preserve">
+    <value>Abhängigkeiten</value>
+  </data>
+  <data name="AboutSection.Text" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="General_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Ein</value>
+  </data>
+  <data name="General_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Aus</value>
+  </data>
+  <data name="SearchSuggestions.Header" xml:space="preserve">
+    <value>Suchvorschläge anzeigen</value>
+  </data>
+  <data name="SearchSuggestions.Description" xml:space="preserve">
+    <value>Such- und Browservorschläge anzeigen, während Sie in der Adressleiste tippen. Diese Funktion ist noch in der Beta – rechnen Sie mit ein paar seltsamen Vorschlägen</value>
+  </data>
+  <data name="LinksText.Text" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="TranslateHyperlink.Content" xml:space="preserve">
+    <value>Übersetzen</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="TextDirection.Header" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="TextDirection.Description" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="RightToLeft.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+    <comment>Only visible for RTL languages, so no strings are needed for LTR languages</comment>
+  </data>
+  <data name="Extensions.Header" xml:space="preserve">
+    <value>Erweiterungen</value>
+  </data>
+  <data name="Extensions.Text" xml:space="preserve">
+    <value>Erweiterungen</value>
+  </data>
+  <data name="AddExtensionButton.Content" xml:space="preserve">
+    <value>Erweiterung hinzufügen</value>
+  </data>
+  <data name="NewTabPosition.Header" xml:space="preserve">
+    <value>Position neuer Tabs</value>
+  </data>
+  <data name="NewTabPosition.Description" xml:space="preserve">
+    <value>Gibt an, wo neu erstellte Tabs in der Tab-Leiste erscheinen</value>
+  </data>
+  <data name="AfterLastTab.Content" xml:space="preserve">
+    <value>Nach dem letzten Tab</value>
+  </data>
+  <data name="AfterCurrentTab.Content" xml:space="preserve">
+    <value>Nach dem aktuellen Tab</value>
+  </data>
+  <data name="AskEveryDownload.Header" xml:space="preserve">
+    <value>Bei jedem Download nach Speicherort fragen</value>
+  </data>
+  <data name="ChooseDownloadFolderButton.Content" xml:space="preserve">
+    <value>Ordner auswählen</value>
+  </data>
+  <data name="DownloadLocation.Header" xml:space="preserve">
+    <value>Download-Speicherort</value>
+  </data>
+  <data name="DownloadsSection.Text" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="ClearCacheText.Text" xml:space="preserve">
+    <value>Cache leeren</value>
+  </data>
+  <data name="ThemeColorTint.Header" xml:space="preserve">
+    <value>Website-Färbung</value>
+  </data>
+  <data name="ThemeColorTint.Description" xml:space="preserve">
+    <value>Ermöglicht Websites, die Browser-Oberfläche mit ihrer Designfarbe zu tönen</value>
+  </data>
+  <data name="SearchEngine.Header" xml:space="preserve">
+    <value>Suchmaschine</value>
+  </data>
+  <data name="SearchEngine.Description" xml:space="preserve">
+    <value>Suchmaschine für Suchen und Vorschläge auswählen</value>
+  </data>
+  <data name="WebTheme.Header" xml:space="preserve">
+    <value>Seitendesign</value>
+  </data>
+  <data name="WebTheme.Description" xml:space="preserve">
+    <value>Design für Webseiten auswählen</value>
+  </data>
+  <data name="FollowAppTheme.Content" xml:space="preserve">
+    <value>App-Design folgen</value>
+  </data>
+  <data name="FaviconCache.Description" xml:space="preserve">
+    <value>Speichert Website-Symbole lokal für schnelleres Laden ({0})</value>
+  </data>
+  <data name="FaviconCache.Header" xml:space="preserve">
+    <value>Favicon-Cache</value>
+  </data>
+  <data name="CantOpenPageTitle" xml:space="preserve">
+    <value>Seite konnte nicht geöffnet werden!</value>
+  </data>
+  <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
+    <value>Die Websiteadresse für „{0}“ wurde nicht gefunden. Vielleicht ein Tippfehler in der Adresse?</value>
+  </data>
+  <data name="CantOpenPageCannotConnect" xml:space="preserve">
+    <value>„{0}“ konnte nicht erreicht werden.</value>
+  </data>
+  <data name="CantOpenPageServerUnreachable" xml:space="preserve">
+    <value>Der Server für „{0}“ konnte nicht erreicht werden.</value>
+  </data>
+  <data name="CantOpenPageTimeout" xml:space="preserve">
+    <value>Die Verbindung zu „{0}“ ist abgelaufen.</value>
+  </data>
+  <data name="CantOpenPageDisconnected" xml:space="preserve">
+    <value>Die Internetverbindung ging verloren, während „{0}“ geöffnet wurde.</value>
+  </data>
+  <data name="CantOpenPageConnectionReset" xml:space="preserve">
+    <value>Die Verbindung zu „{0}“ wurde zurückgesetzt.</value>
+  </data>
+  <data name="CantOpenPageConnectionAborted" xml:space="preserve">
+    <value>Die Verbindung zu „{0}“ wurde unterbrochen.</value>
+  </data>
+  <data name="CantOpenPageCertificateExpired" xml:space="preserve">
+    <value>„{0}“ verwendet ein abgelaufenes Zertifikat. Das Sicherheitszertifikat ist am {1} abgelaufen. Das kann an einer Fehlkonfiguration liegen oder daran, dass jemand die Verbindung abfängt. Die Uhr Ihres Computers steht derzeit auf {2}. Sieht das richtig aus? Falls nicht, korrigieren Sie die Systemuhr und aktualisieren Sie dann diese Seite.</value>
+  </data>
+  <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
+    <value>„{0}“ verwendet ein ungültiges Sicherheitszertifikat.</value>
+  </data>
+  <data name="CantOpenPageUnknownError" xml:space="preserve">
+    <value>Beim Öffnen von „{0}“ ist etwas schiefgelaufen.</value>
+  </data>
+  <data name="TabContextReopenClosed.Text" xml:space="preserve">
+    <value>Geschlossenen Tab wieder öffnen</value>
+  </data>
+  <data name="NoDownloadsText.Text" xml:space="preserve">
+    <value>Keine laufenden Downloads</value>
+  </data>
+  <data name="DownloadStatusDownloading" xml:space="preserve">
+    <value>Wird heruntergeladen</value>
+  </data>
+  <data name="DownloadStatusCompleted" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="DownloadStatusInterrupted" xml:space="preserve">
+    <value>Unterbrochen</value>
+  </data>
+  <data name="DownloadStatusCanceled" xml:space="preserve">
+    <value>Abgebrochen</value>
+  </data>
+  <data name="DownloadStatusDiscarded" xml:space="preserve">
+    <value>Verworfen</value>
+  </data>
+  <data name="DownloadStatusCantBeDownloadedSecurely" xml:space="preserve">
+    <value>Kann nicht sicher heruntergeladen werden</value>
+  </data>
+  <data name="RemoveFromList.Text" xml:space="preserve">
+    <value>Aus Liste entfernen</value>
+  </data>
+  <data name="ClearCompletedButton.Content" xml:space="preserve">
+    <value>Abgeschlossene löschen</value>
+  </data>
+  <data name="ClearCompletedGrid.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Entfernt abgeschlossene Downloads aus der Liste. Die Dateien werden nicht von Ihrem Computer gelöscht.</value>
+  </data>
+  <data name="KeyboardShortcuts.Header" xml:space="preserve">
+    <value>Tastenkürzel</value>
+  </data>
+  <data name="KeyboardShortcuts.Description" xml:space="preserve">
+    <value>Tastenkürzel für Browseraktionen konfigurieren</value>
+  </data>
+  <data name="ShortcutNewTab.Header" xml:space="preserve">
+    <value>Neuen Tab öffnen</value>
+  </data>
+  <data name="ShortcutCloseTab.Header" xml:space="preserve">
+    <value>Aktuellen Tab schließen</value>
+  </data>
+  <data name="ShortcutReopenTab.Header" xml:space="preserve">
+    <value>Geschlossenen Tab wieder öffnen</value>
+  </data>
+  <data name="ShortcutFocusAddressBar.Header" xml:space="preserve">
+    <value>Adressleiste fokussieren</value>
+  </data>
+  <data name="ShortcutReload.Header" xml:space="preserve">
+    <value>Aktuellen Tab neu laden</value>
+  </data>
+  <data name="ShortcutRightTab.Header" xml:space="preserve">
+    <value>Zum rechten Tab wechseln</value>
+  </data>
+  <data name="ShortcutLeftTab.Header" xml:space="preserve">
+    <value>Zum linken Tab wechseln</value>
+  </data>
+  <data name="FindOnPageBox.PlaceholderText" xml:space="preserve">
+    <value>Suchen</value>
+  </data>
+  <data name="MatchCase.Text" xml:space="preserve">
+    <value>Groß-/Kleinschreibung beachten</value>
+  </data>
+  <data name="MatchWord.Text" xml:space="preserve">
+    <value>Ganzes Wort</value>
+  </data>
+  <data name="ShortcutFindOnPage.Header" xml:space="preserve">
+    <value>Auf Seite suchen</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>vor {0} Tagen</value>
+  </data>
+  <data name="DayAgo" xml:space="preserve">
+    <value>vor einem Tag</value>
+  </data>
+  <data name="ContinueToPageButtonContent" xml:space="preserve">
+    <value>Zur Seite fortfahren</value>
+  </data>
+  <data name="StartupBehavior.Header" xml:space="preserve">
+    <value>Startverhalten</value>
+  </data>
+  <data name="StartupBehavior.Description" xml:space="preserve">
+    <value>Wählen Sie, was beim Start des Browsers geschieht</value>
+  </data>
+  <data name="ContinueSession.Content" xml:space="preserve">
+    <value>Dort fortfahren, wo Sie aufgehört haben</value>
+  </data>
+  <data name="OpenNewTab.Content" xml:space="preserve">
+    <value>Neuen Tab öffnen</value>
+  </data>
+  <data name="CustomSites.Content" xml:space="preserve">
+    <value>Benutzerdefinierte Seiten öffnen</value>
+  </data>
+  <data name="Add.Content" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Suchen</value>
+  </data>
+  <data name="CustomizeToolbar.Text" xml:space="preserve">
+    <value>Symbolleiste anpassen...</value>
+  </data>
+  <data name="DragToolbarItemsText.Text" xml:space="preserve">
+    <value>Ziehen Sie Ihre bevorzugten Elemente in die Symbolleiste...</value>
+  </data>
+  <data name="DoneButton.Content" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="ToolbarItemDevTools" xml:space="preserve">
+    <value>Entwicklertools</value>
+  </data>
+  <data name="ToolbarItemExtensions" xml:space="preserve">
+    <value>Erweiterungen</value>
+  </data>
+  <data name="ToolbarItemDownloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="ToolbarItemMore" xml:space="preserve">
+    <value>Mehr</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Alles auswählen</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>Ausschneiden</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Einfügen</value>
+  </data>
+  <data name="WebBack" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="DeleteItem.Text" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="SourceCodeHyperlink.Content" xml:space="preserve">
+    <value>Quellcode</value>
+  </data>
+  <data name="SaveImageAs" xml:space="preserve">
+    <value>Bild speichern unter...</value>
+  </data>
+  <data name="CopyImage" xml:space="preserve">
+    <value>Bild kopieren</value>
+  </data>
+  <data name="CopyImageLink" xml:space="preserve">
+    <value>Bildlink kopieren</value>
+  </data>
+  <data name="OpenImageInNewTab" xml:space="preserve">
+    <value>Bild in neuem Tab öffnen</value>
+  </data>
+  <data name="OpenLinkInNewTab" xml:space="preserve">
+    <value>Link in neuem Tab öffnen</value>
+  </data>
+  <data name="CopyLink" xml:space="preserve">
+    <value>Link kopieren</value>
+  </data>
+  <data name="ToolbarItemsText.Text" xml:space="preserve">
+    <value>Elemente</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="DiscardButton.Content" xml:space="preserve">
+    <value>Verwerfen</value>
+  </data>
+  <data name="Unpin" xml:space="preserve">
+    <value>Lösen</value>
+  </data>
+  <data name="NoToolbarItemText.Text" xml:space="preserve">
+    <value>Sie haben alle Elemente in die Symbolleiste gelegt!</value>
+  </data>
+  <data name="InternetNotAvailableTitle" xml:space="preserve">
+    <value>Internet nicht verfügbar!</value>
+  </data>
+  <data name="InternetNotAvailableMessage" xml:space="preserve">
+    <value>Am besten erst mit dem Internet verbinden! Hilfe {0}.</value>
+  </data>
+  <data name="InternetHelpLink" xml:space="preserve">
+    <value>hier</value>
+  </data>
+  <data name="WaitingForInternet" xml:space="preserve">
+    <value>Warte auf Internet...</value>
+  </data>
+  <data name="CenterAlignment.Content" xml:space="preserve">
+    <value>Zentriert</value>
+  </data>
+  <data name="AddressBarAlignment.Header" xml:space="preserve">
+    <value>Adressausrichtung</value>
+  </data>
+  <data name="AddressBarAlignment.Description" xml:space="preserve">
+    <value>Textausrichtung der Adressleiste wählen</value>
+  </data>
+  <data name="LeftAlignment" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="RightAlignment" xml:space="preserve">
+    <value>Rechts</value>
+  </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Zu Favoriten hinzufügen</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="FavoriteTitle" xml:space="preserve">
+    <value>Zu Favoriten hinzufügen?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="RemoveFavorite.Text" xml:space="preserve">
+    <value>Aus Favoriten entfernen</value>
+  </data>
+  <data name="EditFavoriteTitle" xml:space="preserve">
+    <value>Favorit bearbeiten</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="StartPageBackgroundSetting.Header" xml:space="preserve">
+    <value>Hintergrund</value>
+  </data>
+  <data name="CustomizeStartPageHeader.Text" xml:space="preserve">
+    <value>Startseite anpassen</value>
+  </data>
+  <data name="ImageBackgroundOption.Content" xml:space="preserve">
+    <value>Bild</value>
+  </data>
+  <data name="RandomBackgroundOption.Content" xml:space="preserve">
+    <value>Zufällig</value>
+  </data>
+  <data name="NoneBackgroundOption.Content" xml:space="preserve">
+    <value>Keiner</value>
+  </data>
+  <data name="RandomBackgroundDescription" xml:space="preserve">
+    <value>Zufällige Hintergrundbilder bereitgestellt von {0}.</value>
+  </data>
+  <data name="StartTitle" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Fonts.Header" xml:space="preserve">
+    <value>Schriftarten</value>
+  </data>
+  <data name="FontType_Standard.Header" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="FontType_Serif.Header" xml:space="preserve">
+    <value>Serif</value>
+  </data>
+  <data name="FontType_SansSerif.Header" xml:space="preserve">
+    <value>Sans-serif</value>
+  </data>
+  <data name="FontType_Monospace.Header" xml:space="preserve">
+    <value>Monospace</value>
+  </data>
+  <data name="DefaultOption.Content" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="ImageInfoHeader.Text" xml:space="preserve">
+    <value>Bildinfo</value>
+  </data>
+  <data name="ImageCreator.Text" xml:space="preserve">
+    <value>Ersteller</value>
+  </data>
+  <data name="ImageDescription.Text" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="ImageDate.Text" xml:space="preserve">
+    <value>Aufnahmedatum</value>
+  </data>
+  <data name="ViewLicenseHyperlink.Text" xml:space="preserve">
+    <value>Lizenz anzeigen</value>
+  </data>
+  <data name="License.Text" xml:space="preserve">
+    <value>Lizenz</value>
+  </data>
+  <data name="License.Content" xml:space="preserve">
+    <value>Lizenz</value>
+  </data>
+  <data name="FavoritesTitle.Text" xml:space="preserve">
+    <value>Favoriten</value>
+  </data>
+  <data name="FavoritesTitle.Header" xml:space="preserve">
+    <value>Favoriten</value>
+  </data>
+  <data name="ResetSetting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Einstellung zurücksetzen</value>
+  </data>
+  <data name="AppVersion" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="FontType_Math.Header" xml:space="preserve">
+    <value>Mathematisch</value>
+  </data>
+  <data name="HelloText.Text" xml:space="preserve">
+    <value>Hallo!</value>
+    <comment>Kept for future use</comment>
+  </data>
+  <data name="AuroraBackgroundOption.Content" xml:space="preserve">
+    <value>Aurora</value>
+  </data>
+</root>

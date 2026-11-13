@@ -288,13 +288,13 @@
   <data name="TranslateHyperlink.Content" xml:space="preserve">
     <value>Translate</value>
   </data>
-  <data name="TextDirection.Header" xml:space="preserve">
-    <value>Text direction</value>
-  </data>
-  <data name="TextDirection.Description" xml:space="preserve">
-    <value>If you're not familiar with reading from right-to-left here, you can set the text direction of the app to left-to-right</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="TextDirection.Header" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="TextDirection.Description" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="LeftToRight.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
