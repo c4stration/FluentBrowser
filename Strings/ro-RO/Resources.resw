@@ -690,9 +690,6 @@
   <data name="HelloText.Text" xml:space="preserve">
     <value>Salut!</value>
   </data>
-  <data name="HelloDescription.Text" xml:space="preserve">
-    <value>Doriți să începeți direct navigarea sau să configurați câteva lucruri mai întâi?</value>
-  </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>Auroră</value>
   </data>

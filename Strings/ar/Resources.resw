@@ -702,9 +702,6 @@
   <data name="HelloText.Text" xml:space="preserve">
     <value>مرحبًا!</value>
   </data>
-  <data name="HelloDescription.Text" xml:space="preserve">
-    <value>هل ترغب في البدء بالتصفح مباشرةً أم إعداد بعض الأشياء أولاً؟</value>
-  </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>أورورا</value>
   </data>

@@ -694,9 +694,6 @@
   <data name="HelloText.Text" xml:space="preserve">
     <value>やっほー！</value>
   </data>
-  <data name="HelloDescription.Text" xml:space="preserve">
-    <value>すぐにブラウジングを始めますか？それとも、先にいくつか設定しますか？</value>
-  </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>オーロラ</value>
   </data>

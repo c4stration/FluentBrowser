@@ -12,10 +12,10 @@
     <Grid x:Name="RootGrid">
         <Image
             x:Name="BackgroundImage"
-            FlowDirection="LeftToRight"
-            IsHitTestVisible="False"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
+            FlowDirection="LeftToRight"
+            IsHitTestVisible="False"
             Stretch="UniformToFill" />
 
         <my:AuroraControl
@@ -166,73 +166,84 @@
 
                                 <my:SettingsControl.Items>
                                     <controls:SettingsCard BorderThickness="0">
-                                        <ItemsView
-                                            x:Name="RecentBackgroundsItemsView"
-                                            Width="494"
-                                            Height="72"
-                                            Margin="-42,-6,0,-16"
-                                            ItemsSource="{x:Bind RecentBackgrounds, Mode=OneWay}"
-                                            Loaded="RecentBackgroundsItemsView_Loaded"
-                                            SelectionChanged="RecentBackgroundsItemsView_SelectionChanged"
-                                            SelectionMode="Single"
-                                            Visibility="Visible">
+                                        <controls:SwitchPresenter x:Name="BackgroundModeSettings" Value="Image">
+                                            <controls:Case Value="Image">
+                                                <ItemsView
+                                                    x:Name="RecentBackgroundsItemsView"
+                                                    Width="494"
+                                                    Height="72"
+                                                    Margin="-42,-6,0,-16"
+                                                    ItemsSource="{x:Bind RecentBackgrounds, Mode=OneWay}"
+                                                    Loaded="RecentBackgroundsItemsView_Loaded"
+                                                    SelectionChanged="RecentBackgroundsItemsView_SelectionChanged"
+                                                    SelectionMode="Single"
+                                                    Visibility="Visible">
 
-                                            <ItemsView.Layout>
-                                                <StackLayout Orientation="Horizontal" Spacing="8" />
-                                            </ItemsView.Layout>
+                                                    <ItemsView.Layout>
+                                                        <StackLayout Orientation="Horizontal" Spacing="8" />
+                                                    </ItemsView.Layout>
 
-                                            <ItemsView.ItemTemplate>
-                                                <DataTemplate x:DataType="local:BackgroundImageItem">
-                                                    <ItemContainer
-                                                        Width="96"
-                                                        Height="64"
-                                                        HorizontalAlignment="Left"
-                                                        AutomationProperties.Name="{x:Bind FilePath}">
-
-                                                        <Grid>
-                                                            <Button
+                                                    <ItemsView.ItemTemplate>
+                                                        <DataTemplate x:DataType="local:BackgroundImageItem">
+                                                            <ItemContainer
                                                                 Width="96"
                                                                 Height="64"
-                                                                Padding="0"
-                                                                Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
-                                                                BorderThickness="0"
-                                                                Click="AddBackgroundButton_Click"
-                                                                CornerRadius="{ThemeResource ControlCornerRadius}"
-                                                                Visibility="{x:Bind AddButtonVisibility}">
-                                                                <Button.Resources>
-                                                                    <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="LayerOnMicaBaseAltFillColorTransparentBrush" />
-                                                                    <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="LayerOnMicaBaseAltFillColorTertiaryBrush" />
-                                                                </Button.Resources>
+                                                                HorizontalAlignment="Left"
+                                                                AutomationProperties.Name="{x:Bind FilePath}">
 
-                                                                <FontIcon FontSize="14" Glyph="&#xE710;" />
-                                                            </Button>
+                                                                <Grid>
+                                                                    <Button
+                                                                        Width="96"
+                                                                        Height="64"
+                                                                        Padding="0"
+                                                                        Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
+                                                                        BorderThickness="0"
+                                                                        Click="AddBackgroundButton_Click"
+                                                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                                                        Visibility="{x:Bind AddButtonVisibility}">
+                                                                        <Button.Resources>
+                                                                            <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="LayerOnMicaBaseAltFillColorTransparentBrush" />
+                                                                            <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="LayerOnMicaBaseAltFillColorTertiaryBrush" />
+                                                                        </Button.Resources>
 
-                                                            <Image
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                AutomationProperties.AccessibilityView="Raw"
-                                                                Source="{x:Bind Thumbnail}"
-                                                                Stretch="UniformToFill"
-                                                                Visibility="{x:Bind ImageVisibility}">
+                                                                        <FontIcon FontSize="14" Glyph="&#xE710;" />
+                                                                    </Button>
 
-                                                                <Image.ContextFlyout>
-                                                                    <MenuFlyout>
-                                                                        <MenuFlyoutItem
-                                                                            l:Uids.Uid="DeleteItem"
-                                                                            Click="DeleteBackgroundMenuFlyoutItem_Click"
-                                                                            Tag="{x:Bind FilePath}">
-                                                                            <MenuFlyoutItem.Icon>
-                                                                                <FontIcon Glyph="&#xE74D;" />
-                                                                            </MenuFlyoutItem.Icon>
-                                                                        </MenuFlyoutItem>
-                                                                    </MenuFlyout>
-                                                                </Image.ContextFlyout>
-                                                            </Image>
-                                                        </Grid>
-                                                    </ItemContainer>
-                                                </DataTemplate>
-                                            </ItemsView.ItemTemplate>
-                                        </ItemsView>
+                                                                    <Image
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        AutomationProperties.AccessibilityView="Raw"
+                                                                        Source="{x:Bind Thumbnail}"
+                                                                        Stretch="UniformToFill"
+                                                                        Visibility="{x:Bind ImageVisibility}">
+
+                                                                        <Image.ContextFlyout>
+                                                                            <MenuFlyout>
+                                                                                <MenuFlyoutItem
+                                                                                    l:Uids.Uid="DeleteItem"
+                                                                                    Click="DeleteBackgroundMenuFlyoutItem_Click"
+                                                                                    Tag="{x:Bind FilePath}">
+                                                                                    <MenuFlyoutItem.Icon>
+                                                                                        <FontIcon Glyph="&#xE74D;" />
+                                                                                    </MenuFlyoutItem.Icon>
+                                                                                </MenuFlyoutItem>
+                                                                            </MenuFlyout>
+                                                                        </Image.ContextFlyout>
+                                                                    </Image>
+                                                                </Grid>
+                                                            </ItemContainer>
+                                                        </DataTemplate>
+                                                    </ItemsView.ItemTemplate>
+                                                </ItemsView>
+                                            </controls:Case>
+
+                                            <controls:Case Value="Aurora">
+                                                <ColorPicker
+                                                    x:Name="AuroraColorPicker"
+                                                    Margin="-596,-2,0,-16"
+                                                    ColorChanged="AuroraColorPicker_ColorChanged" />
+                                            </controls:Case>
+                                        </controls:SwitchPresenter>
                                     </controls:SettingsCard>
                                 </my:SettingsControl.Items>
                             </my:SettingsControl>

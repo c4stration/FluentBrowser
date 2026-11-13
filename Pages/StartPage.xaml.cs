@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Hashing;
 using System.Linq;
@@ -22,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI;
 using WinUI3Localizer;
 
 namespace FluentBrowser.Pages;
@@ -33,6 +35,7 @@ public sealed partial class StartPage : Page
     private const string AuroraMode = "Aurora";
     private const string LegacySpotlightMode = "Spotlight";
     private const string NoneMode = "None";
+    private const string DefaultAuroraColor = "#FF8599B4";
     private const string BackgroundSettingsLocalSettingKey = "StartPage.BackgroundSettings";
     private const string FavoritesVisibilityLocalSettingKey = "StartPage.ShowFavorites";
     private const int MaximumRecentBackgrounds = 12;
@@ -65,6 +68,7 @@ public sealed partial class StartPage : Page
 
     private bool _isUpdatingMode;
     private bool _isUpdatingFavorites;
+    private bool _isUpdatingAuroraColor;
     private bool _showFavorites = true;
     private BackgroundSettings _settings = new();
     private readonly HashSet<TextBlock> _favoriteNameTextBlocks = [];
@@ -96,6 +100,7 @@ public sealed partial class StartPage : Page
         Unloaded += StartPage_Unloaded;
 
         LoadBackgroundSettings();
+        ApplyAuroraColor(ParseAuroraColor(_settings.AuroraColor));
         LoadFavoritesVisibilitySetting();
         LoadRandomBackgroundCache();
         RefreshRecentBackgrounds();
@@ -593,6 +598,76 @@ public sealed partial class StartPage : Page
         SetBackgroundMode(mode);
     }
 
+    private void AuroraColorPicker_ColorChanged(
+        ColorPicker sender,
+        ColorChangedEventArgs e)
+    {
+        if (_isUpdatingAuroraColor)
+            return;
+
+        AuroraBackground.Color = e.NewColor;
+        _settings.AuroraColor = FormatAuroraColor(e.NewColor);
+
+        if (_settings.Mode == AuroraMode)
+            UpdateAuroraIconForeground(e.NewColor);
+
+        SaveBackgroundSettings();
+    }
+
+    private void ApplyAuroraColor(Color color)
+    {
+        _isUpdatingAuroraColor = true;
+
+        try
+        {
+            AuroraBackground.Color = color;
+            AuroraColorPicker.Color = color;
+        }
+        finally
+        {
+            _isUpdatingAuroraColor = false;
+        }
+    }
+
+    private static Color ParseAuroraColor(string? value)
+    {
+        if (value is { Length: 9 } &&
+            value[0] == '#' &&
+            uint.TryParse(
+                value.AsSpan(1),
+                NumberStyles.HexNumber,
+                CultureInfo.InvariantCulture,
+                out uint argb))
+        {
+            return Color.FromArgb(
+                (byte)(argb >> 24),
+                (byte)(argb >> 16),
+                (byte)(argb >> 8),
+                (byte)argb);
+        }
+
+        return Color.FromArgb(255, 0x85, 0x99, 0xB4);
+    }
+
+    private static string FormatAuroraColor(Color color)
+    {
+        return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+    }
+
+    private void UpdateAuroraIconForeground(Color color)
+    {
+        var contrastBackground = Helpers.DarkenColor(color, 0.40);
+        var (blackContrast, whiteContrast) =
+            Helpers.GetBlackAndWhiteContrastRatios(contrastBackground);
+
+        if (blackContrast >= 3.0)
+            SettingsIcon.Foreground = new SolidColorBrush(Colors.Black);
+        else if (whiteContrast >= 3.0)
+            SettingsIcon.Foreground = new SolidColorBrush(Colors.White);
+        else
+            SettingsIcon.ClearValue(IconElement.ForegroundProperty);
+    }
+
     private void SetRandomBackgroundDescription()
     {
         if (_settings.Mode != RandomMode)
@@ -680,7 +755,10 @@ public sealed partial class StartPage : Page
 
     private void UpdateBackgroundModeCards()
     {
-        BackgroundModeCard.IsExpander = _settings.Mode == ImageMode;
+        var isExpandable = _settings.Mode is ImageMode or AuroraMode;
+
+        BackgroundModeCard.IsExpander = isExpandable;
+        BackgroundModeSettings.Value = _settings.Mode is AuroraMode ? "Aurora" : "Image";
 
         SetRandomBackgroundDescription();
     }
@@ -701,6 +779,9 @@ public sealed partial class StartPage : Page
 
         if (_settings.Mode == NoneMode || _settings.Mode == AuroraMode)
         {
+            if (_settings.Mode == AuroraMode)
+                UpdateAuroraIconForeground(AuroraBackground.Color);
+
             BackgroundImage.Source = null;
             return;
         }
@@ -1806,6 +1887,18 @@ public sealed partial class StartPage : Page
 
         _settings.RecentBackgroundPaths ??= new();
 
+        string normalizedAuroraColor =
+            FormatAuroraColor(ParseAuroraColor(_settings.AuroraColor));
+
+        if (!string.Equals(
+                _settings.AuroraColor,
+                normalizedAuroraColor,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            _settings.AuroraColor = normalizedAuroraColor;
+            shouldSaveSettings = true;
+        }
+
         if (shouldSaveSettings)
             SaveBackgroundSettings();
     }
@@ -1817,6 +1910,7 @@ public sealed partial class StartPage : Page
         _settings = new BackgroundSettings
         {
             Mode = data.Mode ?? ImageMode,
+            AuroraColor = data.AuroraColor ?? DefaultAuroraColor,
             SelectedBackgroundPath = ResolveBackgroundPath(data.SelectedBackgroundFileName),
             RecentBackgroundPaths = recentFileNames
                 .Select(ResolveBackgroundPath)
@@ -2054,6 +2148,7 @@ public sealed partial class StartPage : Page
             var data = new BackgroundSettingsData
             {
                 Mode = _settings.Mode,
+                AuroraColor = _settings.AuroraColor,
                 SelectedBackgroundFileName = GetBackgroundFileName(
                     _settings.SelectedBackgroundPath),
                 RecentBackgroundFileNames = _settings.RecentBackgroundPaths
@@ -2244,11 +2339,15 @@ public sealed partial class StartPage : Page
 
         [Key(2)]
         public List<string> RecentBackgroundFileNames { get; set; } = new();
+
+        [Key(3)]
+        public string AuroraColor { get; set; } = DefaultAuroraColor;
     }
 
     private sealed class BackgroundSettings
     {
         public string Mode { get; set; } = ImageMode;
+        public string AuroraColor { get; set; } = DefaultAuroraColor;
         public string? SelectedBackgroundPath { get; set; }
         public List<string> RecentBackgroundPaths { get; set; } = new();
     }

@@ -50,6 +50,7 @@ public sealed partial class AuroraControl : UserControl
 
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+        ActualThemeChanged += OnActualThemeChanged;
 
         // Apply the default palette to the current application theme.
         AnimateColor(Color);
@@ -63,11 +64,16 @@ public sealed partial class AuroraControl : UserControl
         control.AnimateColor((Color)e.NewValue);
     }
 
+    private void OnActualThemeChanged(FrameworkElement sender, object args)
+    {
+        AnimateColor(Color);
+    }
+
     private void AnimateColor(Color newColor)
     {
         var hsl = ToHsl(newColor);
 
-        if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+        if (ActualTheme == ElementTheme.Dark)
         {
             var backgroundColor = FromHsl(
                 hsl.H,
@@ -187,6 +193,7 @@ public sealed partial class AuroraControl : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        AnimateColor(Color);
         StartAmbientAnimations();
     }
 

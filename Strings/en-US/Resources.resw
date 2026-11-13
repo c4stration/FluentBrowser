@@ -708,9 +708,7 @@
   </data>
   <data name="HelloText.Text" xml:space="preserve">
     <value>Hello!</value>
-  </data>
-  <data name="HelloDescription.Text" xml:space="preserve">
-    <value>Would you like to jump straight into browsing or configure a few things first?</value>
+    <comment>Kept for future use</comment>
   </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>Aurora</value>
