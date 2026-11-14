@@ -29,6 +29,12 @@ public sealed partial class MainWindow
 
         CoreWebView2ContextMenuItem? pasteCommand = null;
 
+        CoreWebView2ContextMenuItem? copyCommand =
+            FindContextMenuCommand(args, "copy");
+
+        CoreWebView2ContextMenuItem? cutCommand =
+            FindContextMenuCommand(args, "cut");
+
         foreach (var item in args.MenuItems)
         {
             if (item.Name == "paste")
@@ -82,12 +88,14 @@ public sealed partial class MainWindow
             var cutItem = Helpers.CreateContextMenuItem(
                 LocalizerExtensions.GetLocalizedString("Cut"),
                 "\uE8C6",
-                async (_, _) =>
-                    await core.ExecuteScriptAsync(
-                        "document.execCommand('cut')"),
+                (_, _) =>
+                {
+                    if (cutCommand is not null)
+                        args.SelectedCommandId = cutCommand.CommandId;
+                },
                 "Ctrl+X");
 
-            cutItem.IsEnabled = hasSelection;
+            cutItem.IsEnabled = hasSelection && cutCommand is not null;
             menu.Items.Add(cutItem);
         }
 
@@ -96,12 +104,14 @@ public sealed partial class MainWindow
             var copyItem = Helpers.CreateContextMenuItem(
                 LocalizerExtensions.GetLocalizedString("Copy"),
                 "\uE8C8",
-                async (_, _) =>
-                    await core.ExecuteScriptAsync(
-                        "document.execCommand('copy')"),
+                (_, _) =>
+                {
+                    if (copyCommand is not null)
+                        args.SelectedCommandId = copyCommand.CommandId;
+                },
                 "Ctrl+C");
 
-            copyItem.IsEnabled = hasSelection;
+            copyItem.IsEnabled = hasSelection && copyCommand is not null;
             menu.Items.Add(copyItem);
         }
 

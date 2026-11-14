@@ -18,26 +18,36 @@ public static class Helpers
 {
     public static string FormatFileSize(long bytes)
     {
-        bool isArabic = Localizer.Get().GetCurrentLanguage()?.StartsWith("ar") == true;
         CultureInfo culture = GetCurrentCulture();
 
         string number(double value) =>
             value.ToString("0.##", culture);
 
-        string[] units = isArabic
-            ? ["بايت", "ك.ب", "م.ب", "غ.ب"]
-            : ["B", "KB", "MB", "GB"];
+        string unit;
+        double value;
 
         if (bytes < 1024)
-            return $"{number(bytes)} {units[0]}";
+        {
+            value = bytes;
+            unit = LocalizerExtensions.GetLocalizedString("FileSizeBytes");
+        }
+        else if (bytes < 1024 * 1024)
+        {
+            value = bytes / 1024d;
+            unit = LocalizerExtensions.GetLocalizedString("FileSizeKB");
+        }
+        else if (bytes < 1024L * 1024 * 1024)
+        {
+            value = bytes / (1024d * 1024);
+            unit = LocalizerExtensions.GetLocalizedString("FileSizeMB");
+        }
+        else
+        {
+            value = bytes / (1024d * 1024 * 1024);
+            unit = LocalizerExtensions.GetLocalizedString("FileSizeGB");
+        }
 
-        if (bytes < 1024 * 1024)
-            return $"{number(bytes / 1024d)} {units[1]}";
-
-        if (bytes < 1024L * 1024 * 1024)
-            return $"{number(bytes / (1024d * 1024))} {units[2]}";
-
-        return $"{number(bytes / (1024d * 1024 * 1024))} {units[3]}";
+        return $"{number(value)} {unit}";
     }
 
     public static string FormatFileSize(ulong bytes) =>

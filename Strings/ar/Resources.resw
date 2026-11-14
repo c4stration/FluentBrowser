@@ -705,4 +705,16 @@
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>أورورا</value>
   </data>
+  <data name="FileSizeBytes" xml:space="preserve">
+    <value>بايت</value>
+  </data>
+  <data name="FileSizeKB" xml:space="preserve">
+    <value>ك.ب</value>
+  </data>
+  <data name="FileSizeMB" xml:space="preserve">
+    <value>م.ب</value>
+  </data>
+  <data name="FileSizeGB" xml:space="preserve">
+    <value>غ.ب</value>
+  </data>
 </root>

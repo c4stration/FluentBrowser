@@ -1183,7 +1183,23 @@ public sealed partial class MainWindow
         var pasteItem = Helpers.CreateContextMenuItem(
             LocalizerExtensions.GetLocalizedString("Paste"),
             "\uE77F",
-            (_, _) => textBox.PasteFromClipboard(),
+            (_, _) =>
+            {
+                textBox.PasteFromClipboard();
+
+                if (SelectedTab is not BrowserTab tab)
+                    return;
+
+                tab.AddressBarDraft = textBox.Text;
+                tab.AddressBarFocused = true;
+
+                _addressBarFocusTab = tab;
+                _addressBarUserEditing = true;
+
+                SaveAddressBarSelection(tab);
+
+                AddressBar.Focus(FocusState.Programmatic);
+            },
             "Ctrl+V");
 
         var selectAllItem = Helpers.CreateContextMenuItem(

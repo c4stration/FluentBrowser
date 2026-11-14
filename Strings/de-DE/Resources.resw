@@ -708,4 +708,16 @@
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>Aurora</value>
   </data>
+  <data name="FileSizeBytes" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="FileSizeKB" xml:space="preserve">
+    <value>KB</value>
+  </data>
+  <data name="FileSizeMB" xml:space="preserve">
+    <value>MB</value>
+  </data>
+  <data name="FileSizeGB" xml:space="preserve">
+    <value>GB</value>
+  </data>
 </root>

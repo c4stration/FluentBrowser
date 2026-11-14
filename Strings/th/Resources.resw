@@ -289,7 +289,7 @@
     <value>แปล</value>
   </data>
   <data name="TextDirection.Header" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="TextDirection.Description" type="System.Resources.ResXNullRef, System.Windows.Forms">
@@ -706,5 +706,17 @@
   </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>ออโรรา</value>
+  </data>
+  <data name="FileSizeBytes" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="FileSizeKB" xml:space="preserve">
+    <value>KB</value>
+  </data>
+  <data name="FileSizeMB" xml:space="preserve">
+    <value>MB</value>
+  </data>
+  <data name="FileSizeGB" xml:space="preserve">
+    <value>GB</value>
   </data>
 </root>

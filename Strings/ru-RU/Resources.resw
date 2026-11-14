@@ -366,7 +366,6 @@
   </data>
   <data name="CantOpenPageTitle" xml:space="preserve">
     <value>Не удалось открыть страницу!</value>
-    <comment>Make it kinda cute</comment>
   </data>
   <data name="CantOpenPageHostNameNotResolved" xml:space="preserve">
     <value>Не удалось найти адрес «{0}». Возможно, опечатка?</value>
@@ -390,7 +389,7 @@
     <value>Соединение с «{0}» было прервано.</value>
   </data>
   <data name="CantOpenPageCertificateExpired" xml:space="preserve">
-    <value>«{0}» использует просроченный сертификат. Срок действия истёк {1}. Это может быть ошибкой настройки или попыткой перехвата соединения. Часы компьютера сейчас показывают {2}. Всё верно? Если нет, исправьте время и обновите страницу.</value>
+    <value>«{0}» использует просроченный сертификат. Срок действия истёк {1}. Это может быть ошибкой настройки или попыткой перехвата соединения. Часы компьютера сейчас показывают {2} Всё верно? Если нет, исправьте время и обновите страницу.</value>
   </data>
   <data name="CantOpenPageCertificateInvalid" xml:space="preserve">
     <value>«{0}» использует недопустимый сертификат безопасности.</value>
@@ -708,5 +707,17 @@
   </data>
   <data name="AuroraBackgroundOption.Content" xml:space="preserve">
     <value>Аврора</value>
+  </data>
+  <data name="FileSizeBytes" xml:space="preserve">
+    <value>Б</value>
+  </data>
+  <data name="FileSizeKB" xml:space="preserve">
+    <value>КБ</value>
+  </data>
+  <data name="FileSizeMB" xml:space="preserve">
+    <value>МБ</value>
+  </data>
+  <data name="FileSizeGB" xml:space="preserve">
+    <value>ГБ</value>
   </data>
 </root>

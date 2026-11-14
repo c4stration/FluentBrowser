@@ -17,6 +17,7 @@
             <TextBlock
                 x:Name="ErrorMessageText"
                 Margin="128,0"
+                IsTextSelectionEnabled="True"
                 HorizontalAlignment="Center"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 HorizontalTextAlignment="Center"
