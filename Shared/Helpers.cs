@@ -166,6 +166,14 @@ public static class Helpers
                formattedDate[firstTextElement.Length..];
     }
 
+    public static bool IsFileUri(Uri? uri) =>
+        uri?.IsFile == true;
+
+    public static bool IsOpenableWebUri(Uri? uri) =>
+        uri is not null &&
+        (uri.Scheme == Uri.UriSchemeHttp ||
+        uri.Scheme == Uri.UriSchemeHttps);
+
     public static MenuFlyoutItem CreateContextMenuItem(
         string text,
         string? icon,

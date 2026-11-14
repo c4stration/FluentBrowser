@@ -202,9 +202,14 @@
                 x:Name="MainTabView"
                 x:FieldModifier="public"
                 AddTabButtonClick="TabView_AddButtonClick"
+                AllowDrop="True"
                 Background="{ThemeResource LayerFillColorDefaultBrush}"
                 SelectionChanged="MainTabView_SelectionChanged"
-                TabCloseRequested="TabView_TabCloseRequested">
+                TabCloseRequested="TabView_TabCloseRequested"
+                TabDragCompleted="MainTabView_TabDragCompleted"
+                TabDragStarting="MainTabView_TabDragStarting"
+                TabStripDragOver="MainTabView_TabStripDragOver"
+                TabStripDrop="MainTabView_TabStripDrop">
 
                 <TabView.Resources>
                     <MenuFlyout x:Key="TabContextMenu" Opening="TabContextMenu_Opening">
@@ -853,7 +858,7 @@
 
                                             <MenuFlyoutItem Click="trainML" Text="Train ML Model" />
 
-                                            <MenuFlyoutItem Text="Force garbage collection" Click="ForceGarbageCollectionButton_Click" />
+                                            <MenuFlyoutItem Click="ForceGarbageCollectionButton_Click" Text="Force garbage collection" />
                                         </MenuFlyout>
                                     </Button.Flyout>
                                 </Button>
@@ -979,11 +984,11 @@
                                                     <WebView2
                                                         x:Name="ExtensionWebView"
                                                         Width="400"
-                                                        DefaultBackgroundColor="Transparent"
                                                         Height="400"
                                                         Margin="0,36,0,0"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
+                                                        DefaultBackgroundColor="Transparent"
                                                         Visibility="Collapsed" />
                                                 </Grid>
                                             </my:ContentMenuFlyoutItem>

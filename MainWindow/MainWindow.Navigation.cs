@@ -445,7 +445,12 @@ public sealed partial class MainWindow
             header.Children.Count > 0 &&
             header.Children[0] is Grid iconGrid)
         {
-            FontIcon? pageIcon = iconGrid.Children.OfType<FontIcon>().FirstOrDefault();
+            var icons = iconGrid.Children.OfType<FontIcon>();
+
+            FontIcon? pageIcon = icons.FirstOrDefault(
+                icon => icon.Glyph is not ("\uE774" or "\uE8A5"))
+                ?? icons.FirstOrDefault();
+
             if (pageIcon is null)
             {
                 pageIcon = new FontIcon { FontSize = 16 };
@@ -458,15 +463,27 @@ public sealed partial class MainWindow
                 SettingsPage => "\uE713",
                 _ => "\uE713"
             };
-            pageIcon.Visibility = Visibility.Visible;
+
+            foreach (var icon in iconGrid.Children.OfType<FontIcon>())
+            {
+                icon.Visibility = ReferenceEquals(icon, pageIcon)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
     }
 
-    public void OpenNewTab(string url, bool autoSelect = true)
+    public void OpenNewTab(
+        string url,
+        bool autoSelect = true,
+        int? insertIndex = null)
     {
         var tab = CreateNewTab(url);
 
-        AddNewTab(tab, autoSelect);
+        if (insertIndex is int index)
+            AddNewTabAtIndex(tab, autoSelect, index);
+        else
+            AddNewTab(tab, autoSelect);
     }
 
     private void UpdateNavigationButtons()

@@ -261,7 +261,10 @@
                     </InfoBar>
                     <controls:SettingsCard l:Uids.Uid="DisplayLanguage">
                         <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xF2B7;" />
+                            <PathIcon
+                                Data="{StaticResource Language}"
+                                FlowDirection="LeftToRight"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
                         <ComboBox x:Name="LanguageComboBox" SelectionChanged="LanguageComboBox_SelectionChanged">
                             <ComboBoxItem l:Uids.Uid="UseSystemSetting" />

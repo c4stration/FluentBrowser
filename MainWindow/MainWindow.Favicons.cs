@@ -61,7 +61,8 @@ public sealed partial class MainWindow
 
         var defaultIcon = grid.Children
             .OfType<FontIcon>()
-            .FirstOrDefault();
+            .FirstOrDefault(icon =>
+                icon.Glyph is "\uE774" or "\uE8A5");
 
         if (defaultIcon is null)
         {
@@ -69,9 +70,16 @@ public sealed partial class MainWindow
             grid.Children.Add(defaultIcon);
         }
 
-        defaultIcon.Visibility = visible
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        defaultIcon.Glyph = Helpers.IsFileUri(tab.WebView?.Source)
+            ? "\uE8A5"
+            : "\uE774";
+
+        foreach (var icon in grid.Children.OfType<FontIcon>())
+        {
+            icon.Visibility = ReferenceEquals(icon, defaultIcon) && visible
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
     }
 
     private bool TryGetCachedFavicon(
@@ -127,7 +135,6 @@ public sealed partial class MainWindow
             if (tab.IsClosed || IsInternalPageDisplayed(tab))
                 return;
 
-            // Assign these separately so every use is definitely assigned.
             WebView2? webView = tab.WebView;
             if (webView is null)
                 return;
@@ -135,6 +142,18 @@ public sealed partial class MainWindow
             CoreWebView2? core = webView.CoreWebView2;
             if (core is null)
                 return;
+
+            if (Helpers.IsFileUri(webView.Source))
+            {
+                tab.Favicon.Source = null;
+                tab.Favicon.Visibility = Visibility.Collapsed;
+
+                UpdateDefaultFavicon(
+                    tab,
+                    !_loadingWebViews.Contains(webView));
+
+                return;
+            }
 
             string? faviconUri = core.FaviconUri;
 

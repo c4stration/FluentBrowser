@@ -665,6 +665,19 @@ public sealed partial class MainWindow
             MainTabView.SelectedItem = tab;
     }
 
+    private void AddNewTabAtIndex(
+        TabViewItem tab,
+        bool autoSelect,
+        int index)
+    {
+        index = Math.Clamp(index, 0, MainTabView.TabItems.Count);
+
+        MainTabView.TabItems.Insert(index, tab);
+
+        if (autoSelect)
+            MainTabView.SelectedItem = tab;
+    }
+
     private static Grid CreateTabHeader(
         out TextBlock title,
         out ProgressRing progressRing,
@@ -733,7 +746,7 @@ public sealed partial class MainWindow
                 Glyph = "\uE767",
                 FontSize = 12
             },
-            IsHitTestVisible = false
+            IsHitTestVisible = true
         };
 
         Grid.SetColumn(iconGrid, 0);

@@ -522,6 +522,8 @@ public sealed partial class MainWindow
             progressRing,
             favicon);
 
+        webView.AllowDrop = true;
+
         webView.CoreWebView2Initialized += async (_, _) =>
         {
             if (webView.CoreWebView2 is not { } core)
