@@ -470,7 +470,7 @@
     <value>Найти на странице</value>
   </data>
   <data name="DaysAgo" xml:space="preserve">
-    <value>{0} дн. назад</value>
+    <value>{0} дней назад</value>
   </data>
   <data name="DayAgo" xml:space="preserve">
     <value>день назад</value>
@@ -719,5 +719,8 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>ГБ</value>
+  </data>
+  <data name="DaysAgoFew" xml:space="preserve">
+    <value>{0} дня назад</value>
   </data>
 </root>

@@ -102,9 +102,22 @@ public static class Helpers
         if (days == 1)
             return LocalizerExtensions.GetLocalizedString("DayAgo");
 
-        return string.Format(
-            LocalizerExtensions.GetLocalizedString("DaysAgo"),
-            days.ToString("N0", GetCurrentCulture()));
+        CultureInfo culture = GetCurrentCulture();
+        string number = days.ToString("N0", culture);
+
+        if (culture.TwoLetterISOLanguageName is "ru" or "uk"
+            && days % 100 is not (>= 11 and <= 14))
+        {
+            switch (days % 10)
+            {
+                case 1:
+                    return $"{number} {LocalizerExtensions.GetLocalizedString("DayAgo")}";
+                case >= 2 and <= 4:
+                    return string.Format(LocalizerExtensions.GetLocalizedString("DaysAgoFew"), number);
+            }
+        }
+
+        return string.Format(LocalizerExtensions.GetLocalizedString("DaysAgo"), number);
     }
 
     public static string? FormatDate(string? value)

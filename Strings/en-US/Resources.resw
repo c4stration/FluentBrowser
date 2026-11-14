@@ -725,4 +725,7 @@
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
   </data>
+  <data name="DaysAgoFew" xml:space="preserve">
+    <value />
+  </data>
 </root>

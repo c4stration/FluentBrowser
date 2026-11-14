@@ -470,7 +470,7 @@
     <value>Знайти на сторінці</value>
   </data>
   <data name="DaysAgo" xml:space="preserve">
-    <value>{0} дн. тому</value>
+    <value>{0} днів тому</value>
   </data>
   <data name="DayAgo" xml:space="preserve">
     <value>день тому</value>
@@ -719,5 +719,8 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>ГБ</value>
+  </data>
+  <data name="DaysAgoFew" xml:space="preserve">
+    <value>{0} дні тому</value>
   </data>
 </root>
