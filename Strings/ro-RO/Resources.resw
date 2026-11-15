@@ -456,9 +456,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Găsește în pagină</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>acum {0} zile</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>acum o zi</value>
   </data>
@@ -704,5 +701,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {acum {count, number} zi} few {acum {count, number} zile} other {acum {count, number} de zile}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} din {1} ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>timp rămas: {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# secundă rămasă} few {# secunde rămase} other {# de secunde rămase}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# minut rămas} few {# minute rămase} other {# de minute rămase}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# oră rămasă} few {# ore rămase} other {# de ore rămase}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>Descărcare potențial riscantă</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 a semnalat {0} ({1}) din cauza tipului de fișier. Păstrează fișierul numai dacă ai încredere în sursă și te așteptai la această descărcare.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>Păstrează</value>
   </data>
 </root>

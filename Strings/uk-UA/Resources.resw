@@ -469,9 +469,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Знайти на сторінці</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0} днів тому</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>день тому</value>
   </data>
@@ -720,7 +717,31 @@
   <data name="FileSizeGB" xml:space="preserve">
     <value>ГБ</value>
   </data>
-  <data name="DaysAgoFew" xml:space="preserve">
-    <value>{0} дні тому</value>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {{count, number} день тому} few {{count, number} дні тому} many {{count, number} днів тому} other {{count, number} дня тому}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} із {1} ({2}/с) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>залишилося {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# секунда залишилася} few {# секунди залишилися} many {# секунд залишилося} other {# секунди залишилося}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# хвилина залишилася} few {# хвилини залишилися} many {# хвилин залишилося} other {# хвилини залишилося}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# година залишилася} few {# години залишилися} many {# годин залишилося} other {# години залишилося}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>Потенційно небезпечне завантаження</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 позначив {0} ({1}) як потенційно небезпечний файл через його тип. Залишай файл лише в тому разі, якщо довіряєш джерелу й очікував на це завантаження.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>Залишити</value>
   </data>
 </root>

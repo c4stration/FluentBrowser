@@ -1658,33 +1658,33 @@ public sealed partial class SettingsPage : Page, IDisposable
     }
 
     private void NewTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "NewTabShortcut", BrowserShortcut.NewTab);
+        ApplyShortcutFromControl(sender, "NewTabShortcut", Enums.BrowserShortcut.NewTab);
 
     private void CloseTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "CloseTabShortcut", BrowserShortcut.CloseTab);
+        ApplyShortcutFromControl(sender, "CloseTabShortcut", Enums.BrowserShortcut.CloseTab);
 
     private void ReopenTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "ReopenTabShortcut", BrowserShortcut.ReopenTab);
+        ApplyShortcutFromControl(sender, "ReopenTabShortcut", Enums.BrowserShortcut.ReopenTab);
 
     private void FocusAddressBarShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", BrowserShortcut.FocusAddressBar);
+        ApplyShortcutFromControl(sender, "FocusAddressBarShortcut", Enums.BrowserShortcut.FocusAddressBar);
 
     private void ReloadShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "ReloadShortcut", BrowserShortcut.Reload);
+        ApplyShortcutFromControl(sender, "ReloadShortcut", Enums.BrowserShortcut.Reload);
 
     private void RightTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "RightTabShortcut", BrowserShortcut.NextTab);
+        ApplyShortcutFromControl(sender, "RightTabShortcut", Enums.BrowserShortcut.NextTab);
 
     private void LeftTabShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "LeftTabShortcut", BrowserShortcut.PreviousTab);
+        ApplyShortcutFromControl(sender, "LeftTabShortcut", Enums.BrowserShortcut.PreviousTab);
 
     private void FindOnPageShortcutControl_ShortcutChanged(object? sender, EventArgs e) =>
-        ApplyShortcutFromControl(sender, "FindOnPageShortcut", BrowserShortcut.FindOnPage);
+        ApplyShortcutFromControl(sender, "FindOnPageShortcut", Enums.BrowserShortcut.FindOnPage);
 
     private void ApplyShortcutFromControl(
         object? sender,
         string settingsKey,
-        BrowserShortcut action)
+        Enums.BrowserShortcut action)
     {
         if (sender is not ShortcutControl control ||
             control.HotkeySettings is null)

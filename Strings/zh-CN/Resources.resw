@@ -460,9 +460,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>在页面中查找</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0}天前</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>1天前</value>
   </data>
@@ -708,5 +705,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, other {{count, number}天前}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>已下载 {0}，共 {1}（{2}/s）– {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>剩余{0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {还剩 # 秒}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {还剩 # 分钟}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {还剩 # 小时}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>可能存在风险的下载</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 因文件类型而对 {0}（{1}）发出了警告。只有在你信任来源且预期会下载此文件的情况下，才保留它。</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>保留</value>
   </data>
 </root>

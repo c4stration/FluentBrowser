@@ -1,5 +1,6 @@
 using FluentBrowser.Controls;
 using FluentBrowser.Pages;
+using FluentBrowser.Shared;
 using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
@@ -1066,14 +1067,14 @@ public sealed partial class MainWindow
     {
         return shortcut switch
         {
-            "new-tab" => TryInvokeConfigurable(BrowserShortcut.NewTab),
-            "close-tab" => TryInvokeConfigurable(BrowserShortcut.CloseTab),
-            "reopen-tab" => TryInvokeConfigurable(BrowserShortcut.ReopenTab),
-            "focus-address" => TryInvokeConfigurable(BrowserShortcut.FocusAddressBar),
-            "reload" => TryInvokeConfigurable(BrowserShortcut.Reload),
-            "next-tab" => TryInvokeConfigurable(BrowserShortcut.NextTab),
-            "previous-tab" => TryInvokeConfigurable(BrowserShortcut.PreviousTab),
-            "find-on-page" => TryInvokeConfigurable(BrowserShortcut.FindOnPage),
+            "new-tab" => TryInvokeConfigurable(Enums.BrowserShortcut.NewTab),
+            "close-tab" => TryInvokeConfigurable(Enums.BrowserShortcut.CloseTab),
+            "reopen-tab" => TryInvokeConfigurable(Enums.BrowserShortcut.ReopenTab),
+            "focus-address" => TryInvokeConfigurable(Enums.BrowserShortcut.FocusAddressBar),
+            "reload" => TryInvokeConfigurable(Enums.BrowserShortcut.Reload),
+            "next-tab" => TryInvokeConfigurable(Enums.BrowserShortcut.NextTab),
+            "previous-tab" => TryInvokeConfigurable(Enums.BrowserShortcut.PreviousTab),
+            "find-on-page" => TryInvokeConfigurable(Enums.BrowserShortcut.FindOnPage),
             "hard-reload" => TryHandleShortcut(
                 VirtualKey.R, ctrl: true, shift: true, alt: false),
             "reload-f5" => TryHandleShortcut(
@@ -1103,7 +1104,7 @@ public sealed partial class MainWindow
         };
     }
 
-    private bool TryInvokeConfigurable(BrowserShortcut action)
+    private bool TryInvokeConfigurable(Enums.BrowserShortcut action)
     {
         if (_shortcuts[action].Keys.Count == 0)
             return false;
@@ -1135,14 +1136,14 @@ public sealed partial class MainWindow
 
     private string BuildWebViewShortcutBridgeScript(string token)
     {
-        string newTab = BuildJsMatchCondition(BrowserShortcut.NewTab);
-        string closeTab = BuildJsMatchCondition(BrowserShortcut.CloseTab);
-        string reopenTab = BuildJsMatchCondition(BrowserShortcut.ReopenTab);
-        string focusAddress = BuildJsMatchCondition(BrowserShortcut.FocusAddressBar);
-        string reload = BuildJsMatchCondition(BrowserShortcut.Reload);
-        string nextTab = BuildJsMatchCondition(BrowserShortcut.NextTab);
-        string previousTab = BuildJsMatchCondition(BrowserShortcut.PreviousTab);
-        string findOnPage = BuildJsMatchCondition(BrowserShortcut.FindOnPage);
+        string newTab = BuildJsMatchCondition(Enums.BrowserShortcut.NewTab);
+        string closeTab = BuildJsMatchCondition(Enums.BrowserShortcut.CloseTab);
+        string reopenTab = BuildJsMatchCondition(Enums.BrowserShortcut.ReopenTab);
+        string focusAddress = BuildJsMatchCondition(Enums.BrowserShortcut.FocusAddressBar);
+        string reload = BuildJsMatchCondition(Enums.BrowserShortcut.Reload);
+        string nextTab = BuildJsMatchCondition(Enums.BrowserShortcut.NextTab);
+        string previousTab = BuildJsMatchCondition(Enums.BrowserShortcut.PreviousTab);
+        string findOnPage = BuildJsMatchCondition(Enums.BrowserShortcut.FindOnPage);
 
         return $$"""
         (() => {
@@ -1211,7 +1212,7 @@ public sealed partial class MainWindow
         """;
     }
 
-    private string BuildJsMatchCondition(BrowserShortcut action)
+    private string BuildJsMatchCondition(Enums.BrowserShortcut action)
     {
         HotkeySettings settings = _shortcuts[action];
 

@@ -139,7 +139,7 @@
     <value>Hell</value>
   </data>
   <data name="UseSystemSetting.Content" xml:space="preserve">
-    <value>Systemeinstellung verwenden</value>
+    <value>Systemstandard</value>
   </data>
   <data name="AddressBar.PlaceholderText" xml:space="preserve">
     <value>Im Web suchen oder URL eingeben</value>
@@ -280,7 +280,7 @@
     <value>Suchvorschläge anzeigen</value>
   </data>
   <data name="SearchSuggestions.Description" xml:space="preserve">
-    <value>Such- und Browservorschläge anzeigen, während Sie in der Adressleiste tippen. Diese Funktion ist noch in der Beta – rechnen Sie mit ein paar seltsamen Vorschlägen</value>
+    <value>Such- und Browservorschläge während der Eingabe in der Adressleiste anzeigen. Diese Funktion befindet sich noch in der Betaphase. Rechnen Sie daher mit einigen ziemlich dämlichen Vorschlägen</value>
   </data>
   <data name="LinksText.Text" xml:space="preserve">
     <value>Links</value>
@@ -469,9 +469,6 @@
   </data>
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Auf Seite suchen</value>
-  </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>vor {0} Tagen</value>
   </data>
   <data name="DayAgo" xml:space="preserve">
     <value>vor einem Tag</value>
@@ -719,5 +716,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {vor {count, number} Tag} other {vor {count, number} Tagen}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} von {1} ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>{0} übrig</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# Sekunde übrig} other {# Sekunden übrig}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# Minute übrig} other {# Minuten übrig}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# Stunde übrig} other {# Stunden übrig}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>Potenziell riskanter Download</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 hat {0} ({1}) aufgrund des Dateityps als potenziell riskant eingestuft. Behalte die Datei nur, wenn du der Quelle vertraust und diesen Download erwartet hast.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>Behalten</value>
   </data>
 </root>

@@ -1,4 +1,6 @@
 using FluentBrowser.Shared;
+using MessagePack;
+using MessagePack.Resolvers;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
@@ -10,11 +12,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MessagePack;
-using MessagePack.Resolvers;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
+using WinUI3Localizer;
 using Path = System.IO.Path;
 
 namespace FluentBrowser;
@@ -53,24 +54,24 @@ public sealed partial class MainWindow
                         StringComparison.OrdinalIgnoreCase));
 
                 string sizeText = item is { TotalBytesToReceive: > 0 }
-                    ? $" ({Helpers.FormatFileSize(item.TotalBytesToReceive)})"
+                    ? $"{Helpers.FormatFileSize(item.TotalBytesToReceive)}"
                     : string.Empty;
 
                 var dialog = new ContentDialog
                 {
-                    Title = "Potentially risky download",
+                    Title = LocalizerExtensions.GetLocalizedString("RiskyDownloadTitle"),
 
                     Content = new TextBlock
                     {
-                        Text =
-            $"WebView2 flagged the file type for {fileName}" +
-            $"{sizeText}. Only keep it if you trust the " +
-            "source and expected this download.",
+                        Text = string.Format(
+                            LocalizerExtensions.GetLocalizedString("RiskyDownloadDescription"),
+                            fileName,
+                            sizeText),
                         TextWrapping = TextWrapping.Wrap
                     },
 
-                    PrimaryButtonText = "Keep",
-                    CloseButtonText = "Discard",
+                    PrimaryButtonText = LocalizerExtensions.GetLocalizedString("Keep"),
+                    CloseButtonText = LocalizerExtensions.GetLocalizedString("DiscardButton"),
 
                     DefaultButton = ContentDialogButton.Primary,
 
@@ -83,8 +84,6 @@ public sealed partial class MainWindow
 
                 if (result == ContentDialogResult.Primary)
                 {
-                    // The user has explicitly accepted this file, so replace
-                    // WebView2's hidden default warning with this decision
                     args.SuppressDefaultPolicy = true;
                     args.CancelSave = false;
                 }
@@ -346,7 +345,8 @@ public sealed partial class MainWindow
                     state =
                         CoreWebView2DownloadState.Interrupted;
 
-                    if (entry.StatusKey ==
+                    if (entry.StatusKey is
+                        DownloadItem.DownloadingStatusKey or
                         "DownloadStatusDownloading")
                     {
                         entry.StatusKey =

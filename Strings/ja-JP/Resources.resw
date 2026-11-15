@@ -460,9 +460,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>ページ内検索</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0}日前</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>1日前</value>
   </data>
@@ -708,5 +705,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, other {{count, number}日前}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{1}中{0}をダウンロード済み（{2}/s）、{3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>残り{0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {残り#秒}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {残り#分}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {残り#時間}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>リスクのある可能性があるダウンロード</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 はファイルの種類を理由に {0}（{1}）に警告を表示しました。提供元を信頼でき、このダウンロードを予期していた場合にのみ、ファイルを保持してください。</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>保持する</value>
   </data>
 </root>

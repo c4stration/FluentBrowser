@@ -474,9 +474,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Find on page</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0} days ago</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>a day ago</value>
   </data>
@@ -725,7 +722,35 @@
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
   </data>
-  <data name="DaysAgoFew" xml:space="preserve">
-    <value />
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {{count, number} day ago} other {{count, number} days ago}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} of {1} ({2}/s) – {3}</value>
+    <comment>{0}: downloaded, with unit
+{1}: total, with unit
+{2}: numeric speed, no unit
+{3}: numeric remaining time, no unit</comment>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>{0} left</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# second left} other {# seconds left}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# minute left} other {# minutes left}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# hour left} other {# hours left}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>Potentially risky download</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 flagged {0} ({1}) because of its file type. Only keep it if you trust the source and expected this download.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>Keep</value>
   </data>
 </root>

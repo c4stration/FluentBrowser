@@ -1,8 +1,11 @@
+using FluentBrowser.Shared;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -19,9 +22,22 @@ public sealed class DownloadItem : INotifyPropertyChanged
     private string _filePath;
     private double _progress;
     private bool _isIndeterminate = true;
+    public const string DownloadingStatusKey =
+        "DownloadStatusFormat";
+
+    private const string LegacyDownloadingStatusKey =
+        "DownloadStatusDownloading";
+
+    private const double SpeedSampleSeconds = 0.5;
+
+    private const double SpeedSmoothing = 0.3;
 
     private string _statusKey =
-        "DownloadStatusDownloading";
+        DownloadingStatusKey;
+
+    private long _speedSampleTimestamp;
+    private long _speedSampleBytes;
+    private double _bytesPerSecond;
 
     private ImageSource? _icon;
 
@@ -104,8 +120,34 @@ public sealed class DownloadItem : INotifyPropertyChanged
             ? "\uE74D"
             : "\uE894";
 
-    public string Status =>
-        LocalizerExtensions.GetLocalizedString(_statusKey);
+    public string Status
+    {
+        get
+        {
+            if (_statusKey == "DownloadStatusCompleted")
+            {
+                long size = TotalBytesToReceive > 0
+                    ? TotalBytesToReceive
+                    : BytesReceived;
+
+                return size > 0
+                    ? Helpers.FormatFileSize(size)
+                    : LocalizerExtensions.GetLocalizedString(
+                        _statusKey);
+            }
+
+            if (_statusKey != DownloadingStatusKey)
+            {
+                return LocalizerExtensions.GetLocalizedString(
+                    _statusKey);
+            }
+
+            return TryBuildDownloadingStatus(out string text)
+                ? text
+                : LocalizerExtensions.GetLocalizedString(
+                    LegacyDownloadingStatusKey);
+        }
+    }
 
     public string StatusKey =>
         _statusKey;
@@ -148,7 +190,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
         long bytesReceived = 0,
         long totalBytesToReceive = 0,
         string statusKey =
-            "DownloadStatusDownloading")
+            DownloadingStatusKey)
     {
         Operation = operation;
 
@@ -204,6 +246,98 @@ public sealed class DownloadItem : INotifyPropertyChanged
         {
             IsIndeterminate = true;
         }
+
+        UpdateSpeed();
+    }
+
+    private void UpdateSpeed()
+    {
+        if (_statusKey != DownloadingStatusKey)
+            return;
+
+        long now = Stopwatch.GetTimestamp();
+
+        if (_speedSampleTimestamp == 0)
+        {
+            _speedSampleTimestamp = now;
+            _speedSampleBytes = _bytesReceived;
+            return;
+        }
+
+        double elapsed =
+            Stopwatch.GetElapsedTime(
+                _speedSampleTimestamp,
+                now).TotalSeconds;
+
+        if (elapsed < SpeedSampleSeconds)
+            return;
+
+        double instantaneous =
+            Math.Max(0, _bytesReceived - _speedSampleBytes) /
+            elapsed;
+
+        _bytesPerSecond =
+            _bytesPerSecond <= 0
+                ? instantaneous
+                : _bytesPerSecond * (1 - SpeedSmoothing) +
+                  instantaneous * SpeedSmoothing;
+
+        _speedSampleTimestamp = now;
+        _speedSampleBytes = _bytesReceived;
+
+        OnPropertyChanged(nameof(Status));
+    }
+
+    private bool TryBuildDownloadingStatus(out string text)
+    {
+        text = string.Empty;
+
+        long total = TotalBytesToReceive;
+        long received = Math.Clamp(BytesReceived, 0, total);
+
+        if (total <= 0 || _bytesPerSecond <= 0)
+            return false;
+
+        double secondsLeft =
+            (total - received) / _bytesPerSecond;
+
+        secondsLeft = Math.Min(
+            Math.Ceiling(secondsLeft),
+            TimeSpan.FromDays(3650).TotalSeconds);
+
+        int remainingSeconds = (int)secondsLeft;
+
+        int count;
+        Enums.TimeUnit unit;
+
+        if (remainingSeconds >= 3600)
+        {
+            count = (int)Math.Ceiling(remainingSeconds / 3600d);
+            unit = Enums.TimeUnit.Hour;
+        }
+        else if (remainingSeconds >= 60)
+        {
+            count = (int)Math.Ceiling(remainingSeconds / 60d);
+            unit = Enums.TimeUnit.Minute;
+        }
+        else
+        {
+            count = remainingSeconds;
+            unit = Enums.TimeUnit.Second;
+        }
+
+        string timeRemaining = Helpers.FormatTimeRemaining(count, unit);
+
+        text = string.Format(
+            CultureInfo.CurrentCulture,
+            LocalizerExtensions.GetLocalizedString(
+                "DownloadStatusFormat"),
+            Helpers.FormatFileSize(received),
+            Helpers.FormatFileSize(total),
+            Helpers.FormatFileSize((long)_bytesPerSecond),
+            timeRemaining);
+
+        return true;
     }
 
     public void UpdateState()
@@ -221,7 +355,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
         {
             case CoreWebView2DownloadState.InProgress:
                 SetStatus(
-                    "DownloadStatusDownloading");
+                    DownloadingStatusKey);
                 break;
 
             case CoreWebView2DownloadState.Completed:

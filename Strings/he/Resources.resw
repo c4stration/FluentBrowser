@@ -472,9 +472,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>חיפוש בדף</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>לפני {0} ימים</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>לפני יום</value>
   </data>
@@ -720,5 +717,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {לפני יום אחד} two {לפני יומיים} other {לפני {count, number} ימים}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} מתוך {1} ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>זמן שנותר: {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# שנייה נותרה} two {# שניות נותרו} other {# שניות נותרו}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# דקה נותרה} two {# דקות נותרו} other {# דקות נותרו}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# שעה נותרה} two {# שעות נותרו} other {# שעות נותרו}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>הורדה שעלולה להיות מסוכנת</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 סימן את {0} ({1}) בגלל סוג הקובץ שלו. שמור את הקובץ רק אם המקור מהימן וציפית להורדה הזו.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>שמור</value>
   </data>
 </root>

@@ -52,6 +52,7 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <PackageReference Include="Rh.MessageFormat" Version="1.2.0" />
     <PackageReference Include="System.IO.Hashing" Version="10.0.11" />
     <ProjectReference Include="..\..\WinUI3Localizer\WinUI3Localizer\WinUI3Localizer.csproj" />
     <PackageReference Include="Microsoft.ML" Version="3.0.1" />
@@ -81,9 +82,6 @@
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Remove="Strings\th\Resources.resw" />
-  </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Testing\favicon.png" />
     <None Remove="Controls\AuroraControl.xaml" />

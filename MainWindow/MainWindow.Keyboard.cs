@@ -9,57 +9,46 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Windows.System;
+using FluentBrowser.Shared;
 
 namespace FluentBrowser;
 
-public enum BrowserShortcut
-{
-    NewTab,
-    CloseTab,
-    ReopenTab,
-    FocusAddressBar,
-    Reload,
-    NextTab,
-    PreviousTab,
-    FindOnPage
-}
-
 public sealed partial class MainWindow
 {
-    private readonly Dictionary<BrowserShortcut, HotkeySettings> _shortcuts = new()
+    private readonly Dictionary<Enums.BrowserShortcut, HotkeySettings> _shortcuts = new()
     {
-        [BrowserShortcut.NewTab] = new() { Keys = [VirtualKey.Control, VirtualKey.T] },
-        [BrowserShortcut.CloseTab] = new() { Keys = [VirtualKey.Control, VirtualKey.W] },
-        [BrowserShortcut.ReopenTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.T] },
-        [BrowserShortcut.FocusAddressBar] = new() { Keys = [VirtualKey.Control, VirtualKey.L] },
-        [BrowserShortcut.Reload] = new() { Keys = [VirtualKey.Control, VirtualKey.R] },
-        [BrowserShortcut.NextTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
-        [BrowserShortcut.PreviousTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] },
-        [BrowserShortcut.FindOnPage] = new() { Keys = [VirtualKey.Control, VirtualKey.F] }
+        [Enums.BrowserShortcut.NewTab] = new() { Keys = [VirtualKey.Control, VirtualKey.T] },
+        [Enums.BrowserShortcut.CloseTab] = new() { Keys = [VirtualKey.Control, VirtualKey.W] },
+        [Enums.BrowserShortcut.ReopenTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.T] },
+        [Enums.BrowserShortcut.FocusAddressBar] = new() { Keys = [VirtualKey.Control, VirtualKey.L] },
+        [Enums.BrowserShortcut.Reload] = new() { Keys = [VirtualKey.Control, VirtualKey.R] },
+        [Enums.BrowserShortcut.NextTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
+        [Enums.BrowserShortcut.PreviousTab] = new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] },
+        [Enums.BrowserShortcut.FindOnPage] = new() { Keys = [VirtualKey.Control, VirtualKey.F] }
     };
 
-    private readonly Dictionary<BrowserShortcut, KeyboardAccelerator?> _shortcutAccelerators = new()
+    private readonly Dictionary<Enums.BrowserShortcut, KeyboardAccelerator?> _shortcutAccelerators = new()
     {
-        [BrowserShortcut.NewTab] = null,
-        [BrowserShortcut.CloseTab] = null,
-        [BrowserShortcut.ReopenTab] = null,
-        [BrowserShortcut.FocusAddressBar] = null,
-        [BrowserShortcut.Reload] = null,
-        [BrowserShortcut.NextTab] = null,
-        [BrowserShortcut.PreviousTab] = null,
-        [BrowserShortcut.FindOnPage] = null
+        [Enums.BrowserShortcut.NewTab] = null,
+        [Enums.BrowserShortcut.CloseTab] = null,
+        [Enums.BrowserShortcut.ReopenTab] = null,
+        [Enums.BrowserShortcut.FocusAddressBar] = null,
+        [Enums.BrowserShortcut.Reload] = null,
+        [Enums.BrowserShortcut.NextTab] = null,
+        [Enums.BrowserShortcut.PreviousTab] = null,
+        [Enums.BrowserShortcut.FindOnPage] = null
     };
 
-    private static string SettingsKeyFor(BrowserShortcut action) => action switch
+    private static string SettingsKeyFor(Enums.BrowserShortcut action) => action switch
     {
-        BrowserShortcut.NewTab => "NewTabShortcut",
-        BrowserShortcut.CloseTab => "CloseTabShortcut",
-        BrowserShortcut.ReopenTab => "ReopenTabShortcut",
-        BrowserShortcut.FocusAddressBar => "FocusAddressBarShortcut",
-        BrowserShortcut.Reload => "ReloadShortcut",
-        BrowserShortcut.NextTab => "RightTabShortcut",
-        BrowserShortcut.PreviousTab => "LeftTabShortcut",
-        BrowserShortcut.FindOnPage => "FindOnPageShortcut",
+        Enums.BrowserShortcut.NewTab => "NewTabShortcut",
+        Enums.BrowserShortcut.CloseTab => "CloseTabShortcut",
+        Enums.BrowserShortcut.ReopenTab => "ReopenTabShortcut",
+        Enums.BrowserShortcut.FocusAddressBar => "FocusAddressBarShortcut",
+        Enums.BrowserShortcut.Reload => "ReloadShortcut",
+        Enums.BrowserShortcut.NextTab => "RightTabShortcut",
+        Enums.BrowserShortcut.PreviousTab => "LeftTabShortcut",
+        Enums.BrowserShortcut.FindOnPage => "FindOnPageShortcut",
         _ => action.ToString()
     };
 
@@ -195,7 +184,7 @@ public sealed partial class MainWindow
         RootGrid.KeyboardAccelerators.Add(accelerator);
     }
 
-    public void ApplyShortcut(BrowserShortcut action, HotkeySettings settings)
+    public void ApplyShortcut(Enums.BrowserShortcut action, HotkeySettings settings)
     {
         _shortcuts[action] = new HotkeySettings
         {
@@ -209,7 +198,7 @@ public sealed partial class MainWindow
 
     private void LoadAllShortcutsFromSettings()
     {
-        foreach (BrowserShortcut action in Enum.GetValues<BrowserShortcut>())
+        foreach (Enums.BrowserShortcut action in Enum.GetValues<Enums.BrowserShortcut>())
         {
             _shortcuts[action] = LoadShortcutFromSettings(
                 action,
@@ -217,28 +206,28 @@ public sealed partial class MainWindow
         }
     }
 
-    private static HotkeySettings DefaultShortcut(BrowserShortcut action) =>
+    private static HotkeySettings DefaultShortcut(Enums.BrowserShortcut action) =>
         action switch
         {
-            BrowserShortcut.NewTab =>
+            Enums.BrowserShortcut.NewTab =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.T] },
-            BrowserShortcut.CloseTab =>
+            Enums.BrowserShortcut.CloseTab =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.W] },
-            BrowserShortcut.ReopenTab =>
+            Enums.BrowserShortcut.ReopenTab =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.T] },
-            BrowserShortcut.FocusAddressBar =>
+            Enums.BrowserShortcut.FocusAddressBar =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.L] },
-            BrowserShortcut.Reload =>
+            Enums.BrowserShortcut.Reload =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.R] },
-            BrowserShortcut.NextTab =>
+            Enums.BrowserShortcut.NextTab =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.Tab] },
-            BrowserShortcut.PreviousTab =>
+            Enums.BrowserShortcut.PreviousTab =>
                 new() { Keys = [VirtualKey.Control, VirtualKey.Shift, VirtualKey.Tab] },
             _ => new()
         };
 
     private HotkeySettings LoadShortcutFromSettings(
-        BrowserShortcut action,
+        Enums.BrowserShortcut action,
         HotkeySettings fallback)
     {
         string key = SettingsKeyFor(action);
@@ -278,7 +267,7 @@ public sealed partial class MainWindow
     }
 
     private void SaveShortcutToSettings(
-        BrowserShortcut action,
+        Enums.BrowserShortcut action,
         HotkeySettings settings)
     {
         _settings.Values[SettingsKeyFor(action)] = settings.Keys.Count == 0
@@ -291,11 +280,11 @@ public sealed partial class MainWindow
 
     private void RegisterAllShortcutAccelerators()
     {
-        foreach (BrowserShortcut action in Enum.GetValues<BrowserShortcut>())
+        foreach (Enums.BrowserShortcut action in Enum.GetValues<Enums.BrowserShortcut>())
             RegisterShortcutAccelerator(action);
     }
 
-    private void RegisterShortcutAccelerator(BrowserShortcut action)
+    private void RegisterShortcutAccelerator(Enums.BrowserShortcut action)
     {
         if (_shortcutAccelerators.TryGetValue(action, out KeyboardAccelerator? existing) &&
             existing is not null)
@@ -332,33 +321,33 @@ public sealed partial class MainWindow
         _shortcutAccelerators[action] = accelerator;
     }
 
-    private void InvokeShortcut(BrowserShortcut action)
+    private void InvokeShortcut(Enums.BrowserShortcut action)
     {
         switch (action)
         {
-            case BrowserShortcut.NewTab:
+            case Enums.BrowserShortcut.NewTab:
                 TabView_AddButtonClick(MainTabView, new object());
                 break;
-            case BrowserShortcut.CloseTab:
+            case Enums.BrowserShortcut.CloseTab:
                 if (MainTabView.SelectedItem is TabViewItem tab)
                     CloseTab(tab);
                 break;
-            case BrowserShortcut.ReopenTab:
+            case Enums.BrowserShortcut.ReopenTab:
                 ReopenClosedTab();
                 break;
-            case BrowserShortcut.FocusAddressBar:
+            case Enums.BrowserShortcut.FocusAddressBar:
                 AddressBar.Focus(FocusState.Programmatic);
                 break;
-            case BrowserShortcut.Reload:
+            case Enums.BrowserShortcut.Reload:
                 SelectedWebView?.Reload();
                 break;
-            case BrowserShortcut.NextTab:
+            case Enums.BrowserShortcut.NextTab:
                 CycleTab(1);
                 break;
-            case BrowserShortcut.PreviousTab:
+            case Enums.BrowserShortcut.PreviousTab:
                 CycleTab(-1);
                 break;
-            case BrowserShortcut.FindOnPage:
+            case Enums.BrowserShortcut.FindOnPage:
                 ShowFindOnPage();
                 break;
         }
@@ -481,7 +470,7 @@ public sealed partial class MainWindow
             (GetKeyState(VirtualKey.LeftWindows) & 0x8000) != 0 ||
             (GetKeyState(VirtualKey.RightWindows) & 0x8000) != 0;
 
-        foreach (BrowserShortcut action in Enum.GetValues<BrowserShortcut>())
+        foreach (Enums.BrowserShortcut action in Enum.GetValues<Enums.BrowserShortcut>())
         {
             if (MatchesHotkey(_shortcuts[action], key, ctrl, shift, alt, win))
             {

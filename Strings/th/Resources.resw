@@ -470,9 +470,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>ค้นหาในหน้า</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0} วันที่แล้ว</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>1 วันที่แล้ว</value>
   </data>
@@ -718,5 +715,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, other {{count, number} วันที่แล้ว}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} จาก {1} ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>เหลือ {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {เหลืออีก # วินาที}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {เหลืออีก # นาที}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {เหลืออีก # ชั่วโมง}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>การดาวน์โหลดที่อาจมีความเสี่ยง</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 แจ้งเตือนเกี่ยวกับ {0} ({1}) เนื่องจากประเภทไฟล์ เก็บไฟล์นี้ไว้เฉพาะเมื่อคุณเชื่อถือแหล่งที่มาและคาดว่าจะมีการดาวน์โหลดนี้เท่านั้น</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>เก็บ</value>
   </data>
 </root>

@@ -469,9 +469,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>Найти на странице</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0} дней назад</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>день назад</value>
   </data>
@@ -720,7 +717,31 @@
   <data name="FileSizeGB" xml:space="preserve">
     <value>ГБ</value>
   </data>
-  <data name="DaysAgoFew" xml:space="preserve">
-    <value>{0} дня назад</value>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {{count, number} день назад} few {{count, number} дня назад} many {{count, number} дней назад} other {{count, number} дня назад}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} из {1} ({2}/с) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>осталось {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# секунда осталась} few {# секунды остались} many {# секунд осталось} other {# секунды осталось}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# минута осталась} few {# минуты остались} many {# минут осталось} other {# минуты осталось}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, one {# час остался} few {# часа остались} many {# часов осталось} other {# часа осталось}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>Потенциально опасная загрузка</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2 пометил {0} ({1}) как потенциально опасный файл из-за его типа. Оставляй файл только в том случае, если доверяешь источнику и ожидал эту загрузку.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>Оставить</value>
   </data>
 </root>

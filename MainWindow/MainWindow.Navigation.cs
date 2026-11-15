@@ -521,6 +521,17 @@ public sealed partial class MainWindow
         }
 
         bool loading = _loadingWebViews.Contains(webView);
+
+        if (webView.Tag is BrowserTab tab &&
+            ReferenceEquals(tab.WebView, webView) &&
+            !IsInternalPageDisplayed(tab))
+        {
+            tab.ProgressRing.IsActive = loading;
+            tab.ProgressRing.Visibility = loading
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
         bool shouldShowProgress = loading ||
             (_loadProgressTrackers.TryGetValue(
                 webView,
@@ -624,6 +635,9 @@ public sealed partial class MainWindow
                 {
                     return;
                 }
+
+                if (!IsTrackedNavigation(webView, args.NavigationId))
+                    return;
 
                 bool isPotentialDownload =
                     !args.IsSuccess &&

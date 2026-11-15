@@ -2,7 +2,9 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
+using Rh.MessageFormat;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,9 +21,6 @@ public static class Helpers
     public static string FormatFileSize(long bytes)
     {
         CultureInfo culture = GetCurrentCulture();
-
-        string number(double value) =>
-            value.ToString("0.##", culture);
 
         string unit;
         double value;
@@ -47,22 +46,31 @@ public static class Helpers
             unit = LocalizerExtensions.GetLocalizedString("FileSizeGB");
         }
 
-        return $"{number(value)} {unit}";
+        return $"{value.ToString("0.##", culture)} {unit}";
     }
 
     public static string FormatFileSize(ulong bytes) =>
         FormatFileSize((long)bytes);
 
-    public static bool UsesWordSpacing(string language)
+    public static string FormatTimeRemaining(int count, Enums.TimeUnit unit)
     {
-        return language switch
+        var key = unit switch
         {
-            "ja-JP" => false,
-            "zh-CN" => false,
-            "zh-TW" => false,
-            "ko-KR" => false,
-            _ => true
+            Enums.TimeUnit.Second => "SecondsLeftFormat",
+            Enums.TimeUnit.Minute => "MinutesLeftFormat",
+            Enums.TimeUnit.Hour => "HoursLeftFormat",
+            _ => throw new ArgumentOutOfRangeException(nameof(unit))
         };
+
+        var pattern = LocalizerExtensions.GetLocalizedString(key);
+        var culture = GetCurrentCulture();
+
+        var formatter = new MessageFormatter(culture.Name);
+
+        return formatter.FormatMessage(
+            pattern,
+            new { count }
+        );
     }
 
     public static CultureInfo GetCurrentCulture()
@@ -99,25 +107,11 @@ public static class Helpers
 
     public static string FormatDaysAgo(int days)
     {
-        if (days == 1)
-            return LocalizerExtensions.GetLocalizedString("DayAgo");
-
+        string pattern = LocalizerExtensions.GetLocalizedString("DaysAgoFormat");
         CultureInfo culture = GetCurrentCulture();
-        string number = days.ToString("N0", culture);
+        var formatter = new MessageFormatter(culture.Name);
 
-        if (culture.TwoLetterISOLanguageName is "ru" or "uk"
-            && days % 100 is not (>= 11 and <= 14))
-        {
-            switch (days % 10)
-            {
-                case 1:
-                    return $"{number} {LocalizerExtensions.GetLocalizedString("DayAgo")}";
-                case >= 2 and <= 4:
-                    return string.Format(LocalizerExtensions.GetLocalizedString("DaysAgoFew"), number);
-            }
-        }
-
-        return string.Format(LocalizerExtensions.GetLocalizedString("DaysAgo"), number);
+        return formatter.FormatMessage(pattern, new { count = days });
     }
 
     public static string? FormatDate(string? value)

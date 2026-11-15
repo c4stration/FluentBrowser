@@ -456,9 +456,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>페이지에서 찾기</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>{0}일 전</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>1일 전</value>
   </data>
@@ -704,5 +701,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>GB</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, other {{count, number}일 전}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>총 {1} 중 {0} 다운로드됨 ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>{0} 남음</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {#초 남음}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {#분 남음}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, other {#시간 남음}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>위험할 수 있는 다운로드</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>WebView2에서 파일 형식을 이유로 {0} ({1})에 경고를 표시했습니다. 출처를 신뢰하고 예상했던 다운로드인 경우에만 이 파일을 보관하세요.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>유지</value>
   </data>
 </root>

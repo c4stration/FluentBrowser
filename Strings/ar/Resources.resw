@@ -468,9 +468,6 @@
   <data name="ShortcutFindOnPage.Header" xml:space="preserve">
     <value>البحث في الصفحة</value>
   </data>
-  <data name="DaysAgo" xml:space="preserve">
-    <value>منذ {0} يومًا</value>
-  </data>
   <data name="DayAgo" xml:space="preserve">
     <value>منذ يوم</value>
   </data>
@@ -716,5 +713,32 @@
   </data>
   <data name="FileSizeGB" xml:space="preserve">
     <value>غ.ب</value>
+  </data>
+  <data name="DaysAgoFormat" xml:space="preserve">
+    <value>{count, plural, one {منذ يوم واحد} two {منذ يومين} few {منذ {count, number} أيام} many {منذ {count, number} يومًا} other {منذ {count, number} يوم}}</value>
+  </data>
+  <data name="DownloadStatusFormat" xml:space="preserve">
+    <value>{0} من أصل {1} ({2}/s) – {3}</value>
+  </data>
+  <data name="TimeRemaining" xml:space="preserve">
+    <value>متبقي {0}</value>
+  </data>
+  <data name="SecondsLeftFormat" xml:space="preserve">
+    <value>{count, plural, zero {لا توجد ثوانٍ متبقية} one {# ثانية متبقية} two {ثانيتان متبقيتان} few {# ثوانٍ متبقية} many {# ثانية متبقية} other {# ثانية متبقية}}</value>
+  </data>
+  <data name="MinutesLeftFormat" xml:space="preserve">
+    <value>{count, plural, zero {لا توجد دقائق متبقية} one {# دقيقة متبقية} two {دقيقتان متبقيتان} few {# دقائق متبقية} many {# دقيقة متبقية} other {# دقيقة متبقية}}</value>
+  </data>
+  <data name="HoursLeftFormat" xml:space="preserve">
+    <value>{count, plural, zero {لا توجد ساعات متبقية} one {# ساعة متبقية} two {ساعتان متبقيتان} few {# ساعات متبقية} many {# ساعة متبقية} other {# ساعة متبقية}}</value>
+  </data>
+  <data name="RiskyDownloadTitle" xml:space="preserve">
+    <value>تنزيل قد يكون محفوفًا بالمخاطر</value>
+  </data>
+  <data name="RiskyDownloadDescription" xml:space="preserve">
+    <value>وضع WebView2 علامة تحذير على {0} ({1}) بسبب نوع الملف. لا تحتفظ به إلا إذا كنت تثق بالمصدر وتتوقع هذا التنزيل.</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>الاحتفاظ</value>
   </data>
 </root>
