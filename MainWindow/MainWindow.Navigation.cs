@@ -1086,7 +1086,7 @@ public sealed partial class MainWindow
                 AddNewTab(
                     newTab,
                     autoSelect: !_middleClickPending,
-                    forceAfterCurrent: _middleClickPending);
+                    forceAfterCurrent: true);
 
                 int hostTabId = newTab.Tag is BrowserTab createdTab
                     ? createdTab.ExtensionTabId

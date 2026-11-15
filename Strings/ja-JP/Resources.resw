@@ -710,7 +710,7 @@
     <value>{count, plural, other {{count, number}日前}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{1}中{0}をダウンロード済み（{2}/s）、{3}</value>
+    <value>{1}中{0}をダウンロード済み（{2}/秒）、{3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>残り{0}</value>

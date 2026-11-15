@@ -718,7 +718,7 @@
     <value>{count, plural, one {منذ يوم واحد} two {منذ يومين} few {منذ {count, number} أيام} many {منذ {count, number} يومًا} other {منذ {count, number} يوم}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{0} من أصل {1} ({2}/s) – {3}</value>
+    <value>{0} من أصل {1} ({2}/ث) – {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>متبقي {0}</value>

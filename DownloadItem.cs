@@ -18,33 +18,33 @@ public sealed class DownloadItem : INotifyPropertyChanged
 {
     public CoreWebView2DownloadOperation? Operation { get; }
 
-    private string _fileName;
-    private string _filePath;
-    private double _progress;
-    private bool _isIndeterminate = true;
-    public const string DownloadingStatusKey =
-        "DownloadStatusFormat";
-
-    private const string LegacyDownloadingStatusKey =
-        "DownloadStatusDownloading";
+    private const string CompletedStatusKey = "DownloadStatusCompleted";
+    private const string InterruptedStatusKey = "DownloadStatusInterrupted";
+    private const string CanceledStatusKey = "DownloadStatusCanceled";
+    private const string LegacyDownloadingStatusKey = "DownloadStatusDownloading";
 
     private const double SpeedSampleSeconds = 0.5;
-
+    private const double MaxSpeedSampleIntervalSeconds = 3;
     private const double SpeedSmoothing = 0.3;
+    private const int SecondsPerMinute = 60;
+    private const int SecondsPerHour = 60 * SecondsPerMinute;
+    private const int SecondsBeforeRoundingToHours = SecondsPerHour - SecondsPerMinute / 2;
+    private const double MaxEstimatedSeconds = 3650d * 24 * 60 * 60;
 
-    private string _statusKey =
-        DownloadingStatusKey;
+    public const string DownloadingStatusKey = "DownloadStatusFormat";
 
+    private string _fileName;
+    private string _filePath;
+    private string _statusKey = DownloadingStatusKey;
+    private double _progress;
+    private bool _isIndeterminate = true;
     private long _speedSampleTimestamp;
     private long _speedSampleBytes;
     private double _bytesPerSecond;
-
-    private ImageSource? _icon;
-
-    private CoreWebView2DownloadState _state;
-
     private long _bytesReceived;
     private long _totalBytesToReceive;
+    private ImageSource? _icon;
+    private CoreWebView2DownloadState _state;
 
     public CoreWebView2DownloadState State =>
         Operation is null
@@ -124,7 +124,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
     {
         get
         {
-            if (_statusKey == "DownloadStatusCompleted")
+            if (_statusKey == CompletedStatusKey)
             {
                 long size = TotalBytesToReceive > 0
                     ? TotalBytesToReceive
@@ -132,40 +132,21 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
                 return size > 0
                     ? Helpers.FormatFileSize(size)
-                    : LocalizerExtensions.GetLocalizedString(
-                        _statusKey);
+                    : LocalizerExtensions.GetLocalizedString(_statusKey);
             }
 
             if (_statusKey != DownloadingStatusKey)
             {
-                return LocalizerExtensions.GetLocalizedString(
-                    _statusKey);
+                return LocalizerExtensions.GetLocalizedString(_statusKey);
             }
 
             return TryBuildDownloadingStatus(out string text)
                 ? text
-                : LocalizerExtensions.GetLocalizedString(
-                    LegacyDownloadingStatusKey);
+                : LocalizerExtensions.GetLocalizedString(LegacyDownloadingStatusKey);
         }
     }
 
-    public string StatusKey =>
-        _statusKey;
-
-    public void SetStatus(string statusKey)
-    {
-        if (_statusKey == statusKey)
-            return;
-
-        _statusKey = statusKey;
-
-        OnPropertyChanged(nameof(Status));
-    }
-
-    public void UpdateLocalizedStatus()
-    {
-        OnPropertyChanged(nameof(Status));
-    }
+    public string StatusKey => _statusKey;
 
     public ImageSource? Icon
     {
@@ -185,23 +166,18 @@ public sealed class DownloadItem : INotifyPropertyChanged
         CoreWebView2DownloadOperation? operation,
         string fileName,
         string filePath,
-        CoreWebView2DownloadState state =
-            CoreWebView2DownloadState.InProgress,
+        CoreWebView2DownloadState state = CoreWebView2DownloadState.InProgress,
         long bytesReceived = 0,
         long totalBytesToReceive = 0,
-        string statusKey =
-            DownloadingStatusKey)
+        string statusKey = DownloadingStatusKey)
     {
         Operation = operation;
 
         _fileName = fileName;
         _filePath = filePath;
-
         _state = state;
-
-        _bytesReceived = bytesReceived;
-        _totalBytesToReceive = totalBytesToReceive;
-
+        _bytesReceived = Math.Max(0, bytesReceived);
+        _totalBytesToReceive = Math.Max(0, totalBytesToReceive);
         _statusKey = statusKey;
 
         if (state == CoreWebView2DownloadState.Completed)
@@ -209,19 +185,32 @@ public sealed class DownloadItem : INotifyPropertyChanged
             _progress = 100;
             _isIndeterminate = false;
         }
-        else if (totalBytesToReceive > 0)
+        else if (_totalBytesToReceive > 0)
         {
-            _progress =
-                (double)bytesReceived /
-                totalBytesToReceive *
-                100;
-
+            _progress = CalculateProgress(_bytesReceived, _totalBytesToReceive);
             _isIndeterminate = false;
         }
         else
         {
-            _isIndeterminate = false;
+            _progress = 0;
+            _isIndeterminate = state == CoreWebView2DownloadState.InProgress;
         }
+    }
+
+    public void SetStatus(string statusKey)
+    {
+        if (_statusKey == statusKey)
+            return;
+
+        _statusKey = statusKey;
+        ResetSpeedTracking();
+
+        OnPropertyChanged(nameof(Status));
+    }
+
+    public void UpdateLocalizedStatus()
+    {
+        OnPropertyChanged(nameof(Status));
     }
 
     public void UpdateProgress()
@@ -229,28 +218,35 @@ public sealed class DownloadItem : INotifyPropertyChanged
         if (Operation is null)
             return;
 
-        _bytesReceived = Operation.BytesReceived;
-        _totalBytesToReceive =
-            Operation.TotalBytesToReceive;
+        long bytesReceived = Math.Max(0, Operation.BytesReceived);
+        long totalBytesToReceive = Math.Max(0, Operation.TotalBytesToReceive);
 
-        if (Operation.TotalBytesToReceive > 0)
+        _bytesReceived = bytesReceived;
+        _totalBytesToReceive = totalBytesToReceive;
+
+        if (totalBytesToReceive > 0)
         {
             IsIndeterminate = false;
-
-            Progress =
-                (double)Operation.BytesReceived /
-                Operation.TotalBytesToReceive *
-                100;
+            Progress = CalculateProgress(bytesReceived, totalBytesToReceive);
         }
         else
         {
             IsIndeterminate = true;
         }
 
-        UpdateSpeed();
+        UpdateSpeed(bytesReceived);
     }
 
-    private void UpdateSpeed()
+    private static double CalculateProgress(long bytesReceived, long totalBytesToReceive)
+    {
+        if (totalBytesToReceive <= 0)
+            return 0;
+
+        long received = Math.Clamp(bytesReceived, 0, totalBytesToReceive);
+        return (double)received / totalBytesToReceive * 100;
+    }
+
+    private void UpdateSpeed(long bytesReceived)
     {
         if (_statusKey != DownloadingStatusKey)
             return;
@@ -259,33 +255,72 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
         if (_speedSampleTimestamp == 0)
         {
-            _speedSampleTimestamp = now;
-            _speedSampleBytes = _bytesReceived;
+            SetSpeedSample(now, bytesReceived);
             return;
         }
 
-        double elapsed =
-            Stopwatch.GetElapsedTime(
-                _speedSampleTimestamp,
-                now).TotalSeconds;
+        double elapsed = Stopwatch.GetElapsedTime(
+            _speedSampleTimestamp,
+            now).TotalSeconds;
+
+        if (bytesReceived < _speedSampleBytes)
+        {
+            SetSpeedSample(now, bytesReceived);
+            ClearSpeedEstimate();
+            return;
+        }
 
         if (elapsed < SpeedSampleSeconds)
             return;
 
-        double instantaneous =
-            Math.Max(0, _bytesReceived - _speedSampleBytes) /
-            elapsed;
+        long bytesTransferred = bytesReceived - _speedSampleBytes;
 
-        _bytesPerSecond =
-            _bytesPerSecond <= 0
-                ? instantaneous
-                : _bytesPerSecond * (1 - SpeedSmoothing) +
-                  instantaneous * SpeedSmoothing;
+        if (elapsed > MaxSpeedSampleIntervalSeconds || bytesTransferred == 0)
+        {
+            SetSpeedSample(now, bytesReceived);
+            ClearSpeedEstimate();
+            return;
+        }
 
-        _speedSampleTimestamp = now;
-        _speedSampleBytes = _bytesReceived;
+        double instantaneousSpeed = bytesTransferred / elapsed;
+
+        if (!double.IsFinite(instantaneousSpeed) || instantaneousSpeed <= 0)
+        {
+            SetSpeedSample(now, bytesReceived);
+            ClearSpeedEstimate();
+            return;
+        }
+
+        _bytesPerSecond = _bytesPerSecond <= 0
+            ? instantaneousSpeed
+            : _bytesPerSecond * (1 - SpeedSmoothing) +
+              instantaneousSpeed * SpeedSmoothing;
+
+        SetSpeedSample(now, bytesReceived);
 
         OnPropertyChanged(nameof(Status));
+    }
+
+    private void SetSpeedSample(long timestamp, long bytesReceived)
+    {
+        _speedSampleTimestamp = timestamp;
+        _speedSampleBytes = bytesReceived;
+    }
+
+    private void ClearSpeedEstimate()
+    {
+        if (_bytesPerSecond <= 0)
+            return;
+
+        _bytesPerSecond = 0;
+        OnPropertyChanged(nameof(Status));
+    }
+
+    private void ResetSpeedTracking()
+    {
+        _speedSampleTimestamp = 0;
+        _speedSampleBytes = 0;
+        _bytesPerSecond = 0;
     }
 
     private bool TryBuildDownloadingStatus(out string text)
@@ -293,31 +328,38 @@ public sealed class DownloadItem : INotifyPropertyChanged
         text = string.Empty;
 
         long total = TotalBytesToReceive;
-        long received = Math.Clamp(BytesReceived, 0, total);
 
-        if (total <= 0 || _bytesPerSecond <= 0)
+        if (total <= 0 || _bytesPerSecond <= 0 || !double.IsFinite(_bytesPerSecond))
             return false;
 
-        double secondsLeft =
-            (total - received) / _bytesPerSecond;
+        long received = Math.Clamp(BytesReceived, 0, total);
+        long remainingBytes = total - received;
 
-        secondsLeft = Math.Min(
-            Math.Ceiling(secondsLeft),
-            TimeSpan.FromDays(3650).TotalSeconds);
+        double estimatedSeconds = remainingBytes / _bytesPerSecond;
 
-        int remainingSeconds = (int)secondsLeft;
+        if (!double.IsFinite(estimatedSeconds))
+            estimatedSeconds = MaxEstimatedSeconds;
+
+        int remainingSeconds = (int)Math.Clamp(
+            Math.Ceiling(estimatedSeconds),
+            0,
+            MaxEstimatedSeconds);
 
         int count;
         Enums.TimeUnit unit;
 
-        if (remainingSeconds >= 3600)
+        if (remainingSeconds >= SecondsBeforeRoundingToHours)
         {
-            count = (int)Math.Ceiling(remainingSeconds / 3600d);
+            count = Math.Max(
+                1,
+                (int)Math.Round(remainingSeconds / (double)SecondsPerHour, MidpointRounding.AwayFromZero));
             unit = Enums.TimeUnit.Hour;
         }
-        else if (remainingSeconds >= 60)
+        else if (remainingSeconds >= SecondsPerMinute)
         {
-            count = (int)Math.Ceiling(remainingSeconds / 60d);
+            count = Math.Max(
+                1,
+                (int)Math.Round(remainingSeconds / (double)SecondsPerMinute, MidpointRounding.AwayFromZero));
             unit = Enums.TimeUnit.Minute;
         }
         else
@@ -328,13 +370,18 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
         string timeRemaining = Helpers.FormatTimeRemaining(count, unit);
 
+        long displaySpeed = _bytesPerSecond >= long.MaxValue
+            ? long.MaxValue
+            : Math.Max(1, (long)Math.Round(
+                _bytesPerSecond,
+                MidpointRounding.AwayFromZero));
+
         text = string.Format(
             CultureInfo.CurrentCulture,
-            LocalizerExtensions.GetLocalizedString(
-                "DownloadStatusFormat"),
+            LocalizerExtensions.GetLocalizedString(DownloadingStatusKey),
             Helpers.FormatFileSize(received),
             Helpers.FormatFileSize(total),
-            Helpers.FormatFileSize((long)_bytesPerSecond),
+            Helpers.FormatFileSize(displaySpeed),
             timeRemaining);
 
         return true;
@@ -346,34 +393,36 @@ public sealed class DownloadItem : INotifyPropertyChanged
             return;
 
         _state = Operation.State;
+        _bytesReceived = Math.Max(0, Operation.BytesReceived);
+        _totalBytesToReceive = Math.Max(0, Operation.TotalBytesToReceive);
 
-        _bytesReceived = Operation.BytesReceived;
-        _totalBytesToReceive =
-            Operation.TotalBytesToReceive;
-
-        switch (Operation.State)
+        switch (_state)
         {
             case CoreWebView2DownloadState.InProgress:
-                SetStatus(
-                    DownloadingStatusKey);
+                if (_totalBytesToReceive > 0)
+                {
+                    IsIndeterminate = false;
+                    Progress = CalculateProgress(_bytesReceived, _totalBytesToReceive);
+                }
+                else
+                {
+                    IsIndeterminate = true;
+                }
+
+                SetStatus(DownloadingStatusKey);
                 break;
 
             case CoreWebView2DownloadState.Completed:
                 Progress = 100;
                 IsIndeterminate = false;
-
-                SetStatus(
-                    "DownloadStatusCompleted");
+                SetStatus(CompletedStatusKey);
                 break;
 
             case CoreWebView2DownloadState.Interrupted:
                 IsIndeterminate = false;
 
-                if (StatusKey != "DownloadStatusCanceled")
-                {
-                    SetStatus(
-                        "DownloadStatusInterrupted");
-                }
+                if (StatusKey != CanceledStatusKey)
+                    SetStatus(InterruptedStatusKey);
 
                 break;
         }
@@ -384,22 +433,13 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
     public void MarkCompleted()
     {
-        _state =
-            CoreWebView2DownloadState.Completed;
-
-        _bytesReceived =
-            Operation?.BytesReceived ??
-            _bytesReceived;
-
-        _totalBytesToReceive =
-            Operation?.TotalBytesToReceive ??
-            _totalBytesToReceive;
+        _state = CoreWebView2DownloadState.Completed;
+        _bytesReceived = Math.Max(0, Operation?.BytesReceived ?? _bytesReceived);
+        _totalBytesToReceive = Math.Max(0, Operation?.TotalBytesToReceive ?? _totalBytesToReceive);
 
         Progress = 100;
         IsIndeterminate = false;
-
-        SetStatus(
-            "DownloadStatusCompleted");
+        SetStatus(CompletedStatusKey);
 
         OnPropertyChanged(nameof(State));
         OnPropertyChanged(nameof(MainButtonGlyph));
@@ -407,11 +447,9 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
     public void MarkCanceled()
     {
-        _state =
-            CoreWebView2DownloadState.Interrupted;
-
-        SetStatus(
-            "DownloadStatusCanceled");
+        _state = CoreWebView2DownloadState.Interrupted;
+        IsIndeterminate = false;
+        SetStatus(CanceledStatusKey);
 
         OnPropertyChanged(nameof(State));
         OnPropertyChanged(nameof(MainButtonGlyph));
@@ -434,21 +472,17 @@ public sealed class DownloadItem : INotifyPropertyChanged
             if (!File.Exists(filePath))
                 return;
 
-            var file =
-                await StorageFile.GetFileFromPathAsync(
-                    filePath);
+            StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);
 
-            using var stream =
-                await file.GetThumbnailAsync(
-                    Windows.Storage.FileProperties.ThumbnailMode.SingleItem,
-                    32,
-                    Windows.Storage.FileProperties.ThumbnailOptions.ResizeThumbnail);
+            using var stream = await file.GetThumbnailAsync(
+                Windows.Storage.FileProperties.ThumbnailMode.SingleItem,
+                32,
+                Windows.Storage.FileProperties.ThumbnailOptions.ResizeThumbnail);
 
             if (stream is null)
                 return;
 
             var bitmap = new BitmapImage();
-
             await bitmap.SetSourceAsync(stream);
 
             Icon = bitmap;

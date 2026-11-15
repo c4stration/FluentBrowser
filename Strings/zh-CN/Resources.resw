@@ -710,7 +710,7 @@
     <value>{count, plural, other {{count, number}天前}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>已下载 {0}，共 {1}（{2}/s）– {3}</value>
+    <value>已下载 {0}，共 {1}（{2}/秒）– {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>剩余{0}</value>

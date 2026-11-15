@@ -722,7 +722,7 @@
     <value>{count, plural, one {לפני יום אחד} two {לפני יומיים} other {לפני {count, number} ימים}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{0} מתוך {1} ({2}/s) – {3}</value>
+    <value>{0} מתוך {1} ({2}/שנ׳) – {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>זמן שנותר: {0}</value>

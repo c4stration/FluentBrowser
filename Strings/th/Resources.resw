@@ -720,7 +720,7 @@
     <value>{count, plural, other {{count, number} วันที่แล้ว}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{0} จาก {1} ({2}/s) – {3}</value>
+    <value>{0} จาก {1} ({2}/วิ) – {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>เหลือ {0}</value>
