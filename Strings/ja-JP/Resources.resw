@@ -710,19 +710,19 @@
     <value>{count, plural, other {{count, number}日前}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{1}中{0}をダウンロード済み（{2}/秒）、{3}</value>
+    <value>{0}/{1}（{2}/秒）– {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
-    <value>残り{0}</value>
+    <value>あと{0}</value>
   </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
-    <value>{count, plural, other {残り#秒}}</value>
+    <value>{count, plural, other {あと # 秒}}</value>
   </data>
   <data name="MinutesLeftFormat" xml:space="preserve">
-    <value>{count, plural, other {残り#分}}</value>
+    <value>{count, plural, other {あと # 分}}</value>
   </data>
   <data name="HoursLeftFormat" xml:space="preserve">
-    <value>{count, plural, other {残り#時間}}</value>
+    <value>{count, plural, other {あと # 時間}}</value>
   </data>
   <data name="RiskyDownloadTitle" xml:space="preserve">
     <value>リスクのある可能性があるダウンロード</value>
