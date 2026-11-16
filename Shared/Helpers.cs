@@ -62,21 +62,53 @@ public static class Helpers
             _ => throw new ArgumentOutOfRangeException(nameof(unit))
         };
 
-        var pattern = LocalizerExtensions.GetLocalizedString(key);
-        var culture = GetCurrentCulture();
-
-        var formatter = new MessageFormatter(culture.Name);
-
-        return formatter.FormatMessage(
-            pattern,
-            new { count }
-        );
+        return FormatPlural(key, count);
     }
 
-    public static CultureInfo GetCurrentCulture()
+    private sealed record LocalizationCache(
+        string Language,
+        CultureInfo Culture,
+        MessageFormatter Formatter);
+
+    private static volatile LocalizationCache? _localizationCache;
+
+    private static LocalizationCache GetLocalizationCache()
     {
         string language = Localizer.Get().GetCurrentLanguage();
 
+        LocalizationCache? cache = _localizationCache;
+
+        if (cache is not null && cache.Language == language)
+            return cache;
+
+        CultureInfo culture = ResolveCulture(language);
+
+        cache = new LocalizationCache(
+            language,
+            culture,
+            new MessageFormatter(culture.Name));
+
+        _localizationCache = cache;
+
+        return cache;
+    }
+
+    private static string FormatPlural(string resourceKey, int count)
+    {
+        string pattern = LocalizerExtensions.GetLocalizedString(resourceKey);
+        MessageFormatter formatter = GetLocalizationCache().Formatter;
+
+        lock (formatter)
+        {
+            return formatter.FormatMessage(pattern, new { count });
+        }
+    }
+
+    public static CultureInfo GetCurrentCulture() =>
+        GetLocalizationCache().Culture;
+
+    private static CultureInfo ResolveCulture(string language)
+    {
         string cultureName = language switch
         {
             "ar" => "ar",
@@ -107,11 +139,7 @@ public static class Helpers
 
     public static string FormatDaysAgo(int days)
     {
-        string pattern = LocalizerExtensions.GetLocalizedString("DaysAgoFormat");
-        CultureInfo culture = GetCurrentCulture();
-        var formatter = new MessageFormatter(culture.Name);
-
-        return formatter.FormatMessage(pattern, new { count = days });
+        return FormatPlural("DaysAgoFormat", days);
     }
 
     public static string? FormatDate(string? value)

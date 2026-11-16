@@ -741,4 +741,13 @@
   <data name="Keep" xml:space="preserve">
     <value>الاحتفاظ</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>الخصوصية</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>الحماية من التتبّع ببصمة المتصفح</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>امنع المواقع الإلكترونية من التعرّف على جهازك بشكل فريد عن طريق الحد من المعلومات التي يمكنها جمعها حول متصفحك ونظامك</value>
+  </data>
 </root>

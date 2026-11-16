@@ -25,7 +25,6 @@
             Visibility="Visible">
             <StackPanel>
                 <StackPanel HorizontalAlignment="Stretch" Spacing="3">
-                    <!--  App Theme  -->
                     <TextBlock
                         Margin="0,5,0,8"
                         l:Uids.Uid="AppearanceSection"
@@ -384,7 +383,7 @@
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
                     <controls:SettingsCard l:Uids.Uid="FullWebAddress">
                         <controls:SettingsCard.HeaderIcon>
-                            <PathIcon Data="{StaticResource CopyPath}" />
+                            <PathIcon Data="{StaticResource CopyPath}" FlowDirection="LeftToRight" />
                         </controls:SettingsCard.HeaderIcon>
                         <ToggleSwitch
                             x:Name="FullWebAddressToggle"
@@ -434,6 +433,22 @@
                             l:Uids.Uid="General_ToggleSwitch"
                             Toggled="AskEveryDownload_Toggled" />
                     </controls:SettingsCard>
+
+                    <TextBlock
+                        Margin="0,29,0,8"
+                        l:Uids.Uid="PrivacySection"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                    <controls:SettingsCard l:Uids.Uid="FingerprintingProtection">
+                        <controls:SettingsCard.HeaderIcon>
+                            <PathIcon
+                                Data="{StaticResource FingerprintingProtection}"
+                                FlowDirection="LeftToRight"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                        </controls:SettingsCard.HeaderIcon>
+                        <ToggleSwitch x:Name="FingerprintingProtectionToggleSwitch" l:Uids.Uid="General_ToggleSwitch" />
+                    </controls:SettingsCard>
+
                     <TextBlock
                         Margin="0,29,0,8"
                         l:Uids.Uid="AdvancedSection"
@@ -453,7 +468,10 @@
                     </controls:SettingsCard>
                     <controls:SettingsCard x:Name="FaviconCacheCard" l:Uids.Uid="FaviconCache">
                         <controls:SettingsCard.HeaderIcon>
-                            <PathIcon Data="{StaticResource FaviconCache}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                            <PathIcon
+                                Data="{StaticResource FaviconCache}"
+                                FlowDirection="LeftToRight"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
                         </controls:SettingsCard.HeaderIcon>
                         <Button Click="ClearFaviconCacheButton_Click">
                             <Grid>

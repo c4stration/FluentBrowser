@@ -733,4 +733,13 @@
   <data name="Keep" xml:space="preserve">
     <value>保留</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>隐私</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>浏览器指纹防护</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>限制网站收集有关浏览器和系统的信息，防止网站识别出您的设备</value>
+  </data>
 </root>

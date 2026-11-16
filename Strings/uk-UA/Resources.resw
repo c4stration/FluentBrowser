@@ -744,4 +744,13 @@
   <data name="Keep" xml:space="preserve">
     <value>Залишити</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>Конфіденційність</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>Захист від браузерного фінгерпринтингу</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>Не дозволяйте вебсайтам однозначно ідентифікувати ваш пристрій, обмежуючи збір інформації про браузер і систему</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
 using FluentBrowser.Shared;
 using MessagePack;
 using MessagePack.Resolvers;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
@@ -93,7 +94,7 @@ public sealed partial class MainWindow
 
                     if (item is not null)
                     {
-                        Downloads.Remove(item);
+                        RemoveDownload(item);
                         UpdateDownloadIconVisibility();
                         await SaveDownloadHistoryAsync();
                     }
@@ -113,156 +114,254 @@ public sealed partial class MainWindow
 
         core.DownloadStarting += async (_, args) =>
         {
-            if (_downloadNavigations.TryGetValue(
-                    webView,
-                    out DownloadNavigation? navigation))
-            {
-                navigation.DownloadStarted = true;
-            }
-
-            args.Handled = true;
-
-            var download = args.DownloadOperation;
-
-            string fileName =
-                Path.GetFileName(args.ResultFilePath);
-
-            var item = new DownloadItem(
-                download,
-                fileName,
-                args.ResultFilePath,
-                download.State,
-                download.BytesReceived,
-                download.TotalBytesToReceive);
-
-            _downloadIconActivated = true;
-
-            Downloads.Insert(0, item);
-            UpdateDownloadIconVisibility();
-
-            await SaveDownloadHistoryAsync();
-
-            await item.LoadIconAsync(download.ResultFilePath);
-
-            download.BytesReceivedChanged += (_, _) =>
-            {
-                DispatcherQueue.TryEnqueue(async () =>
-                {
-                    item.UpdateProgress();
-                    UpdateTaskbarDownloadProgress();
-                    UpdateDownloadProgressRing();
-
-                    if (download.TotalBytesToReceive > 0 &&
-                        download.BytesReceived >=
-                            download.TotalBytesToReceive &&
-                        item.State ==
-                            CoreWebView2DownloadState.InProgress)
-                    {
-                        item.MarkCompleted();
-
-                        await item.LoadIconAsync(
-                            download.ResultFilePath);
-
-                        UpdateDownloadIconVisibility();
-                        await SaveDownloadHistoryAsync();
-                    }
-                });
-            };
-
-            download.StateChanged += (_, _) =>
-            {
-                DispatcherQueue.TryEnqueue(async () =>
-                {
-                    item.UpdateState();
-                    UpdateTaskbarDownloadProgress();
-                    UpdateDownloadProgressRing();
-
-                    switch (download.State)
-                    {
-                        case CoreWebView2DownloadState.Completed:
-                            await item.LoadIconAsync(
-                                download.ResultFilePath);
-
-                            UpdateDownloadIconVisibility();
-                            break;
-
-                        case CoreWebView2DownloadState.Interrupted:
-                            UpdateDownloadIconVisibility();
-                            break;
-                    }
-
-                    await SaveDownloadHistoryAsync();
-                });
-            };
-
-            var settings =
-                ApplicationData.Current.LocalSettings;
-
-            bool askEveryDownload =
-                settings.Values["AskEveryDownload"] as bool?
-                ?? false;
-
-            if (!askEveryDownload)
-                return;
-
             var deferral = args.GetDeferral();
+            DownloadItem? item = null;
 
             try
             {
-                string suggestedFileName =
-                    Path.GetFileName(args.ResultFilePath);
-
-                string extension =
-                    Path.GetExtension(suggestedFileName);
-
-                if (string.IsNullOrWhiteSpace(extension))
-                    extension = ".download";
-
-                var picker = new FileSavePicker();
-
-                picker.FileTypeChoices.Add(
-                    extension.ToUpperInvariant(),
-                    new List<string> { extension });
-
-                picker.SuggestedFileName =
-                    suggestedFileName;
-
-                InitializeWithWindow.Initialize(
-                    picker,
-                    GetWindowHandle());
-
-                StorageFile? file =
-                    await picker.PickSaveFileAsync();
-
-                if (file is null)
+                if (_downloadNavigations.TryGetValue(
+                        webView,
+                        out DownloadNavigation? navigation))
                 {
-                    args.Cancel = true;
-                    Downloads.Remove(item);
-                    UpdateDownloadIconVisibility();
-                    return;
+                    navigation.DownloadStarted = true;
                 }
 
-                File.Delete(file.Path);
-
-                args.ResultFilePath = file.Path;
                 args.Handled = true;
 
-                item.FileName = file.Name;
+                var download = args.DownloadOperation;
+
+                string fileName =
+                    Path.GetFileName(args.ResultFilePath);
+
+                item = new DownloadItem(
+                    download,
+                    fileName,
+                    args.ResultFilePath,
+                    download.State,
+                    download.BytesReceived,
+                    download.TotalBytesToReceive);
+
+                _downloadIconActivated = true;
+
+                AttachDownloadHandlers(item, download);
+
+                Downloads.Insert(0, item);
+                UpdateDownloadIconVisibility();
+
+                bool askEveryDownload =
+                    ApplicationData.Current.LocalSettings
+                        .Values["AskEveryDownload"] as bool?
+                    ?? false;
+
+                if (askEveryDownload)
+                {
+                    string suggestedFileName =
+                        Path.GetFileName(args.ResultFilePath);
+
+                    string extension =
+                        Path.GetExtension(suggestedFileName);
+
+                    if (string.IsNullOrWhiteSpace(extension))
+                        extension = ".download";
+
+                    var picker = new FileSavePicker();
+
+                    picker.FileTypeChoices.Add(
+                        extension.ToUpperInvariant(),
+                        new List<string> { extension });
+
+                    picker.SuggestedFileName =
+                        suggestedFileName;
+
+                    InitializeWithWindow.Initialize(
+                        picker,
+                        GetWindowHandle());
+
+                    StorageFile? file =
+                        await picker.PickSaveFileAsync();
+
+                    if (file is null)
+                    {
+                        args.Cancel = true;
+
+                        RemoveDownload(item);
+                        item = null;
+
+                        UpdateDownloadIconVisibility();
+                    }
+                    else
+                    {
+                        File.Delete(file.Path);
+
+                        args.ResultFilePath = file.Path;
+                        args.Handled = true;
+
+                        item.FileName = file.Name;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(
-                    $"Download picker failed: {ex}");
+                    $"Download start failed: {ex}");
 
                 args.Cancel = true;
-                Downloads.Remove(item);
+
+                if (item is not null)
+                {
+                    RemoveDownload(item);
+                    item = null;
+                }
+
                 UpdateDownloadIconVisibility();
             }
             finally
             {
                 deferral.Complete();
             }
+
+            await SaveDownloadHistoryAsync();
+
+            if (item is not null)
+                await item.LoadIconAsync(item.FilePath);
         };
+    }
+
+    private void AttachDownloadHandlers(
+        DownloadItem item,
+        CoreWebView2DownloadOperation download)
+    {
+        DispatcherQueueTimer timer = DispatcherQueue.CreateTimer();
+        timer.Interval = TimeSpan.FromSeconds(1);
+        timer.IsRepeating = true;
+
+        bool detached = false;
+
+        Windows.Foundation.TypedEventHandler<
+            DispatcherQueueTimer, object>? onTick = null;
+
+        Windows.Foundation.TypedEventHandler<
+            CoreWebView2DownloadOperation, object>?
+            onBytesReceivedChanged = null;
+
+        Windows.Foundation.TypedEventHandler<
+            CoreWebView2DownloadOperation, object>?
+            onStateChanged = null;
+
+        void OnTick(DispatcherQueueTimer sender, object args)
+        {
+            if (detached ||
+                item.State != CoreWebView2DownloadState.InProgress)
+            {
+                return;
+            }
+
+            item.UpdateProgress();
+        }
+
+        void OnBytesReceivedChanged(
+            CoreWebView2DownloadOperation sender,
+            object? args)
+        {
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                if (detached)
+                    return;
+
+                item.UpdateProgress();
+                UpdateTaskbarDownloadProgress();
+                UpdateDownloadProgressRing();
+
+                if (download.TotalBytesToReceive > 0 &&
+                    download.BytesReceived >=
+                        download.TotalBytesToReceive &&
+                    item.State ==
+                        CoreWebView2DownloadState.InProgress)
+                {
+                    item.MarkCompleted();
+
+                    await item.LoadIconAsync(
+                        download.ResultFilePath);
+
+                    UpdateDownloadIconVisibility();
+                    await SaveDownloadHistoryAsync();
+                }
+            });
+        }
+
+        void OnStateChanged(
+            CoreWebView2DownloadOperation sender,
+            object? args)
+        {
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                if (detached)
+                    return;
+
+                item.UpdateState();
+                UpdateTaskbarDownloadProgress();
+                UpdateDownloadProgressRing();
+
+                CoreWebView2DownloadState state = download.State;
+
+                switch (state)
+                {
+                    case CoreWebView2DownloadState.Completed:
+                        await item.LoadIconAsync(
+                            download.ResultFilePath);
+
+                        UpdateDownloadIconVisibility();
+                        break;
+
+                    case CoreWebView2DownloadState.Interrupted:
+                        UpdateDownloadIconVisibility();
+                        break;
+                }
+
+                await SaveDownloadHistoryAsync();
+
+                if (state != CoreWebView2DownloadState.InProgress)
+                    Detach();
+            });
+        }
+
+        void Detach()
+        {
+            if (detached)
+                return;
+
+            detached = true;
+
+            timer.Stop();
+            timer.Tick -= onTick;
+            download.BytesReceivedChanged -= onBytesReceivedChanged;
+            download.StateChanged -= onStateChanged;
+        }
+
+        onTick = OnTick;
+        onBytesReceivedChanged = OnBytesReceivedChanged;
+        onStateChanged = OnStateChanged;
+
+        timer.Tick += onTick;
+        download.BytesReceivedChanged += onBytesReceivedChanged;
+        download.StateChanged += onStateChanged;
+
+        item.RegisterCleanup(Detach);
+
+        if (download.State == CoreWebView2DownloadState.InProgress)
+        {
+            timer.Start();
+        }
+        else
+        {
+            OnStateChanged(download, null);
+        }
+    }
+
+    private void RemoveDownload(DownloadItem item)
+    {
+        item.Cleanup();
+        Downloads.Remove(item);
     }
 
     private void ApplyDownloadSettings(
@@ -458,7 +557,7 @@ public sealed partial class MainWindow
         }
         else
         {
-            Downloads.Remove(item);
+            RemoveDownload(item);
 
             UpdateDownloadIconVisibility();
 
@@ -566,9 +665,6 @@ public sealed partial class MainWindow
             return;
         }
 
-        // A percentage is only honest when every active download has a known
-        // size. Do not alternate between individual items while waiting for a
-        // response that does not provide Content-Length.
         if (activeDownloads.Any(item => item.TotalBytesToReceive <= 0))
         {
             DownloadProgress.IsIndeterminate = true;
@@ -608,7 +704,7 @@ public sealed partial class MainWindow
         if (sender is MenuFlyoutItem menuItem &&
             menuItem.DataContext is DownloadItem item)
         {
-            Downloads.Remove(item);
+            RemoveDownload(item);
             UpdateDownloadIconVisibility();
 
             await SaveDownloadHistoryAsync();
@@ -627,7 +723,7 @@ public sealed partial class MainWindow
                 .ToList();
 
         foreach (DownloadItem item in downloadsToClear)
-            Downloads.Remove(item);
+            RemoveDownload(item);
 
         UpdateDownloadIconVisibility();
 

@@ -743,4 +743,13 @@
   <data name="Keep" xml:space="preserve">
     <value>เก็บ</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>ความเป็นส่วนตัว</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>การป้องกันการระบุตัวตนผ่านลายนิ้วมือเบราว์เซอร์</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>ป้องกันไม่ให้เว็บไซต์ระบุอุปกรณ์ของคุณได้อย่างเฉพาะเจาะจง โดยจำกัดข้อมูลที่เว็บไซต์สามารถรวบรวมเกี่ยวกับเบราว์เซอร์และระบบของคุณ</value>
+  </data>
 </root>

@@ -710,7 +710,7 @@
     <value>{count, plural, other {{count, number}日前}}</value>
   </data>
   <data name="DownloadStatusFormat" xml:space="preserve">
-    <value>{0}/{1}（{2}/秒）– {3}</value>
+    <value>{0}/{1}（{2}/秒）–  {3}</value>
   </data>
   <data name="TimeRemaining" xml:space="preserve">
     <value>あと{0}</value>
@@ -732,5 +732,14 @@
   </data>
   <data name="Keep" xml:space="preserve">
     <value>保持する</value>
+  </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>プライバシー</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>ブラウザーのフィンガープリント対策</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>ウェブサイトがブラウザーやシステムに関する情報を収集できる範囲を制限し、デバイスを特定されにくくします</value>
   </data>
 </root>

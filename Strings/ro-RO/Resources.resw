@@ -729,4 +729,13 @@
   <data name="Keep" xml:space="preserve">
     <value>Păstrează</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>Confidențialitate</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>Protecție împotriva amprentării browserului</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>Împiedică site-urile web să îți identifice în mod unic dispozitivul, limitând informațiile pe care le pot colecta despre browserul și sistemul tău</value>
+  </data>
 </root>

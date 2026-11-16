@@ -24,7 +24,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
     private const string LegacyDownloadingStatusKey = "DownloadStatusDownloading";
 
     private const double SpeedSampleSeconds = 0.5;
-    private const double MaxSpeedSampleIntervalSeconds = 3;
+    private const double StallSeconds = 3;
     private const double SpeedSmoothing = 0.3;
     private const int SecondsPerMinute = 60;
     private const int SecondsPerHour = 60 * SecondsPerMinute;
@@ -41,6 +41,8 @@ public sealed class DownloadItem : INotifyPropertyChanged
     private long _speedSampleTimestamp;
     private long _speedSampleBytes;
     private double _bytesPerSecond;
+    private bool _stalled;
+    private Action? _cleanup;
     private long _bytesReceived;
     private long _totalBytesToReceive;
     private ImageSource? _icon;
@@ -259,10 +261,6 @@ public sealed class DownloadItem : INotifyPropertyChanged
             return;
         }
 
-        double elapsed = Stopwatch.GetElapsedTime(
-            _speedSampleTimestamp,
-            now).TotalSeconds;
-
         if (bytesReceived < _speedSampleBytes)
         {
             SetSpeedSample(now, bytesReceived);
@@ -270,15 +268,31 @@ public sealed class DownloadItem : INotifyPropertyChanged
             return;
         }
 
+        double elapsed = Stopwatch.GetElapsedTime(
+            _speedSampleTimestamp,
+            now).TotalSeconds;
+
         if (elapsed < SpeedSampleSeconds)
             return;
 
         long bytesTransferred = bytesReceived - _speedSampleBytes;
 
-        if (elapsed > MaxSpeedSampleIntervalSeconds || bytesTransferred == 0)
+        if (bytesTransferred == 0)
         {
+            if (elapsed >= StallSeconds)
+            {
+                SetSpeedSample(now, bytesReceived);
+                _stalled = true;
+                ClearSpeedEstimate();
+            }
+
+            return;
+        }
+
+        if (_stalled)
+        {
+            _stalled = false;
             SetSpeedSample(now, bytesReceived);
-            ClearSpeedEstimate();
             return;
         }
 
@@ -321,6 +335,19 @@ public sealed class DownloadItem : INotifyPropertyChanged
         _speedSampleTimestamp = 0;
         _speedSampleBytes = 0;
         _bytesPerSecond = 0;
+        _stalled = false;
+    }
+
+    public void RegisterCleanup(Action cleanup)
+    {
+        _cleanup = cleanup;
+    }
+
+    public void Cleanup()
+    {
+        Action? cleanup = _cleanup;
+        _cleanup = null;
+        cleanup?.Invoke();
     }
 
     private bool TryBuildDownloadingStatus(out string text)
@@ -342,7 +369,7 @@ public sealed class DownloadItem : INotifyPropertyChanged
 
         int remainingSeconds = (int)Math.Clamp(
             Math.Ceiling(estimatedSeconds),
-            0,
+            1,
             MaxEstimatedSeconds);
 
         int count;

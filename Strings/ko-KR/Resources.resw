@@ -729,4 +729,13 @@
   <data name="Keep" xml:space="preserve">
     <value>유지</value>
   </data>
+  <data name="PrivacySection.Text" xml:space="preserve">
+    <value>개인정보 보호</value>
+  </data>
+  <data name="FingerprintingProtection.Header" xml:space="preserve">
+    <value>브라우저 핑거프린팅 방지</value>
+  </data>
+  <data name="FingerprintingProtection.Description" xml:space="preserve">
+    <value>웹사이트가 브라우저와 시스템에 관한 정보를 수집할 수 있는 범위를 제한하여 기기를 고유하게 식별하지 못하도록 합니다</value>
+  </data>
 </root>
