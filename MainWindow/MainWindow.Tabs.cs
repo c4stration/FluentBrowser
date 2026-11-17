@@ -320,6 +320,8 @@ public sealed partial class MainWindow
                 UpdateNavigationButtons();
                 UpdateZoomControls(GetZoomPercentage(selectedWebView));
 
+                _ = RefreshFingerprintingProtectionAsync(tab);
+
                 if (tab.ErrorPage is null &&
                     selectedWebView.CoreWebView2 is { } core)
                 {
@@ -1003,6 +1005,11 @@ public sealed partial class MainWindow
                 _selectedSuggestionTarget = null;
                 _suggestionWasChosen = false;
             }
+        };
+
+        settingsPage.FingerprintingProtectionChanged += async (_, _) =>
+        {
+            await ApplyFingerprintingProtectionAsync();
         };
 
         settingsPage.SearchEngineChanged += (_, _) =>

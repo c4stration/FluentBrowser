@@ -72,6 +72,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     public event EventHandler? FullWebAddressChanged;
     public event EventHandler? SearchSuggestionsChanged;
     public event EventHandler? SearchEngineChanged;
+    public event EventHandler? FingerprintingProtectionChanged;
     private readonly SemaphoreSlim _extensionLoadLock = new(1, 1);
     private int _extensionLoadVersion;
 
@@ -104,6 +105,8 @@ public sealed partial class SettingsPage : Page, IDisposable
         _loadingSettings = true;
 
         AddExtensionButton.Click += AddExtensionButton_Click;
+        FingerprintingProtectionToggleSwitch.Toggled +=
+            FingerprintingProtectionToggleSwitch_Toggled;
 
         LoadTheme();
         LoadWebTheme();
@@ -115,6 +118,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadAddressBarAlignment();
         LoadNewTabPosition();
         LoadFullWebAddress();
+        LoadFingerprintingProtection();
         LoadCustomSites();
         LoadStartupBehavior();
         LoadSearchSuggestions();
@@ -309,6 +313,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         FullWebAddressChanged = null;
         SearchSuggestionsChanged = null;
         SearchEngineChanged = null;
+        FingerprintingProtectionChanged = null;
     }
 
     private void OnLanguageChanged(
@@ -797,6 +802,25 @@ public sealed partial class SettingsPage : Page, IDisposable
             FullWebAddressToggle.IsOn;
 
         FullWebAddressChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadFingerprintingProtection()
+    {
+        FingerprintingProtectionToggleSwitch.IsOn =
+            _settings.Values["FingerprintingProtection"] as bool? ?? false;
+    }
+
+    private void FingerprintingProtectionToggleSwitch_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values["FingerprintingProtection"] =
+            FingerprintingProtectionToggleSwitch.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void LoadSearchSuggestions()

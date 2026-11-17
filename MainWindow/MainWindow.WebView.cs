@@ -530,6 +530,10 @@ public sealed partial class MainWindow
             if (webView.CoreWebView2 is not { } core)
                 return;
 
+            // Start as early as possible; the navigation paths below await
+            // the same (idempotent) call before the first navigation.
+            _ = _fingerprintingProtection.AttachAsync(core);
+
             ApplyDownloadSettings(core.Profile);
 
             _browserProfile = core.Profile;
@@ -770,7 +774,12 @@ public sealed partial class MainWindow
             App.WebViewEnvironment);
 
         if (webView.CoreWebView2 is { } core)
+        {
+            // Must complete before the first navigation.
+            await _fingerprintingProtection.AttachAsync(core);
+
             await ConfigureWebMessageHandlingAsync(webView, core);
+        }
 
         await EnableLoadProgressTrackingAsync(webView);
 
