@@ -723,9 +723,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} из {1} ({2}/с) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>осталось {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# секунда осталась} few {# секунды остались} many {# секунд осталось} other {# секунды осталось}}</value>
   </data>
@@ -752,5 +749,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Не позволяйте веб-сайтам однозначно идентифицировать ваше устройство, ограничивая сбор информации о браузере и системе</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Подмена часового пояса</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>Этот показатель можно использовать для определения вашего примерного местоположения, особенно если вы живёте в часовом поясе, которым пользуется мало других людей</value>
   </data>
 </root>

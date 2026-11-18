@@ -708,9 +708,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} din {1} ({2}/s) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>timp rămas: {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# secundă rămasă} few {# secunde rămase} other {# de secunde rămase}}</value>
   </data>
@@ -737,5 +734,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Împiedică site-urile web să îți identifice în mod unic dispozitivul, limitând informațiile pe care le pot colecta despre browserul și sistemul tău</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Falsificarea fusului orar</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>Această valoare poate fi utilizată pentru a determina locația ta aproximativă, în special dacă locuiești într-un fus orar cu puțini alți utilizatori</value>
   </data>
 </root>

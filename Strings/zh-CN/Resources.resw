@@ -712,9 +712,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>已下载 {0}，共 {1}（{2}/秒）– {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>剩余{0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, other {还剩 # 秒}}</value>
   </data>
@@ -741,5 +738,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>限制网站收集有关浏览器和系统的信息，防止网站识别出您的设备</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>时区伪装</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>此指标可用于推测您的大致地理位置，尤其是当您居住在使用人数较少的时区时</value>
   </data>
 </root>

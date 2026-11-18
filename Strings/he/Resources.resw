@@ -724,9 +724,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} מתוך {1} ({2}/שנ׳) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>זמן שנותר: {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# שנייה נותרה} two {# שניות נותרו} other {# שניות נותרו}}</value>
   </data>
@@ -753,5 +750,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>מנע מאתרים לזהות את המכשיר שלך באופן ייחודי על ידי הגבלת המידע שהם יכולים לאסוף על הדפדפן והמערכת שלך</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>זיוף אזור הזמן</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>ניתן להשתמש במדד הזה כדי לזהות את מיקומך הכללי, במיוחד אם אתה גר באזור זמן שבו אין משתמשים רבים אחרים</value>
   </data>
 </root>

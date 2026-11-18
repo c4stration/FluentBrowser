@@ -140,6 +140,8 @@ public sealed partial class SettingsPage : Page, IDisposable
         UpdateSystemLanguageInfoBar();
         LoadFaviconCacheDescription();
 
+        _ = LoadTimezonesAsync();
+
         MathFontPreviewControl.MathML = """
             <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
               <semantics>
@@ -403,6 +405,115 @@ public sealed partial class SettingsPage : Page, IDisposable
 
             break;
         }
+    }
+
+    private async Task LoadTimezonesAsync()
+    {
+        // Show the saved value immediately; the list loads asynchronously.
+        TimezoneComboBox.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+
+        if (_mainWindow is null)
+            return;
+
+        try
+        {
+            List<string> timezones =
+                (await _mainWindow.GetSupportedTimezonesAsync()).ToList();
+
+            if (_isDisposed)
+                return;
+
+            string selected = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+
+            // Keep a saved id that is not in the list (e.g. an alias of a
+            // listed zone) selectable instead of silently resetting it.
+            string? match = timezones.FirstOrDefault(timezone =>
+                string.Equals(
+                    timezone,
+                    selected,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (match is null)
+            {
+                timezones.Insert(0, selected);
+                match = selected;
+            }
+
+            bool wasLoading = _loadingSettings;
+            _loadingSettings = true;
+
+            try
+            {
+                TimezoneComboBox.ItemsSource = timezones;
+                TimezoneComboBox.SelectedItem = match;
+            }
+            finally
+            {
+                _loadingSettings = wasLoading;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load timezones: {ex}");
+        }
+    }
+
+    private void TimezoneComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings ||
+            TimezoneComboBox.SelectedItem is not string timezone)
+        {
+            return;
+        }
+
+        SaveTimezone(timezone);
+    }
+
+    private void TimezoneComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e)
+    {
+        e.Handled = true;
+
+        if (_loadingSettings)
+            return;
+
+        string typed = e.Text.Trim();
+        string? match =
+            (sender.ItemsSource as IEnumerable<string>)?.FirstOrDefault(
+                candidate => string.Equals(
+                    candidate,
+                    typed,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (match is null)
+        {
+            // Not a known timezone: revert to what is saved.
+            sender.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+            return;
+        }
+
+        sender.SelectedItem = match;
+        sender.Text = match;
+        SaveTimezone(match);
+    }
+
+    private void SaveTimezone(string timezone)
+    {
+        timezone = timezone.Trim();
+
+        if (string.Equals(
+                _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId,
+                timezone,
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _settings.Values[FingerprintingProtectionService.TimezoneSettingName] = timezone;
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void LoadTabWidth()
@@ -807,7 +918,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     private void LoadFingerprintingProtection()
     {
         FingerprintingProtectionToggleSwitch.IsOn =
-            _settings.Values["FingerprintingProtection"] as bool? ?? false;
+            FingerprintingProtectionService.GetEnabled();
     }
 
     private void FingerprintingProtectionToggleSwitch_Toggled(
@@ -817,7 +928,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (_loadingSettings)
             return;
 
-        _settings.Values["FingerprintingProtection"] =
+        _settings.Values[FingerprintingProtectionService.SettingName] =
             FingerprintingProtectionToggleSwitch.IsOn;
 
         FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);

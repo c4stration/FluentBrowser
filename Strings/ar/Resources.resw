@@ -720,9 +720,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} من أصل {1} ({2}/ث) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>متبقي {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, zero {لا توجد ثوانٍ متبقية} one {# ثانية متبقية} two {ثانيتان متبقيتان} few {# ثوانٍ متبقية} many {# ثانية متبقية} other {# ثانية متبقية}}</value>
   </data>
@@ -749,5 +746,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>امنع المواقع الإلكترونية من التعرّف على جهازك بشكل فريد عن طريق الحد من المعلومات التي يمكنها جمعها حول متصفحك ونظامك</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>انتحال المنطقة الزمنية</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>يمكن استخدام هذا المقياس لتحديد موقعك الجغرافي التقريبي، خاصةً إذا كنت تعيش في منطقة زمنية لا تضم الكثير من المستخدمين</value>
   </data>
 </root>

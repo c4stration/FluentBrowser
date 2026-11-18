@@ -712,9 +712,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0}/{1}（{2}/秒）–  {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>あと{0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, other {あと # 秒}}</value>
   </data>
@@ -741,5 +738,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>ウェブサイトがブラウザーやシステムに関する情報を収集できる範囲を制限し、デバイスを特定されにくくします</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>タイムゾーンの偽装</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>この指標は、おおよその位置を特定するために使用できます。特に、同じタイムゾーンを使用する人が少ない地域に住んでいる場合に有効です</value>
   </data>
 </root>

@@ -723,9 +723,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} von {1} ({2}/s) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>{0} übrig</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# Sekunde übrig} other {# Sekunden übrig}}</value>
   </data>
@@ -752,5 +749,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Verhindere, dass Websites dein Gerät eindeutig identifizieren, indem du die Informationen einschränkst, die sie über deinen Browser und dein System sammeln können</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Zeitzonen-Vortäuschung</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>Anhand dieses Messwerts lässt sich dein ungefährer Standort ermitteln, insbesondere wenn du in einer Zeitzone lebst, die nur von wenigen anderen Nutzern verwendet wird</value>
   </data>
 </root>

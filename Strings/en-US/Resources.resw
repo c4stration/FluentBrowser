@@ -732,9 +732,6 @@
 {2}: numeric speed, no unit
 {3}: numeric remaining time, no unit</comment>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>{0} left</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# second left} other {# seconds left}}</value>
   </data>
@@ -761,5 +758,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Prevent websites from uniquely identifying your device by limiting the information they can collect about your browser and system</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Time zone spoofing</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>This metric can be used to figure out your general location, especially if you live in a time zone without many other users</value>
   </data>
 </root>

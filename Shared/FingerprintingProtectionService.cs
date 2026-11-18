@@ -15,6 +15,8 @@ namespace FluentBrowser.Shared;
 internal sealed class FingerprintingProtectionService
 {
     public const string SettingName = "FingerprintingProtection";
+    public const string TimezoneSettingName = "TimezoneSpoofing";
+    public const string DefaultTimezoneId = "UTC";
 
     private const string ProtectionScriptTemplate = """
         (() => {
@@ -114,8 +116,6 @@ internal sealed class FingerprintingProtectionService
             } catch (_) { }
           }
 
-          // Follow Helium's CPU-count candidate strategy, but derive the
-          // selected value from this browser session and document origin.
           function possibleCoreCounts(actual) {
             let count = Math.max(2, Math.min(16, Math.floor(actual) || 4));
             if (count % 2 !== 0)
@@ -149,10 +149,7 @@ internal sealed class FingerprintingProtectionService
 
           if (typeof Keyboard !== 'undefined')
             removeMember(Keyboard.prototype, 'getLayoutMap');
-
-          // Canvas readback noising. Original page drawing is left untouched.
-          // The noise is a deterministic function of origin, source pixels,
-          // and coordinates, so repeated reads in this document are stable.
+          
           function getPixelIndex(x, y, width) {
             return (y * width + x) * 4;
           }
@@ -244,7 +241,6 @@ internal sealed class FingerprintingProtectionService
                 const smooth = pixelIsSmooth(source, width, height, x, y);
 
                 if (smooth) {
-                  // Change one RGB channel on roughly one in four smooth pixels.
                   if ((coordinateSeed & 3) === 0) {
                     const channel = (contentSeed >>> 3) % 3;
                     const delta = (coordinateSeed & 0x100) === 0 ? -1 : 1;
@@ -254,7 +250,6 @@ internal sealed class FingerprintingProtectionService
                     );
                   }
                 } else {
-                  // Slightly stronger noise is less visible around existing edges.
                   for (let channel = 0; channel < 3; channel++) {
                     const channelSeed = mix32(
                       coordinateSeed ^ Math.imul(channel + 1, 0x9e3779b1)
@@ -372,11 +367,14 @@ internal sealed class FingerprintingProtectionService
             });
           }
 
-          // OfflineAudioContext readbacks receive a bounded, deterministic
-          // multiplicative jitter. Hashing the entire source buffer first
-          // makes the output depend on both the audio and the site's token.
+          const noisedAudioBuffers = new WeakSet();
+          const addNativeEventListener = EventTarget.prototype.addEventListener;
+          const removeNativeEventListener = EventTarget.prototype.removeEventListener;
+
           function noiseRenderedAudio(buffer) {
-            if (typeof AudioBuffer === 'undefined' || !(buffer instanceof AudioBuffer))
+            if (typeof AudioBuffer === 'undefined' ||
+                !(buffer instanceof AudioBuffer) ||
+                noisedAudioBuffers.has(buffer))
               return buffer;
 
             const channels = [];
@@ -384,8 +382,6 @@ internal sealed class FingerprintingProtectionService
             const scratch = new ArrayBuffer(4);
             const scratchView = new DataView(scratch);
 
-            // Hash every original sample before modifying any channel. This
-            // keeps the jitter deterministic for a given rendered buffer.
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
               const samples = buffer.getChannelData(channel);
               channels.push(samples);
@@ -398,8 +394,8 @@ internal sealed class FingerprintingProtectionService
               }
             }
 
-            // Modify the original AudioBuffer rather than substituting a new
-            // object, preserving identity and channel-data semantics.
+            noisedAudioBuffers.add(buffer);
+
             for (let channel = 0; channel < channels.length; channel++) {
               const samples = channels[channel];
 
@@ -418,13 +414,40 @@ internal sealed class FingerprintingProtectionService
 
           function protectOfflineAudio(prototype) {
             wrapMethod(prototype, 'startRendering', original => function (...args) {
-              const result = Reflect.apply(original, this, args);
+              const context = this;
+              const onComplete = event => {
+                try {
+                  noiseRenderedAudio(event.renderedBuffer);
+                } catch (_) { }
+              };
+
+              Reflect.apply(addNativeEventListener, context, [
+                'complete',
+                onComplete,
+                { capture: true, once: true }
+              ]);
+
+              let result;
+              try {
+                result = Reflect.apply(original, context, args);
+              } catch (error) {
+                Reflect.apply(removeNativeEventListener, context, [
+                  'complete', onComplete, true
+                ]);
+                throw error;
+              }
+
               return Promise.resolve(result).then(buffer => {
                 try {
                   return noiseRenderedAudio(buffer);
                 } catch (_) {
                   return buffer;
                 }
+              }, error => {
+                Reflect.apply(removeNativeEventListener, context, [
+                  'complete', onComplete, true
+                ]);
+                throw error;
               });
             });
           }
@@ -448,8 +471,6 @@ internal sealed class FingerprintingProtectionService
             }
           }
 
-          // Bromite-derived layout/measureText mitigation used by Helium.
-          // Each document gets tiny, fixed scale factors in the +/-0.0003% range.
           function randomUnit() {
             try {
               const value = new Uint32Array(1);
@@ -575,7 +596,13 @@ internal sealed class FingerprintingProtectionService
 
         public bool DocumentProtected { get; set; }
 
-        public bool? TimezoneOverrideEnabled { get; set; }
+        public string? TimezoneOverrideId { get; set; }
+
+        public string? NavigationTimezoneOverrideId { get; set; }
+
+        public string? DocumentTimezoneOverrideId { get; set; }
+
+        public bool TimezoneOverrideInitialized { get; set; }
 
         public bool? UserAgentOverrideEnabled { get; set; }
 
@@ -608,6 +635,18 @@ internal sealed class FingerprintingProtectionService
 
     public void SetEnabled(bool enabled) => _enabled = enabled;
 
+    private static string GetConfiguredTimezoneId()
+    {
+        var settings = ApplicationData.Current.LocalSettings;
+        string? timezoneId = settings.Values[TimezoneSettingName] as string;
+
+        if (!string.IsNullOrWhiteSpace(timezoneId))
+            return timezoneId.Trim();
+
+        settings.Values[TimezoneSettingName] = DefaultTimezoneId;
+        return DefaultTimezoneId;
+    }
+
     public Task AttachAsync(CoreWebView2 core)
     {
         ArgumentNullException.ThrowIfNull(core);
@@ -633,6 +672,8 @@ internal sealed class FingerprintingProtectionService
                 state.NavigationProtected = state.ScriptId is not null;
                 state.NavigationUserAgentOverridden =
                     state.UserAgentOverrideEnabled == true;
+                state.NavigationTimezoneOverrideId =
+                    state.TimezoneOverrideId;
             };
 
             core.ContentLoading += (_, _) =>
@@ -640,6 +681,8 @@ internal sealed class FingerprintingProtectionService
                 state.DocumentProtected = state.NavigationProtected;
                 state.DocumentUserAgentOverridden =
                     state.NavigationUserAgentOverridden;
+                state.DocumentTimezoneOverrideId =
+                    state.NavigationTimezoneOverrideId;
             };
         }
 
@@ -649,7 +692,11 @@ internal sealed class FingerprintingProtectionService
     public bool NeedsReload(CoreWebView2 core) =>
         _states.TryGetValue(core, out CoreState? state) &&
         ((state.ScriptId is not null) != state.DocumentProtected ||
-         (state.UserAgentOverrideEnabled == true) != state.DocumentUserAgentOverridden);
+         (state.UserAgentOverrideEnabled == true) != state.DocumentUserAgentOverridden ||
+         !string.Equals(
+             state.TimezoneOverrideId,
+             state.DocumentTimezoneOverrideId,
+             StringComparison.Ordinal));
 
     private async Task SynchronizeAsync(CoreWebView2 core, CoreState state)
     {
@@ -657,96 +704,85 @@ internal sealed class FingerprintingProtectionService
 
         try
         {
+            // Re-check until the WebView matches the settings, since they
+            // can change while we are awaiting.
             while (true)
             {
                 bool desired = _enabled;
+                string? desiredTimezoneId = desired
+                    ? GetConfiguredTimezoneId()
+                    : null;
 
-                if (state.TimezoneOverrideEnabled != desired)
+                bool timezoneDone = state.TimezoneOverrideInitialized &&
+                    state.TimezoneOverrideId == desiredTimezoneId;
+
+                if (!timezoneDone)
                 {
-                    string parameters = desired
-                        ? "{\"timezoneId\":\"UTC\"}"
-                        : "{\"timezoneId\":\"\"}";
-
                     try
                     {
                         await core.CallDevToolsProtocolMethodAsync(
                             "Emulation.setTimezoneOverride",
-                            parameters);
+                            JsonSerializer.Serialize(new
+                            {
+                                timezoneId = desiredTimezoneId ?? ""
+                            }));
 
-                        state.TimezoneOverrideEnabled = desired;
+                        state.TimezoneOverrideId = desiredTimezoneId;
+                        state.TimezoneOverrideInitialized = true;
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(
-                            $"Failed to synchronize the fingerprinting timezone override: {ex}");
+                            $"Failed to set timezone override: {ex}");
                     }
                 }
 
-                if (desired && state.UserAgentOverrideEnabled != true)
+                bool userAgentDone = desired == (state.UserAgentOverrideEnabled == true);
+
+                if (!userAgentDone)
                 {
                     try
                     {
-                        string? originalMetadata =
-                            await state.OriginalUserAgentMetadataTask;
-                        string parameters = BuildUserAgentOverrideParameters(
-                            state.OriginalUserAgent,
-                            originalMetadata,
-                            useChromeIdentity: true);
-
                         await core.CallDevToolsProtocolMethodAsync(
                             "Emulation.setUserAgentOverride",
-                            parameters);
+                            BuildUserAgentOverrideParameters(
+                                state.OriginalUserAgent,
+                                await state.OriginalUserAgentMetadataTask,
+                                useChromeIdentity: desired));
 
-                        state.UserAgentOverrideEnabled = true;
+                        state.UserAgentOverrideEnabled = desired;
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(
-                            $"Failed to synchronize the fingerprinting user-agent override: {ex}");
+                            $"Failed to set the user-agent override: {ex}");
                     }
                 }
-                else if (!desired && state.UserAgentOverrideEnabled == true)
+
+                bool scriptDone = desired == (state.ScriptId is not null);
+
+                if (!scriptDone)
                 {
-                    try
+                    if (desired)
                     {
-                        string? originalMetadata =
-                            await state.OriginalUserAgentMetadataTask;
-                        string parameters = BuildUserAgentOverrideParameters(
-                            state.OriginalUserAgent,
-                            originalMetadata,
-                            useChromeIdentity: false);
-
-                        await core.CallDevToolsProtocolMethodAsync(
-                            "Emulation.setUserAgentOverride",
-                            parameters);
-
-                        state.UserAgentOverrideEnabled = false;
+                        state.ScriptId =
+                            await core.AddScriptToExecuteOnDocumentCreatedAsync(
+                                _protectionScript);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Debug.WriteLine(
-                            $"Failed to restore the browser user-agent: {ex}");
+                        core.RemoveScriptToExecuteOnDocumentCreated(
+                            state.ScriptId!);
+                        state.ScriptId = null;
                     }
                 }
 
-                bool registered = state.ScriptId is not null;
-
-                if (desired == registered)
+                // Stop once nothing was changed (or a call keeps failing).
+                if (timezoneDone && userAgentDone && scriptDone)
                     return;
-
-                if (desired)
-                {
-                    state.ScriptId =
-                        await core.AddScriptToExecuteOnDocumentCreatedAsync(
-                            _protectionScript);
-                }
-                else
-                {
-                    core.RemoveScriptToExecuteOnDocumentCreated(
-                        state.ScriptId!);
-
-                    state.ScriptId = null;
-                }
+                if (_enabled == desired &&
+                    (!desired || GetConfiguredTimezoneId() == desiredTimezoneId))
+                    return;
             }
         }
         catch (Exception ex)

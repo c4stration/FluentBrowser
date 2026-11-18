@@ -439,15 +439,26 @@
                         l:Uids.Uid="PrivacySection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                    <controls:SettingsCard l:Uids.Uid="FingerprintingProtection">
-                        <controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsExpander l:Uids.Uid="FingerprintingProtection">
+                        <controls:SettingsExpander.HeaderIcon>
                             <PathIcon
                                 Data="{StaticResource FingerprintingProtection}"
                                 FlowDirection="LeftToRight"
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
-                        </controls:SettingsCard.HeaderIcon>
+                        </controls:SettingsExpander.HeaderIcon>
+
                         <ToggleSwitch x:Name="FingerprintingProtectionToggleSwitch" l:Uids.Uid="General_ToggleSwitch" />
-                    </controls:SettingsCard>
+
+                        <controls:SettingsExpander.Items>
+                            <controls:SettingsCard l:Uids.Uid="TimezoneSpoofing">
+                                <ComboBox
+                                    x:Name="TimezoneComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="TimezoneComboBox_SelectionChanged"
+                                    TextSubmitted="TimezoneComboBox_TextSubmitted" />
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander.Items>
+                    </controls:SettingsExpander>
 
                     <TextBlock
                         Margin="0,29,0,8"

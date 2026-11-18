@@ -722,9 +722,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} จาก {1} ({2}/วิ) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>เหลือ {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, other {เหลืออีก # วินาที}}</value>
   </data>
@@ -751,5 +748,11 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>ป้องกันไม่ให้เว็บไซต์ระบุอุปกรณ์ของคุณได้อย่างเฉพาะเจาะจง โดยจำกัดข้อมูลที่เว็บไซต์สามารถรวบรวมเกี่ยวกับเบราว์เซอร์และระบบของคุณ</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>การปลอมแปลงเขตเวลา</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>เมตริกนี้สามารถใช้ระบุตำแหน่งที่ตั้งโดยประมาณของคุณได้ โดยเฉพาะหากคุณอาศัยอยู่ในเขตเวลาที่มีผู้ใช้งานไม่มากนัก</value>
   </data>
 </root>

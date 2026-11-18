@@ -104,6 +104,23 @@ public sealed partial class MainWindow
                 "No active WebView2 profile is available");
     }
 
+    public async Task<IReadOnlyList<string>> GetSupportedTimezonesAsync()
+    {
+        await _browserProfileReady.Task;
+
+        CoreWebView2 core = _profileBootstrapWebView?.CoreWebView2
+            ?? throw new InvalidOperationException(
+                "bootstrap control is not initialized");
+
+        string result = await core.ExecuteScriptAsync("Intl.supportedValuesOf('timeZone')");
+
+        return (JsonSerializer.Deserialize<string[]>(result) ?? [])
+            .Append("UTC")
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(timezone => timezone, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private async Task InitializeBrowserProfileAsync()
     {
         if (_profileBootstrapWebView is not null)
