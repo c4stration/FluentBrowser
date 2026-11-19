@@ -753,4 +753,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>يمكن استخدام هذا المقياس لتحديد موقعك الجغرافي التقريبي، خاصةً إذا كنت تعيش في منطقة زمنية لا تضم الكثير من المستخدمين</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>حماية Canvas</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>إضافة تغييرات طفيفة إلى البيانات التي تُرجعها واجهة HTML5 Canvas لجعل البصمة الرقمية المستندة إلى Canvas أقل موثوقية</value>
+  </data>
 </root>

@@ -757,4 +757,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>ניתן להשתמש במדד הזה כדי לזהות את מיקומך הכללי, במיוחד אם אתה גר באזור זמן שבו אין משתמשים רבים אחרים</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>הגנת Canvas</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>הוספת שינויים קטנים לנתונים שמוחזרים על ידי ממשק ה־HTML5 Canvas כדי להפוך טביעת אצבע מבוססת Canvas לפחות אמינה</value>
+  </data>
 </root>

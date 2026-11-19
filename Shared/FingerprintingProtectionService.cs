@@ -15,6 +15,7 @@ namespace FluentBrowser.Shared;
 internal sealed class FingerprintingProtectionService
 {
     public const string SettingName = "FingerprintingProtection";
+    public const string CanvasProtectionSettingName = "CanvasProtection";
     public const string TimezoneSettingName = "TimezoneSpoofing";
     public const string DefaultTimezoneId = "UTC";
 
@@ -36,6 +37,7 @@ internal sealed class FingerprintingProtectionService
             }
             return `opaque:${random[0]}:${random[1]}`;
           })();
+          const canvasProtectionEnabled = __CANVAS_PROTECTION__;
           const maxCanvasPixels = 4 * 1024 * 1024;
 
           function hashString64(value) {
@@ -271,100 +273,102 @@ internal sealed class FingerprintingProtectionService
             }
           }
 
-          const canvasNativeMethods = new WeakMap();
-          const canvasContextPrototypes = new Set([
-            typeof CanvasRenderingContext2D !== 'undefined'
-              ? CanvasRenderingContext2D.prototype
-              : null,
-            typeof OffscreenCanvasRenderingContext2D !== 'undefined'
-              ? OffscreenCanvasRenderingContext2D.prototype
-              : null
-          ].filter(Boolean));
+          if (canvasProtectionEnabled) {
+            const canvasNativeMethods = new WeakMap();
+            const canvasContextPrototypes = new Set([
+              typeof CanvasRenderingContext2D !== 'undefined'
+                ? CanvasRenderingContext2D.prototype
+                : null,
+              typeof OffscreenCanvasRenderingContext2D !== 'undefined'
+                ? OffscreenCanvasRenderingContext2D.prototype
+                : null
+            ].filter(Boolean));
 
-          for (const prototype of canvasContextPrototypes) {
-            const getDescriptor = Object.getOwnPropertyDescriptor(prototype, 'getImageData');
-            const putDescriptor = Object.getOwnPropertyDescriptor(prototype, 'putImageData');
+            for (const prototype of canvasContextPrototypes) {
+              const getDescriptor = Object.getOwnPropertyDescriptor(prototype, 'getImageData');
+              const putDescriptor = Object.getOwnPropertyDescriptor(prototype, 'putImageData');
 
-            if (getDescriptor?.value && putDescriptor?.value) {
-              canvasNativeMethods.set(prototype, {
-                getImageData: getDescriptor.value,
-                putImageData: putDescriptor.value
+              if (getDescriptor?.value && putDescriptor?.value) {
+                canvasNativeMethods.set(prototype, {
+                  getImageData: getDescriptor.value,
+                  putImageData: putDescriptor.value
+                });
+              }
+
+              wrapMethod(prototype, 'getImageData', original => function (...args) {
+                const imageData = Reflect.apply(original, this, args);
+                applyCanvasNoise(
+                  imageData.data,
+                  imageData.width,
+                  imageData.height,
+                  Number(args[0]) || 0,
+                  Number(args[1]) || 0
+                );
+                return imageData;
               });
             }
 
-            wrapMethod(prototype, 'getImageData', original => function (...args) {
-              const imageData = Reflect.apply(original, this, args);
-              applyCanvasNoise(
-                imageData.data,
-                imageData.width,
-                imageData.height,
-                Number(args[0]) || 0,
-                Number(args[1]) || 0
-              );
-              return imageData;
-            });
-          }
+            function createNoisedCanvas(source) {
+              try {
+                const width = source.width;
+                const height = source.height;
+                if (!width || !height || width * height > maxCanvasPixels)
+                  return null;
 
-          function createNoisedCanvas(source) {
-            try {
-              const width = source.width;
-              const height = source.height;
-              if (!width || !height || width * height > maxCanvasPixels)
+                const isOffscreen = typeof OffscreenCanvas !== 'undefined' &&
+                  source instanceof OffscreenCanvas;
+                const copy = isOffscreen
+                  ? new OffscreenCanvas(width, height)
+                  : document.createElement('canvas');
+
+                copy.width = width;
+                copy.height = height;
+
+                const context = copy.getContext('2d', { willReadFrequently: true });
+                if (!context)
+                  return null;
+
+                let prototype = Object.getPrototypeOf(context);
+                let nativeMethods = null;
+                while (prototype && !nativeMethods) {
+                  nativeMethods = canvasNativeMethods.get(prototype) ?? null;
+                  prototype = Object.getPrototypeOf(prototype);
+                }
+                if (!nativeMethods)
+                  return null;
+
+                context.drawImage(source, 0, 0);
+                const imageData = Reflect.apply(
+                  nativeMethods.getImageData,
+                  context,
+                  [0, 0, width, height]
+                );
+                applyCanvasNoise(imageData.data, width, height);
+                Reflect.apply(nativeMethods.putImageData, context, [imageData, 0, 0]);
+                return copy;
+              } catch (_) {
                 return null;
-
-              const isOffscreen = typeof OffscreenCanvas !== 'undefined' &&
-                source instanceof OffscreenCanvas;
-              const copy = isOffscreen
-                ? new OffscreenCanvas(width, height)
-                : document.createElement('canvas');
-
-              copy.width = width;
-              copy.height = height;
-
-              const context = copy.getContext('2d', { willReadFrequently: true });
-              if (!context)
-                return null;
-
-              let prototype = Object.getPrototypeOf(context);
-              let nativeMethods = null;
-              while (prototype && !nativeMethods) {
-                nativeMethods = canvasNativeMethods.get(prototype) ?? null;
-                prototype = Object.getPrototypeOf(prototype);
               }
-              if (!nativeMethods)
-                return null;
-
-              context.drawImage(source, 0, 0);
-              const imageData = Reflect.apply(
-                nativeMethods.getImageData,
-                context,
-                [0, 0, width, height]
-              );
-              applyCanvasNoise(imageData.data, width, height);
-              Reflect.apply(nativeMethods.putImageData, context, [imageData, 0, 0]);
-              return copy;
-            } catch (_) {
-              return null;
             }
-          }
 
-          if (typeof HTMLCanvasElement !== 'undefined') {
-            wrapMethod(HTMLCanvasElement.prototype, 'toDataURL', original => function (...args) {
-              const copy = createNoisedCanvas(this);
-              return Reflect.apply(original, copy || this, args);
-            });
+            if (typeof HTMLCanvasElement !== 'undefined') {
+              wrapMethod(HTMLCanvasElement.prototype, 'toDataURL', original => function (...args) {
+                const copy = createNoisedCanvas(this);
+                return Reflect.apply(original, copy || this, args);
+              });
 
-            wrapMethod(HTMLCanvasElement.prototype, 'toBlob', original => function (...args) {
-              const copy = createNoisedCanvas(this);
-              return Reflect.apply(original, copy || this, args);
-            });
-          }
+              wrapMethod(HTMLCanvasElement.prototype, 'toBlob', original => function (...args) {
+                const copy = createNoisedCanvas(this);
+                return Reflect.apply(original, copy || this, args);
+              });
+            }
 
-          if (typeof OffscreenCanvas !== 'undefined') {
-            wrapMethod(OffscreenCanvas.prototype, 'convertToBlob', original => function (...args) {
-              const copy = createNoisedCanvas(this);
-              return Reflect.apply(original, copy || this, args);
-            });
+            if (typeof OffscreenCanvas !== 'undefined') {
+              wrapMethod(OffscreenCanvas.prototype, 'convertToBlob', original => function (...args) {
+                const copy = createNoisedCanvas(this);
+                return Reflect.apply(original, copy || this, args);
+              });
+            }
           }
 
           const noisedAudioBuffers = new WeakSet();
@@ -568,17 +572,19 @@ internal sealed class FingerprintingProtectionService
             });
           }
 
-          for (const prototype of [
-            typeof CanvasRenderingContext2D !== 'undefined'
-              ? CanvasRenderingContext2D.prototype
-              : null,
-            typeof OffscreenCanvasRenderingContext2D !== 'undefined'
-              ? OffscreenCanvasRenderingContext2D.prototype
-              : null
-          ].filter(Boolean)) {
-            wrapMethod(prototype, 'measureText', original => function (...args) {
-              return scaleTextMetrics(Reflect.apply(original, this, args));
-            });
+          if (canvasProtectionEnabled) {
+            for (const prototype of [
+              typeof CanvasRenderingContext2D !== 'undefined'
+                ? CanvasRenderingContext2D.prototype
+                : null,
+              typeof OffscreenCanvasRenderingContext2D !== 'undefined'
+                ? OffscreenCanvasRenderingContext2D.prototype
+                : null
+            ].filter(Boolean)) {
+              wrapMethod(prototype, 'measureText', original => function (...args) {
+                return scaleTextMetrics(Reflect.apply(original, this, args));
+              });
+            }
           }
         })();
         """;
@@ -592,9 +598,16 @@ internal sealed class FingerprintingProtectionService
 
         public string? ScriptId { get; set; }
 
+        // Whether the installed script includes the canvas protection.
+        public bool ScriptCanvasProtection { get; set; }
+
         public bool NavigationProtected { get; set; }
 
         public bool DocumentProtected { get; set; }
+
+        public bool NavigationCanvasProtected { get; set; }
+
+        public bool DocumentCanvasProtected { get; set; }
 
         public string? TimezoneOverrideId { get; set; }
 
@@ -615,23 +628,39 @@ internal sealed class FingerprintingProtectionService
 
     private readonly ConditionalWeakTable<CoreWebView2, CoreState> _states = new();
 
-    private readonly string _protectionScript = ProtectionScriptTemplate.Replace(
-        "__SESSION_SEED__",
-        Convert.ToHexString(RandomNumberGenerator.GetBytes(32)),
-        StringComparison.Ordinal);
+    // Both variants share one seed so noise stays consistent for the session.
+    private readonly string _protectionScriptWithCanvas;
+
+    private readonly string _protectionScriptWithoutCanvas;
 
     private volatile bool _enabled;
 
     public FingerprintingProtectionService()
     {
+        string seed = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+
+        _protectionScriptWithCanvas = BuildProtectionScript(seed, canvasProtection: true);
+        _protectionScriptWithoutCanvas = BuildProtectionScript(seed, canvasProtection: false);
         _enabled = GetEnabled();
     }
+
+    private static string BuildProtectionScript(string seed, bool canvasProtection) =>
+        ProtectionScriptTemplate
+            .Replace("__SESSION_SEED__", seed, StringComparison.Ordinal)
+            .Replace(
+                "__CANVAS_PROTECTION__",
+                canvasProtection ? "true" : "false",
+                StringComparison.Ordinal);
 
     public bool Enabled => _enabled;
 
     public static bool GetEnabled() =>
         ApplicationData.Current.LocalSettings.Values[SettingName]
             as bool? ?? false;
+
+    public static bool GetCanvasProtectionEnabled() =>
+        ApplicationData.Current.LocalSettings.Values[CanvasProtectionSettingName]
+            as bool? ?? true;
 
     public void SetEnabled(bool enabled) => _enabled = enabled;
 
@@ -670,6 +699,7 @@ internal sealed class FingerprintingProtectionService
             core.NavigationStarting += (_, _) =>
             {
                 state.NavigationProtected = state.ScriptId is not null;
+                state.NavigationCanvasProtected = state.ScriptCanvasProtection;
                 state.NavigationUserAgentOverridden =
                     state.UserAgentOverrideEnabled == true;
                 state.NavigationTimezoneOverrideId =
@@ -679,6 +709,7 @@ internal sealed class FingerprintingProtectionService
             core.ContentLoading += (_, _) =>
             {
                 state.DocumentProtected = state.NavigationProtected;
+                state.DocumentCanvasProtected = state.NavigationCanvasProtected;
                 state.DocumentUserAgentOverridden =
                     state.NavigationUserAgentOverridden;
                 state.DocumentTimezoneOverrideId =
@@ -692,6 +723,8 @@ internal sealed class FingerprintingProtectionService
     public bool NeedsReload(CoreWebView2 core) =>
         _states.TryGetValue(core, out CoreState? state) &&
         ((state.ScriptId is not null) != state.DocumentProtected ||
+         (state.ScriptId is not null &&
+          state.ScriptCanvasProtection != state.DocumentCanvasProtected) ||
          (state.UserAgentOverrideEnabled == true) != state.DocumentUserAgentOverridden ||
          !string.Equals(
              state.TimezoneOverrideId,
@@ -709,6 +742,7 @@ internal sealed class FingerprintingProtectionService
             while (true)
             {
                 bool desired = _enabled;
+                bool desiredCanvas = desired && GetCanvasProtectionEnabled();
                 string? desiredTimezoneId = desired
                     ? GetConfiguredTimezoneId()
                     : null;
@@ -759,21 +793,36 @@ internal sealed class FingerprintingProtectionService
                     }
                 }
 
-                bool scriptDone = desired == (state.ScriptId is not null);
+                bool scriptDone = desired == (state.ScriptId is not null) &&
+                    (!desired || state.ScriptCanvasProtection == desiredCanvas);
 
                 if (!scriptDone)
                 {
                     if (desired)
                     {
+                        // Install the new script before removing the old one so
+                        // there is no window where a navigation is unprotected.
+                        string? previousScriptId = state.ScriptId;
+
                         state.ScriptId =
                             await core.AddScriptToExecuteOnDocumentCreatedAsync(
-                                _protectionScript);
+                                desiredCanvas
+                                    ? _protectionScriptWithCanvas
+                                    : _protectionScriptWithoutCanvas);
+                        state.ScriptCanvasProtection = desiredCanvas;
+
+                        if (previousScriptId is not null)
+                        {
+                            core.RemoveScriptToExecuteOnDocumentCreated(
+                                previousScriptId);
+                        }
                     }
                     else
                     {
                         core.RemoveScriptToExecuteOnDocumentCreated(
                             state.ScriptId!);
                         state.ScriptId = null;
+                        state.ScriptCanvasProtection = false;
                     }
                 }
 
@@ -781,7 +830,9 @@ internal sealed class FingerprintingProtectionService
                 if (timezoneDone && userAgentDone && scriptDone)
                     return;
                 if (_enabled == desired &&
-                    (!desired || GetConfiguredTimezoneId() == desiredTimezoneId))
+                    (!desired ||
+                     (GetConfiguredTimezoneId() == desiredTimezoneId &&
+                      GetCanvasProtectionEnabled() == desiredCanvas)))
                     return;
             }
         }

@@ -765,4 +765,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>This metric can be used to figure out your general location, especially if you live in a time zone without many other users</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas protection</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Add small variations to data returned by the HTML5 canvas API to make canvas-based fingerprinting less reliable</value>
+  </data>
 </root>

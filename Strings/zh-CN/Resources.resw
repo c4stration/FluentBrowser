@@ -745,4 +745,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>此指标可用于推测您的大致地理位置，尤其是当您居住在使用人数较少的时区时</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas 保护</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>对 HTML5 Canvas API 返回的数据进行细微调整，以降低基于 Canvas 的浏览器指纹识别的可靠性</value>
+  </data>
 </root>

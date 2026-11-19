@@ -741,4 +741,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>Această valoare poate fi utilizată pentru a determina locația ta aproximativă, în special dacă locuiești într-un fus orar cu puțini alți utilizatori</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Protecție Canvas</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Adaugă mici variații datelor returnate de API-ul HTML5 Canvas pentru a reduce fiabilitatea amprentării bazate pe Canvas</value>
+  </data>
 </root>

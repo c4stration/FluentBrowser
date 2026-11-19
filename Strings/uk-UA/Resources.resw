@@ -756,4 +756,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>Цей показник можна використовувати для визначення вашого приблизного місцезнаходження, особливо якщо ви живете в часовому поясі, яким користується небагато людей</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Захист Canvas</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Додає невеликі зміни до даних, які повертає API HTML5 Canvas, щоб знизити точність створення цифрового відбитка на основі Canvas</value>
+  </data>
 </root>

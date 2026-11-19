@@ -756,4 +756,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>Anhand dieses Messwerts lässt sich dein ungefährer Standort ermitteln, insbesondere wenn du in einer Zeitzone lebst, die nur von wenigen anderen Nutzern verwendet wird</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas-Schutz</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Fügt den von der HTML5-Canvas-API zurückgegebenen Daten kleine Abweichungen hinzu, um Canvas-basiertes Fingerprinting weniger zuverlässig zu machen</value>
+  </data>
 </root>

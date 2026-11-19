@@ -745,4 +745,10 @@
   <data name="TimezoneSpoofing.Description" xml:space="preserve">
     <value>この指標は、おおよその位置を特定するために使用できます。特に、同じタイムゾーンを使用する人が少ない地域に住んでいる場合に有効です</value>
   </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas 保護</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>HTML5 Canvas API から返されるデータにわずかな変化を加え、Canvas ベースのフィンガープリントの信頼性を低下させます</value>
+  </data>
 </root>

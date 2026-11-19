@@ -119,6 +119,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadNewTabPosition();
         LoadFullWebAddress();
         LoadFingerprintingProtection();
+        LoadCanvasProtection();
         LoadCustomSites();
         LoadStartupBehavior();
         LoadSearchSuggestions();
@@ -930,6 +931,25 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         _settings.Values[FingerprintingProtectionService.SettingName] =
             FingerprintingProtectionToggleSwitch.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadCanvasProtection()
+    {
+        CanvasProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetCanvasProtectionEnabled();
+    }
+
+    private void CanvasProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.CanvasProtectionSettingName] =
+            CanvasProtectionToggle.IsOn;
 
         FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
     }

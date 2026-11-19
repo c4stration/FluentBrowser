@@ -457,6 +457,13 @@
                                     SelectionChanged="TimezoneComboBox_SelectionChanged"
                                     TextSubmitted="TimezoneComboBox_TextSubmitted" />
                             </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="CanvasProtection">
+                                <ToggleSwitch
+                                    x:Name="CanvasProtectionToggle"
+                                    l:Uids.Uid="General_ToggleSwitch"
+                                    Toggled="CanvasProtectionToggle_Toggled" />
+                            </controls:SettingsCard>
                         </controls:SettingsExpander.Items>
                     </controls:SettingsExpander>
 
