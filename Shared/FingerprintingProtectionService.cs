@@ -1,5 +1,6 @@
 using Microsoft.Web.WebView2.Core;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,6 +17,13 @@ internal sealed class FingerprintingProtectionService
 {
     public const string SettingName = "FingerprintingProtection";
     public const string CanvasProtectionSettingName = "CanvasProtection";
+    public const string AudioProtectionSettingName = "AudioProtection";
+    public const string HardwareConcurrencyProtectionSettingName = "HardwareConcurrencyProtection";
+    public const string GeometryProtectionSettingName = "GeometryProtection";
+    public const string BrowserIdentitySettingName = "BrowserIdentity";
+    public const string EdgeBrowserIdentity = "Edge";
+    public const string ChromeBrowserIdentity = "Chrome";
+    public const string DefaultBrowserIdentity = EdgeBrowserIdentity;
     public const string TimezoneSettingName = "TimezoneSpoofing";
     public const string DefaultTimezoneId = "UTC";
 
@@ -38,6 +46,9 @@ internal sealed class FingerprintingProtectionService
             return `opaque:${random[0]}:${random[1]}`;
           })();
           const canvasProtectionEnabled = __CANVAS_PROTECTION__;
+          const audioProtectionEnabled = __AUDIO_PROTECTION__;
+          const hardwareConcurrencyProtectionEnabled = __HARDWARE_CONCURRENCY_PROTECTION__;
+          const geometryProtectionEnabled = __GEOMETRY_PROTECTION__;
           const maxCanvasPixels = 4 * 1024 * 1024;
 
           function hashString64(value) {
@@ -132,18 +143,20 @@ internal sealed class FingerprintingProtectionService
           }
 
           if (typeof Navigator !== 'undefined') {
-            const descriptor = Object.getOwnPropertyDescriptor(
-              Navigator.prototype,
-              'hardwareConcurrency'
-            );
+            if (hardwareConcurrencyProtectionEnabled) {
+              const descriptor = Object.getOwnPropertyDescriptor(
+                Navigator.prototype,
+                'hardwareConcurrency'
+              );
 
-            if (descriptor?.get) {
-              defineGetter(Navigator.prototype, 'hardwareConcurrency', function () {
-                const actual = Number(descriptor.get.call(this)) || 4;
-                const candidates = possibleCoreCounts(actual);
-                const index = mix32(hardwareToken ^ Math.floor(actual)) % candidates.length;
-                return candidates[index];
-              });
+              if (descriptor?.get) {
+                defineGetter(Navigator.prototype, 'hardwareConcurrency', function () {
+                  const actual = Number(descriptor.get.call(this)) || 4;
+                  const candidates = possibleCoreCounts(actual);
+                  const index = mix32(hardwareToken ^ Math.floor(actual)) % candidates.length;
+                  return candidates[index];
+                });
+              }
             }
 
             removeMember(Navigator.prototype, 'getBattery');
@@ -371,107 +384,109 @@ internal sealed class FingerprintingProtectionService
             }
           }
 
-          const noisedAudioBuffers = new WeakSet();
-          const addNativeEventListener = EventTarget.prototype.addEventListener;
-          const removeNativeEventListener = EventTarget.prototype.removeEventListener;
+          if (audioProtectionEnabled) {
+            const noisedAudioBuffers = new WeakSet();
+            const addNativeEventListener = EventTarget.prototype.addEventListener;
+            const removeNativeEventListener = EventTarget.prototype.removeEventListener;
 
-          function noiseRenderedAudio(buffer) {
-            if (typeof AudioBuffer === 'undefined' ||
-                !(buffer instanceof AudioBuffer) ||
-                noisedAudioBuffers.has(buffer))
-              return buffer;
+            function noiseRenderedAudio(buffer) {
+              if (typeof AudioBuffer === 'undefined' ||
+                  !(buffer instanceof AudioBuffer) ||
+                  noisedAudioBuffers.has(buffer))
+                return buffer;
 
-            const channels = [];
-            let contentSeed = mix32(audioToken ^ buffer.length ^ buffer.numberOfChannels);
-            const scratch = new ArrayBuffer(4);
-            const scratchView = new DataView(scratch);
+              const channels = [];
+              let contentSeed = mix32(audioToken ^ buffer.length ^ buffer.numberOfChannels);
+              const scratch = new ArrayBuffer(4);
+              const scratchView = new DataView(scratch);
 
-            for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-              const samples = buffer.getChannelData(channel);
-              channels.push(samples);
+              for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                const samples = buffer.getChannelData(channel);
+                channels.push(samples);
 
-              for (let i = 0; i < samples.length; i++) {
-                scratchView.setFloat32(0, samples[i], true);
-                contentSeed = mix32(
-                  contentSeed ^ scratchView.getUint32(0, true) ^ Math.imul(i + 1, channel + 1)
-                );
-              }
-            }
-
-            noisedAudioBuffers.add(buffer);
-
-            for (let channel = 0; channel < channels.length; channel++) {
-              const samples = channels[channel];
-
-              for (let i = 0; i < samples.length; i++) {
-                const sampleSeed = mix32(
-                  audioToken ^ contentSeed ^ Math.imul(i + 1, 0x9e3779b1) ^ Math.imul(channel + 1, 0x85ebca6b)
-                );
-                const unit = sampleSeed / 0xffffffff;
-                const jitter = (unit * 2 - 1) * 0.0001;
-                samples[i] *= 1 + jitter;
-              }
-            }
-
-            return buffer;
-          }
-
-          function protectOfflineAudio(prototype) {
-            wrapMethod(prototype, 'startRendering', original => function (...args) {
-              const context = this;
-              const onComplete = event => {
-                try {
-                  noiseRenderedAudio(event.renderedBuffer);
-                } catch (_) { }
-              };
-
-              Reflect.apply(addNativeEventListener, context, [
-                'complete',
-                onComplete,
-                { capture: true, once: true }
-              ]);
-
-              let result;
-              try {
-                result = Reflect.apply(original, context, args);
-              } catch (error) {
-                Reflect.apply(removeNativeEventListener, context, [
-                  'complete', onComplete, true
-                ]);
-                throw error;
-              }
-
-              return Promise.resolve(result).then(buffer => {
-                try {
-                  return noiseRenderedAudio(buffer);
-                } catch (_) {
-                  return buffer;
+                for (let i = 0; i < samples.length; i++) {
+                  scratchView.setFloat32(0, samples[i], true);
+                  contentSeed = mix32(
+                    contentSeed ^ scratchView.getUint32(0, true) ^ Math.imul(i + 1, channel + 1)
+                  );
                 }
-              }, error => {
-                Reflect.apply(removeNativeEventListener, context, [
-                  'complete', onComplete, true
+              }
+
+              noisedAudioBuffers.add(buffer);
+
+              for (let channel = 0; channel < channels.length; channel++) {
+                const samples = channels[channel];
+
+                for (let i = 0; i < samples.length; i++) {
+                  const sampleSeed = mix32(
+                    audioToken ^ contentSeed ^ Math.imul(i + 1, 0x9e3779b1) ^ Math.imul(channel + 1, 0x85ebca6b)
+                  );
+                  const unit = sampleSeed / 0xffffffff;
+                  const jitter = (unit * 2 - 1) * 0.0001;
+                  samples[i] *= 1 + jitter;
+                }
+              }
+
+              return buffer;
+            }
+
+            function protectOfflineAudio(prototype) {
+              wrapMethod(prototype, 'startRendering', original => function (...args) {
+                const context = this;
+                const onComplete = event => {
+                  try {
+                    noiseRenderedAudio(event.renderedBuffer);
+                  } catch (_) { }
+                };
+
+                Reflect.apply(addNativeEventListener, context, [
+                  'complete',
+                  onComplete,
+                  { capture: true, once: true }
                 ]);
-                throw error;
+
+                let result;
+                try {
+                  result = Reflect.apply(original, context, args);
+                } catch (error) {
+                  Reflect.apply(removeNativeEventListener, context, [
+                    'complete', onComplete, true
+                  ]);
+                  throw error;
+                }
+
+                return Promise.resolve(result).then(buffer => {
+                  try {
+                    return noiseRenderedAudio(buffer);
+                  } catch (_) {
+                    return buffer;
+                  }
+                }, error => {
+                  Reflect.apply(removeNativeEventListener, context, [
+                    'complete', onComplete, true
+                  ]);
+                  throw error;
+                });
               });
-            });
-          }
+            }
 
-          if (typeof OfflineAudioContext !== 'undefined')
-            protectOfflineAudio(OfflineAudioContext.prototype);
+            if (typeof OfflineAudioContext !== 'undefined')
+              protectOfflineAudio(OfflineAudioContext.prototype);
 
-          if (typeof webkitOfflineAudioContext !== 'undefined' &&
-              webkitOfflineAudioContext !== OfflineAudioContext)
-            protectOfflineAudio(webkitOfflineAudioContext.prototype);
+            if (typeof webkitOfflineAudioContext !== 'undefined' &&
+                webkitOfflineAudioContext !== OfflineAudioContext)
+              protectOfflineAudio(webkitOfflineAudioContext.prototype);
 
-          if (typeof AudioContext !== 'undefined') {
-            const latency = Object.getOwnPropertyDescriptor(
-              AudioContext.prototype,
-              'baseLatency'
-            );
-            if (latency?.get) {
-              defineGetter(AudioContext.prototype, 'baseLatency', function () {
-                return Math.round(latency.get.call(this) * 100) / 100;
-              });
+            if (typeof AudioContext !== 'undefined') {
+              const latency = Object.getOwnPropertyDescriptor(
+                AudioContext.prototype,
+                'baseLatency'
+              );
+              if (latency?.get) {
+                defineGetter(AudioContext.prototype, 'baseLatency', function () {
+                  return Math.round(latency.get.call(this) * 100) / 100;
+                });
+              }
             }
           }
 
@@ -526,17 +541,19 @@ internal sealed class FingerprintingProtectionService
             });
           }
 
-          for (const prototype of [
-            typeof Element !== 'undefined' ? Element.prototype : null,
-            typeof Range !== 'undefined' ? Range.prototype : null
-          ].filter(Boolean)) {
-            wrapMethod(prototype, 'getBoundingClientRect', original => function (...args) {
-              return scaleRect(Reflect.apply(original, this, args));
-            });
+          if (geometryProtectionEnabled) {
+            for (const prototype of [
+              typeof Element !== 'undefined' ? Element.prototype : null,
+              typeof Range !== 'undefined' ? Range.prototype : null
+            ].filter(Boolean)) {
+              wrapMethod(prototype, 'getBoundingClientRect', original => function (...args) {
+                return scaleRect(Reflect.apply(original, this, args));
+              });
 
-            wrapMethod(prototype, 'getClientRects', original => function (...args) {
-              return scaleRectList(Reflect.apply(original, this, args));
-            });
+              wrapMethod(prototype, 'getClientRects', original => function (...args) {
+                return scaleRectList(Reflect.apply(original, this, args));
+              });
+            }
           }
 
           const horizontalMetrics = new Set([
@@ -598,8 +615,14 @@ internal sealed class FingerprintingProtectionService
 
         public string? ScriptId { get; set; }
 
-        // Whether the installed script includes the canvas protection.
+        // Whether the installed script includes each optional protection.
         public bool ScriptCanvasProtection { get; set; }
+
+        public bool ScriptAudioProtection { get; set; }
+
+        public bool ScriptHardwareConcurrencyProtection { get; set; }
+
+        public bool ScriptGeometryProtection { get; set; }
 
         public bool NavigationProtected { get; set; }
 
@@ -608,6 +631,18 @@ internal sealed class FingerprintingProtectionService
         public bool NavigationCanvasProtected { get; set; }
 
         public bool DocumentCanvasProtected { get; set; }
+
+        public bool NavigationAudioProtected { get; set; }
+
+        public bool DocumentAudioProtected { get; set; }
+
+        public bool NavigationHardwareConcurrencyProtected { get; set; }
+
+        public bool DocumentHardwareConcurrencyProtected { get; set; }
+
+        public bool NavigationGeometryProtected { get; set; }
+
+        public bool DocumentGeometryProtected { get; set; }
 
         public string? TimezoneOverrideId { get; set; }
 
@@ -619,6 +654,13 @@ internal sealed class FingerprintingProtectionService
 
         public bool? UserAgentOverrideEnabled { get; set; }
 
+        // Whether the applied override reports Chrome instead of Edge.
+        public bool UserAgentChromeIdentity { get; set; }
+
+        public bool NavigationUserAgentChromeIdentity { get; set; }
+
+        public bool DocumentUserAgentChromeIdentity { get; set; }
+
         public bool NavigationUserAgentOverridden { get; set; }
 
         public bool DocumentUserAgentOverridden { get; set; }
@@ -628,10 +670,11 @@ internal sealed class FingerprintingProtectionService
 
     private readonly ConditionalWeakTable<CoreWebView2, CoreState> _states = new();
 
-    // Both variants share one seed so noise stays consistent for the session.
-    private readonly string _protectionScriptWithCanvas;
-
-    private readonly string _protectionScriptWithoutCanvas;
+    // All variants share one seed so noise stays consistent for the session.
+    // Keyed by (canvas, audio, hardwareConcurrency, geometry).
+    private readonly Dictionary<
+        (bool Canvas, bool Audio, bool HardwareConcurrency, bool Geometry),
+        string> _protectionScripts = new();
 
     private volatile bool _enabled;
 
@@ -639,17 +682,52 @@ internal sealed class FingerprintingProtectionService
     {
         string seed = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
 
-        _protectionScriptWithCanvas = BuildProtectionScript(seed, canvasProtection: true);
-        _protectionScriptWithoutCanvas = BuildProtectionScript(seed, canvasProtection: false);
+        foreach (bool canvas in new[] { true, false })
+        {
+            foreach (bool audio in new[] { true, false })
+            {
+                foreach (bool hardware in new[] { true, false })
+                {
+                    foreach (bool geometry in new[] { true, false })
+                    {
+                        _protectionScripts[(canvas, audio, hardware, geometry)] =
+                            BuildProtectionScript(
+                                seed,
+                                canvas,
+                                audio,
+                                hardware,
+                                geometry);
+                    }
+                }
+            }
+        }
+
         _enabled = GetEnabled();
     }
 
-    private static string BuildProtectionScript(string seed, bool canvasProtection) =>
+    private static string BuildProtectionScript(
+        string seed,
+        bool canvasProtection,
+        bool audioProtection,
+        bool hardwareConcurrencyProtection,
+        bool geometryProtection) =>
         ProtectionScriptTemplate
             .Replace("__SESSION_SEED__", seed, StringComparison.Ordinal)
             .Replace(
                 "__CANVAS_PROTECTION__",
                 canvasProtection ? "true" : "false",
+                StringComparison.Ordinal)
+            .Replace(
+                "__AUDIO_PROTECTION__",
+                audioProtection ? "true" : "false",
+                StringComparison.Ordinal)
+            .Replace(
+                "__HARDWARE_CONCURRENCY_PROTECTION__",
+                hardwareConcurrencyProtection ? "true" : "false",
+                StringComparison.Ordinal)
+            .Replace(
+                "__GEOMETRY_PROTECTION__",
+                geometryProtection ? "true" : "false",
                 StringComparison.Ordinal);
 
     public bool Enabled => _enabled;
@@ -661,6 +739,27 @@ internal sealed class FingerprintingProtectionService
     public static bool GetCanvasProtectionEnabled() =>
         ApplicationData.Current.LocalSettings.Values[CanvasProtectionSettingName]
             as bool? ?? true;
+
+    public static bool GetAudioProtectionEnabled() =>
+        ApplicationData.Current.LocalSettings.Values[AudioProtectionSettingName]
+            as bool? ?? true;
+
+    public static bool GetHardwareConcurrencyProtectionEnabled() =>
+        ApplicationData.Current.LocalSettings.Values[HardwareConcurrencyProtectionSettingName]
+            as bool? ?? true;
+
+    public static bool GetGeometryProtectionEnabled() =>
+        ApplicationData.Current.LocalSettings.Values[GeometryProtectionSettingName]
+            as bool? ?? true;
+
+    public static string GetBrowserIdentity() =>
+        ApplicationData.Current.LocalSettings.Values[BrowserIdentitySettingName]
+            as string == ChromeBrowserIdentity
+                ? ChromeBrowserIdentity
+                : EdgeBrowserIdentity;
+
+    private static bool UsesChromeIdentity() =>
+        GetBrowserIdentity() == ChromeBrowserIdentity;
 
     public void SetEnabled(bool enabled) => _enabled = enabled;
 
@@ -700,8 +799,15 @@ internal sealed class FingerprintingProtectionService
             {
                 state.NavigationProtected = state.ScriptId is not null;
                 state.NavigationCanvasProtected = state.ScriptCanvasProtection;
+                state.NavigationAudioProtected = state.ScriptAudioProtection;
+                state.NavigationHardwareConcurrencyProtected =
+                    state.ScriptHardwareConcurrencyProtection;
+                state.NavigationGeometryProtected =
+                    state.ScriptGeometryProtection;
                 state.NavigationUserAgentOverridden =
                     state.UserAgentOverrideEnabled == true;
+                state.NavigationUserAgentChromeIdentity =
+                    state.UserAgentChromeIdentity;
                 state.NavigationTimezoneOverrideId =
                     state.TimezoneOverrideId;
             };
@@ -710,8 +816,15 @@ internal sealed class FingerprintingProtectionService
             {
                 state.DocumentProtected = state.NavigationProtected;
                 state.DocumentCanvasProtected = state.NavigationCanvasProtected;
+                state.DocumentAudioProtected = state.NavigationAudioProtected;
+                state.DocumentHardwareConcurrencyProtected =
+                    state.NavigationHardwareConcurrencyProtected;
+                state.DocumentGeometryProtected =
+                    state.NavigationGeometryProtected;
                 state.DocumentUserAgentOverridden =
                     state.NavigationUserAgentOverridden;
+                state.DocumentUserAgentChromeIdentity =
+                    state.NavigationUserAgentChromeIdentity;
                 state.DocumentTimezoneOverrideId =
                     state.NavigationTimezoneOverrideId;
             };
@@ -724,8 +837,13 @@ internal sealed class FingerprintingProtectionService
         _states.TryGetValue(core, out CoreState? state) &&
         ((state.ScriptId is not null) != state.DocumentProtected ||
          (state.ScriptId is not null &&
-          state.ScriptCanvasProtection != state.DocumentCanvasProtected) ||
+          (state.ScriptCanvasProtection != state.DocumentCanvasProtected ||
+           state.ScriptAudioProtection != state.DocumentAudioProtected ||
+           state.ScriptHardwareConcurrencyProtection !=
+               state.DocumentHardwareConcurrencyProtected ||
+           state.ScriptGeometryProtection != state.DocumentGeometryProtected)) ||
          (state.UserAgentOverrideEnabled == true) != state.DocumentUserAgentOverridden ||
+         state.UserAgentChromeIdentity != state.DocumentUserAgentChromeIdentity ||
          !string.Equals(
              state.TimezoneOverrideId,
              state.DocumentTimezoneOverrideId,
@@ -743,6 +861,12 @@ internal sealed class FingerprintingProtectionService
             {
                 bool desired = _enabled;
                 bool desiredCanvas = desired && GetCanvasProtectionEnabled();
+                bool desiredAudio = desired && GetAudioProtectionEnabled();
+                bool desiredHardware = desired &&
+                    GetHardwareConcurrencyProtectionEnabled();
+                bool desiredGeometry = desired &&
+                    GetGeometryProtectionEnabled();
+                bool desiredChromeIdentity = desired && UsesChromeIdentity();
                 string? desiredTimezoneId = desired
                     ? GetConfiguredTimezoneId()
                     : null;
@@ -771,7 +895,9 @@ internal sealed class FingerprintingProtectionService
                     }
                 }
 
-                bool userAgentDone = desired == (state.UserAgentOverrideEnabled == true);
+                bool userAgentDone =
+                    desired == (state.UserAgentOverrideEnabled == true) &&
+                    state.UserAgentChromeIdentity == desiredChromeIdentity;
 
                 if (!userAgentDone)
                 {
@@ -782,9 +908,10 @@ internal sealed class FingerprintingProtectionService
                             BuildUserAgentOverrideParameters(
                                 state.OriginalUserAgent,
                                 await state.OriginalUserAgentMetadataTask,
-                                useChromeIdentity: desired));
+                                useChromeIdentity: desiredChromeIdentity));
 
                         state.UserAgentOverrideEnabled = desired;
+                        state.UserAgentChromeIdentity = desiredChromeIdentity;
                     }
                     catch (Exception ex)
                     {
@@ -794,7 +921,11 @@ internal sealed class FingerprintingProtectionService
                 }
 
                 bool scriptDone = desired == (state.ScriptId is not null) &&
-                    (!desired || state.ScriptCanvasProtection == desiredCanvas);
+                    (!desired ||
+                     (state.ScriptCanvasProtection == desiredCanvas &&
+                      state.ScriptAudioProtection == desiredAudio &&
+                      state.ScriptHardwareConcurrencyProtection == desiredHardware &&
+                      state.ScriptGeometryProtection == desiredGeometry));
 
                 if (!scriptDone)
                 {
@@ -804,12 +935,16 @@ internal sealed class FingerprintingProtectionService
                         // there is no window where a navigation is unprotected.
                         string? previousScriptId = state.ScriptId;
 
+                        string protectionScript = _protectionScripts[
+                            (desiredCanvas, desiredAudio, desiredHardware, desiredGeometry)];
+
                         state.ScriptId =
                             await core.AddScriptToExecuteOnDocumentCreatedAsync(
-                                desiredCanvas
-                                    ? _protectionScriptWithCanvas
-                                    : _protectionScriptWithoutCanvas);
+                                protectionScript);
                         state.ScriptCanvasProtection = desiredCanvas;
+                        state.ScriptAudioProtection = desiredAudio;
+                        state.ScriptHardwareConcurrencyProtection = desiredHardware;
+                        state.ScriptGeometryProtection = desiredGeometry;
 
                         if (previousScriptId is not null)
                         {
@@ -823,6 +958,9 @@ internal sealed class FingerprintingProtectionService
                             state.ScriptId!);
                         state.ScriptId = null;
                         state.ScriptCanvasProtection = false;
+                        state.ScriptAudioProtection = false;
+                        state.ScriptHardwareConcurrencyProtection = false;
+                        state.ScriptGeometryProtection = false;
                     }
                 }
 
@@ -832,7 +970,11 @@ internal sealed class FingerprintingProtectionService
                 if (_enabled == desired &&
                     (!desired ||
                      (GetConfiguredTimezoneId() == desiredTimezoneId &&
-                      GetCanvasProtectionEnabled() == desiredCanvas)))
+                      GetCanvasProtectionEnabled() == desiredCanvas &&
+                      GetAudioProtectionEnabled() == desiredAudio &&
+                      GetHardwareConcurrencyProtectionEnabled() == desiredHardware &&
+                      GetGeometryProtectionEnabled() == desiredGeometry &&
+                      UsesChromeIdentity() == desiredChromeIdentity)))
                     return;
             }
         }

@@ -648,6 +648,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>Implicit</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (Implicit)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>Informații despre imagine</value>
   </data>
@@ -746,5 +749,29 @@
   </data>
   <data name="CanvasProtection.Description" xml:space="preserve">
     <value>Adaugă mici variații datelor returnate de API-ul HTML5 Canvas pentru a reduce fiabilitatea amprentării bazate pe Canvas</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>Protecție audio</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>Adaugă zgomot subtil datelor audio pentru a reduce fiabilitatea amprentării audio</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>Randomizează numărul de procesoare logice</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>Randomizează numărul de procesoare logice raportat site-urilor web pentru a reduce fiabilitatea amprentării hardware</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>Protecție geometrică</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>Modifică ușor dimensiunile elementelor și măsurătorile textului pentru a reduce fiabilitatea amprentării bazate pe geometrie</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>Identitatea browserului</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>Alege dacă site-urile web îți identifică browserul ca Microsoft Edge sau Google Chrome</value>
   </data>
 </root>

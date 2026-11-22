@@ -120,6 +120,10 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadFullWebAddress();
         LoadFingerprintingProtection();
         LoadCanvasProtection();
+        LoadAudioProtection();
+        LoadHardwareConcurrencyProtection();
+        LoadGeometryProtection();
+        LoadBrowserIdentity();
         LoadCustomSites();
         LoadStartupBehavior();
         LoadSearchSuggestions();
@@ -954,6 +958,87 @@ public sealed partial class SettingsPage : Page, IDisposable
         FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    private void LoadAudioProtection()
+    {
+        AudioProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetAudioProtectionEnabled();
+    }
+
+    private void AudioProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.AudioProtectionSettingName] =
+            AudioProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadHardwareConcurrencyProtection()
+    {
+        HardwareConcurrencyProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetHardwareConcurrencyProtectionEnabled();
+    }
+
+    private void HardwareConcurrencyProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.HardwareConcurrencyProtectionSettingName] =
+            HardwareConcurrencyProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadGeometryProtection()
+    {
+        GeometryProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetGeometryProtectionEnabled();
+    }
+
+    private void GeometryProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.GeometryProtectionSettingName] =
+            GeometryProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadBrowserIdentity()
+    {
+        BrowserIdentityComboBox.SelectedIndex =
+            FingerprintingProtectionService.GetBrowserIdentity() ==
+                FingerprintingProtectionService.ChromeBrowserIdentity
+                    ? 1
+                    : 0;
+    }
+
+    private void BrowserIdentityComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings || BrowserIdentityComboBox.SelectedIndex < 0)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.BrowserIdentitySettingName] =
+            BrowserIdentityComboBox.SelectedIndex == 1
+                ? FingerprintingProtectionService.ChromeBrowserIdentity
+                : FingerprintingProtectionService.EdgeBrowserIdentity;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     private void LoadSearchSuggestions()
     {
         SearchSuggestionsToggle.IsOn =
@@ -961,8 +1046,8 @@ public sealed partial class SettingsPage : Page, IDisposable
     }
 
     private void SearchSuggestionsToggle_Toggled(
-    object sender,
-    RoutedEventArgs e)
+        object sender,
+        RoutedEventArgs e)
     {
         if (_loadingSettings)
             return;

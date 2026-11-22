@@ -244,10 +244,10 @@
     <value>سيقوم الوضع المضغوط بتقليص علامات التبويب غير المركّز عليها إلى حجم أيقونة</value>
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
-    <value>חומר</value>
+    <value>المادة</value>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>בחר את חומר הרקע של חלון היישום</value>
+    <value>حدد مادة الخلفية لنافذة التطبيق</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>
@@ -660,6 +660,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>الافتراضي</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (الافتراضي)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>معلومات الصورة</value>
   </data>
@@ -758,5 +761,29 @@
   </data>
   <data name="CanvasProtection.Description" xml:space="preserve">
     <value>إضافة تغييرات طفيفة إلى البيانات التي تُرجعها واجهة HTML5 Canvas لجعل البصمة الرقمية المستندة إلى Canvas أقل موثوقية</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>حماية الصوت</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>أضف تشويشًا طفيفًا إلى البيانات الصوتية لتقليل موثوقية البصمة الصوتية</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>عشوائية عدد المعالجات المنطقية</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>غيّر عشوائيًا عدد المعالجات المنطقية الذي تعرضه للمواقع لتقليل موثوقية البصمة الرقمية للأجهزة</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>حماية الهندسة</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>عدّل أبعاد العناصر وقياسات النصوص بشكل طفيف لتقليل موثوقية البصمة الرقمية المعتمدة على الهندسة</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>هوية المتصفح</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>اختر ما إذا كنت تريد أن تتعرّف المواقع على متصفحك باعتباره Microsoft Edge أو Google Chrome</value>
   </data>
 </root>

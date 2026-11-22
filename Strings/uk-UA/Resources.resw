@@ -662,6 +662,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>За замовчуванням</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (За замовчуванням)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>Відомості про зображення</value>
   </data>
@@ -761,5 +764,29 @@
   </data>
   <data name="CanvasProtection.Description" xml:space="preserve">
     <value>Додає невеликі зміни до даних, які повертає API HTML5 Canvas, щоб знизити точність створення цифрового відбитка на основі Canvas</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>Захист аудіо</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>Додавайте незначний шум до аудіоданих, щоб знизити надійність аудіовідбитків</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>Рандомізувати кількість логічних процесорів</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>Рандомізуйте кількість логічних процесорів, яку повідомляють вебсайтам, щоб знизити надійність апаратного відбитка</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>Захист геометрії</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>Незначно змінюйте розміри елементів і вимірювання тексту, щоб знизити надійність геометричного відбитка</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>Ідентифікація браузера</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>Виберіть, чи визначатимуть вебсайти ваш браузер як Microsoft Edge або Google Chrome</value>
   </data>
 </root>

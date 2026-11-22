@@ -245,11 +245,9 @@
   </data>
   <data name="BackdropMaterial.Header" xml:space="preserve">
     <value>חומר רקע</value>
-    <comment>חומר הרקע</comment>
   </data>
   <data name="BackdropMaterial.Description" xml:space="preserve">
-    <value>חומר הרקע של המערכת עבור רקע החלון</value>
-    <comment>חומר הרקע של המערכת עבור רקע החלון</comment>
+    <value>בחר את חומר הרקע של חלון היישום</value>
   </data>
   <data name="Mica.Content" xml:space="preserve">
     <value>Mica</value>
@@ -664,6 +662,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>ברירת מחדל</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (ברירת מחדל)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>פרטי תמונה</value>
   </data>
@@ -762,5 +763,29 @@
   </data>
   <data name="CanvasProtection.Description" xml:space="preserve">
     <value>הוספת שינויים קטנים לנתונים שמוחזרים על ידי ממשק ה־HTML5 Canvas כדי להפוך טביעת אצבע מבוססת Canvas לפחות אמינה</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>הגנת שמע</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>הוסף רעש קל לנתוני שמע כדי להפוך טביעת אצבע אודיו לפחות אמינה</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>שנה באקראי את מספר המעבדים הלוגיים</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>שנה באקראי את מספר המעבדים הלוגיים המדווח לאתרים כדי להפוך טביעת אצבע של החומרה לפחות אמינה</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>הגנה על גאומטריה</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>שנה מעט את ממדי הרכיבים ואת מדידות הטקסט כדי להפוך טביעת אצבע המבוססת על גאומטריה לפחות אמינה</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>זהות הדפדפן</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>בחר אם אתרים יזהו את הדפדפן שלך כ-Microsoft Edge או כ-Google Chrome</value>
   </data>
 </root>

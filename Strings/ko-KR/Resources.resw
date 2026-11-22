@@ -648,6 +648,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>기본값</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (기본값)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>이미지 정보</value>
   </data>
@@ -746,5 +749,29 @@
   </data>
   <data name="CanvasProtection.Description" xml:space="preserve">
     <value>HTML5 Canvas API가 반환하는 데이터에 미세한 변화를 추가하여 Canvas 기반 지문 인식의 신뢰성을 낮춥니다</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>오디오 보호</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>오디오 데이터에 미세한 노이즈를 추가하여 오디오 핑거프린팅의 신뢰성을 낮추세요</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>하드웨어 논리 프로세서 수 무작위화</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>웹사이트에 보고되는 논리 프로세서 수를 무작위화하여 하드웨어 핑거프린팅의 신뢰성을 낮추세요</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>지오메트리 보호</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>요소 크기와 텍스트 측정값을 약간 변경하여 지오메트리 기반 핑거프린팅의 신뢰성을 낮추세요</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>브라우저 ID</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>웹사이트에서 브라우저를 Microsoft Edge 또는 Google Chrome으로 식별하도록 선택하세요</value>
   </data>
 </root>
