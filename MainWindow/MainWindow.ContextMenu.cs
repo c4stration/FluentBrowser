@@ -478,15 +478,12 @@ public sealed partial class MainWindow
                 return null;
             }
 
-            // Use an independent stream so decoding does not depend on
-            // the original WebView2-provided stream's lifetime or position.
             using var imageStream = new InMemoryRandomAccessStream();
 
             source.Seek(0);
             await RandomAccessStream.CopyAsync(source, imageStream);
             imageStream.Seek(0);
 
-            // Inspect the header to distinguish SVG from raster images.
             uint headerLength =
                 (uint)Math.Min(imageStream.Size, 512UL);
 

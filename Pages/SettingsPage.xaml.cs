@@ -414,7 +414,6 @@ public sealed partial class SettingsPage : Page, IDisposable
 
     private async Task LoadTimezonesAsync()
     {
-        // Show the saved value immediately; the list loads asynchronously.
         TimezoneComboBox.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
 
         if (_mainWindow is null)
@@ -430,8 +429,6 @@ public sealed partial class SettingsPage : Page, IDisposable
 
             string selected = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
 
-            // Keep a saved id that is not in the list (e.g. an alias of a
-            // listed zone) selectable instead of silently resetting it.
             string? match = timezones.FirstOrDefault(timezone =>
                 string.Equals(
                     timezone,
@@ -495,7 +492,6 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         if (match is null)
         {
-            // Not a known timezone: revert to what is saved.
             sender.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
             return;
         }
@@ -864,17 +860,13 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         foreach (string preferred in ApplicationLanguages.Languages)
         {
-            // Exact locale, e.g. en-US
             if (available.Contains(preferred))
                 return true;
 
-            // Base language, e.g. fr from fr-FR
             string preferredBase = preferred.Split('-')[0];
 
             foreach (string language in available)
             {
-                // Don't consider the joke English locales when checking
-                // whether normal system English is supported
                 if (language.Equals("en-UWU", StringComparison.OrdinalIgnoreCase) ||
                     language.Equals("en-LOL", StringComparison.OrdinalIgnoreCase))
                 {
@@ -1175,20 +1167,16 @@ public sealed partial class SettingsPage : Page, IDisposable
 
     private static string? GetBestExtensionIconPath(string extensionPath, JsonElement manifest)
     {
-        // Preferred sizes for a SettingsCard header icon
         int[] preferredSizes = { 32, 48, 16, 64, 128, 24, 20 };
 
-        // 1. Top-level "icons"
         if (TryGetIconFromObject(manifest, "icons", preferredSizes, extensionPath, out string? path))
             return path;
 
-        // 2. action / browser_action / page_action .default_icon
         foreach (string key in new[] { "action", "browser_action", "page_action" })
         {
             if (!manifest.TryGetProperty(key, out JsonElement action))
                 continue;
 
-            // default_icon can be a string or an object
             if (action.TryGetProperty("default_icon", out JsonElement defaultIcon))
             {
                 if (defaultIcon.ValueKind == JsonValueKind.String)
@@ -1226,7 +1214,6 @@ public sealed partial class SettingsPage : Page, IDisposable
             return false;
         }
 
-        // Try preferred sizes first
         foreach (int size in preferredSizes)
         {
             if (icons.TryGetProperty(size.ToString(), out JsonElement iconEl))
@@ -1244,7 +1231,6 @@ public sealed partial class SettingsPage : Page, IDisposable
             }
         }
 
-        // Fallback: any icon that exists
         foreach (JsonProperty prop in icons.EnumerateObject())
         {
             string? rel = prop.Value.GetString();
@@ -1441,7 +1427,6 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (sender is not Button button)
             return;
 
-        // Prevent double clicks
         button.IsEnabled = false;
 
         try
@@ -1619,7 +1604,6 @@ public sealed partial class SettingsPage : Page, IDisposable
         if (sender is not Button button)
             return;
 
-        // Prevent double clicks
         button.IsEnabled = false;
 
         try

@@ -178,7 +178,6 @@ namespace FluentBrowser
                     "en-LOL",
                     StringComparison.OrdinalIgnoreCase);
 
-            // Prefer exact locale matches before attempting fallbacks.
             foreach (string preferred in preferredLanguages)
             {
                 foreach (string available in availableLanguages)

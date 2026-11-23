@@ -620,10 +620,7 @@ public sealed partial class MainWindow
                     {
                         File.Delete(file);
                     }
-                    catch
-                    {
-                        // Why would you ever want to delete a file? It's not like it takes up space or anything.
-                    }
+                    catch { }
                 }
             }
         }

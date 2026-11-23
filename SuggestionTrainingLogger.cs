@@ -269,8 +269,6 @@ public static class SuggestionTrainingLogger
         if (!File.Exists(legacyPath))
             return;
 
-        // If the target already exists, the migration completed before a
-        // previous interruption and only legacy-file cleanup remains.
         if (File.Exists(path))
         {
             File.Delete(legacyPath);

@@ -139,7 +139,6 @@ public sealed class ColumnMajorWrapPanel : Panel
             }
         }
 
-        // Handle the last (possibly incomplete) column
         maxColumnHeight = Math.Max(maxColumnHeight, columnHeight);
 
         return new Size(

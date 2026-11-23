@@ -105,7 +105,6 @@ public sealed partial class MainWindow
         if (_closedTabs.Count <= MaxClosedTabs)
             return;
 
-        // Stack enumerates newest-first; keep the newest entries only.
         ClosedTab[] keep = [.. _closedTabs.Take(MaxClosedTabs).Reverse()];
 
         _closedTabs.Clear();

@@ -615,7 +615,6 @@ internal sealed class FingerprintingProtectionService
 
         public string? ScriptId { get; set; }
 
-        // Whether the installed script includes each optional protection.
         public bool ScriptCanvasProtection { get; set; }
 
         public bool ScriptAudioProtection { get; set; }
@@ -654,7 +653,6 @@ internal sealed class FingerprintingProtectionService
 
         public bool? UserAgentOverrideEnabled { get; set; }
 
-        // Whether the applied override reports Chrome instead of Edge.
         public bool UserAgentChromeIdentity { get; set; }
 
         public bool NavigationUserAgentChromeIdentity { get; set; }
@@ -670,8 +668,6 @@ internal sealed class FingerprintingProtectionService
 
     private readonly ConditionalWeakTable<CoreWebView2, CoreState> _states = new();
 
-    // All variants share one seed so noise stays consistent for the session.
-    // Keyed by (canvas, audio, hardwareConcurrency, geometry).
     private readonly Dictionary<
         (bool Canvas, bool Audio, bool HardwareConcurrency, bool Geometry),
         string> _protectionScripts = new();
@@ -855,8 +851,6 @@ internal sealed class FingerprintingProtectionService
 
         try
         {
-            // Re-check until the WebView matches the settings, since they
-            // can change while we are awaiting.
             while (true)
             {
                 bool desired = _enabled;
@@ -931,8 +925,6 @@ internal sealed class FingerprintingProtectionService
                 {
                     if (desired)
                     {
-                        // Install the new script before removing the old one so
-                        // there is no window where a navigation is unprotected.
                         string? previousScriptId = state.ScriptId;
 
                         string protectionScript = _protectionScripts[
@@ -964,7 +956,6 @@ internal sealed class FingerprintingProtectionService
                     }
                 }
 
-                // Stop once nothing was changed (or a call keeps failing).
                 if (timezoneDone && userAgentDone && scriptDone)
                     return;
                 if (_enabled == desired &&

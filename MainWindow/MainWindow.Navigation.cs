@@ -126,9 +126,6 @@ public sealed partial class MainWindow
                 UriFormat.SafeUnescaped,
                 StringComparison.OrdinalIgnoreCase) == 0)
         {
-            // WebView2 reloads its current URI without adding a native
-            // history entry. Preserve an explicit address-bar submission in
-            // the internal-page history so Back can still reach Start.
             tab.PendingReloadHistoryEntryUri = uri.AbsoluteUri;
             webView.Reload();
         }
@@ -662,9 +659,6 @@ public sealed partial class MainWindow
                     }
                     else if (isPotentialDownload)
                     {
-                        // WebView2 can raise NavigationCompleted before
-                        // DownloadStarting. Give that handoff a short time
-                        // to arrive before declaring the navigation broken.
                         await Task.Delay(500);
 
                         if (tab.IsClosed ||
@@ -851,8 +845,6 @@ public sealed partial class MainWindow
 
             tab.PendingWebHistoryMove = 0;
 
-            // A synthetic traversal uses Source when WebView2 has no native
-            // duplicate entry. That reports NewDocument, not BackOrForward.
             return;
         }
 
@@ -943,28 +935,8 @@ public sealed partial class MainWindow
         return true;
     }
 
-    private void RestoreInternalPage(BrowserTab tab, WebView2 webView)
-    {
-        if (tab.HistoryPage is not FrameworkElement)
-            return;
-
-        CancelAddressBarSubmissionFocus();
-
-        CancelSuggestionRequest();
-        ClearSuggestions(AddressBar);
-        _suggestionTargets.Clear();
-        _suggestionTrainingIds.Clear();
-        _selectedSuggestionTarget = null;
-        _suggestionWasChosen = false;
-
-        webView.Visibility = Visibility.Collapsed;
-        PresentInternalPage(tab);
-    }
-
     private void FocusWebViewAfterForwardFromInternalPage(WebView2 webView)
     {
-        // A delayed address-bar submission callback may outlive a trip back
-        // to Start. Cancel it before the retained WebView is made visible.
         CancelAddressBarSubmissionFocus();
         _addressBarUserEditing = false;
 
@@ -1111,8 +1083,6 @@ public sealed partial class MainWindow
 
                         if (newWebView.CoreWebView2 is { } newCore)
                         {
-                            // The popup starts loading once it is bound, so
-                            // protection must be in place before that.
                             await _fingerprintingProtection.AttachAsync(
                                 newCore);
 

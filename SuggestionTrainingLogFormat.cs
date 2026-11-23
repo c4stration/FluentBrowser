@@ -134,8 +134,6 @@ internal static class SuggestionTrainingLogFormat
             }
             catch (Exception)
             {
-                // Legacy logs have no framing, so an incomplete final object
-                // cannot be recovered. Earlier complete objects remain usable.
                 break;
             }
         }

@@ -97,8 +97,6 @@ public sealed partial class MainWindow
         if (sender is not CoreWebView2ServiceWorker worker)
             return;
 
-        // Service worker events aren't raised on the WinUI thread.  TabView and
-        // WebView2 controls must only be accessed from the window's UI queue.
         string message = args.WebMessageAsJson;
 
         if (!DispatcherQueue.TryEnqueue(
@@ -368,8 +366,6 @@ public sealed partial class MainWindow
                 filterActive = activeElement.GetBoolean();
             }
 
-            // Single-window browser: currentWindow is always true.
-            // Accept the property so callers like SponsorBlock succeed.
             if (queryInfo.TryGetProperty(
                     "currentWindow",
                     out JsonElement currentWindowElement) &&
@@ -380,7 +376,6 @@ public sealed partial class MainWindow
             }
         }
 
-        // Single-window host: currentWindow is always this window.
         _ = currentWindowOnly;
 
         var tabs = new List<object>();
@@ -633,7 +628,6 @@ public sealed partial class MainWindow
                 preferredUrl,
                 preferredTitle);
 
-            // MUST use chrome-extension:// — file:// only paints the background.
             string extensionUri =
                 $"chrome-extension://{item.ExtensionId}/{popupPath}";
 

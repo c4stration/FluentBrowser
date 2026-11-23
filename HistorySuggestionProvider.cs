@@ -305,8 +305,6 @@ internal sealed class HistorySuggestionProvider
 
         command.CommandTimeout = 2;
 
-        // Limit URLs before joining visits, and ignore visits outside the
-        // frecency window because they contribute zero to both aggregates.
         command.CommandText = """
             WITH recent_urls AS (
                 SELECT

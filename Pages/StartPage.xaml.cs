@@ -191,7 +191,6 @@ public sealed partial class StartPage : Page
             _isUpdatingFavorites = false;
         }
 
-        // Normalize older string or integer values to a Boolean LocalSettings value.
         SaveFavoritesVisibilitySetting(_showFavorites);
     }
 
@@ -244,8 +243,6 @@ public sealed partial class StartPage : Page
         foreach (TextBlock textBlock in _favoriteNameTextBlocks)
             ApplyFavoriteNameForeground(textBlock, foreground);
 
-        // Update the TextBlocks that are already realized by the ListView too.
-        // The Loaded handler applies the saved foreground to items realized later.
         UpdateFavoriteNameForegrounds(FavoritesListView, foreground);
     }
 
@@ -921,13 +918,9 @@ public sealed partial class StartPage : Page
                         return candidate;
                     }
 
-                    // A rate limit or temporary server failure should preserve
-                    // the candidate so it can be retried after the cooldown.
                     if (IsCommonsCooldownActive())
                         break;
 
-                    // Permanent failures, such as a missing thumbnail, should
-                    // not block the remaining candidates in this batch.
                     RemoveQueuedRandomBackground(candidate.Id);
                     _randomBackgroundEntries.Remove(candidate.Id);
                     SaveRandomBackgroundCache();
@@ -937,9 +930,6 @@ public sealed partial class StartPage : Page
                 break;
             }
 
-            // Wikimedia is unavailable or the current batch has been exhausted.
-            // Reuse the least-recently-shown local image instead of making
-            // repeated requests or leaving the background empty.
             return GetLeastRecentlyShownLocalBackground();
         }
         finally
@@ -1006,7 +996,6 @@ public sealed partial class StartPage : Page
 
     private void StartNextRandomBackgroundPrefetch(RandomBackgroundEntry currentEntry)
     {
-        // If another downloaded, unseen image is already waiting, leave it alone.
         bool anotherUnshownImageIsReady = _randomBackgroundEntries.Values.Any(entry =>
             entry.Id != currentEntry.Id &&
             entry.LastShownUtcTicks == 0 &&
@@ -1021,9 +1010,6 @@ public sealed partial class StartPage : Page
 
         if (nextEntry is not null)
         {
-            // Prefetch is intentionally independent of the current display
-            // cancellation token. Switching backgrounds must not cancel a
-            // useful download that is already in progress.
             _ = EnsureRandomBackgroundDownloadedAsync(
                 nextEntry,
                 CancellationToken.None);
@@ -1032,8 +1018,6 @@ public sealed partial class StartPage : Page
 
     private void StartRandomBackgroundPrefetches()
     {
-        // Keep the next one or two queued backgrounds ready without allowing
-        // a burst of downloads when a new batch arrives.
         foreach (RandomBackgroundEntry entry in _randomBackgroundQueue
                      .Where(entry => !File.Exists(GetRandomBackgroundFilePath(entry)))
                      .Take(2))
@@ -1048,10 +1032,6 @@ public sealed partial class StartPage : Page
         if (IsCommonsCooldownActive())
             return [];
 
-        // generator=random is cacheable at intermediary proxies. A unique
-        // request id, plus explicit no-cache headers, makes every refill an
-        // actual random-generator request instead of repeatedly parsing the
-        // same ten page IDs and rejecting them as already known.
         const int maximumAttempts = 3;
 
         for (int attempt = 1; attempt <= maximumAttempts; attempt++)
@@ -1095,8 +1075,6 @@ public sealed partial class StartPage : Page
                 if (batch.Count > 0 || attempt == maximumAttempts)
                     return batch;
 
-                // A valid random batch can contain only unsupported media or
-                // entries already persisted locally. Ask for a fresh batch.
                 await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -1404,8 +1382,6 @@ public sealed partial class StartPage : Page
             await _randomBackgroundDownloadLimiter.WaitAsync(cancellationToken);
             limiterAcquired = true;
 
-            // Another request may have triggered a cooldown while this download
-            // was waiting for the single-download limiter.
             if (IsCommonsCooldownActive())
                 return false;
 
@@ -1827,7 +1803,6 @@ public sealed partial class StartPage : Page
             Debug.WriteLine($"Failed to access Start Page LocalSettings: {ex}");
         }
 
-        // Migrate settings saved by older versions of the Start Page.
         if (!loadedSettings && File.Exists(SettingsFilePath))
         {
             try
@@ -2160,8 +2135,6 @@ public sealed partial class StartPage : Page
             string json = JsonSerializer.Serialize(data);
             ApplicationData.Current.LocalSettings.Values[BackgroundSettingsLocalSettingKey] = json;
 
-            // Remove the old metadata files only after LocalSettings has accepted
-            // the replacement, so a failed write does not discard the old data.
             TryDeleteSettingsFile(SettingsFilePath);
             TryDeleteSettingsFile(LegacySettingsFilePath);
         }

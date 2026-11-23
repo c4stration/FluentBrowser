@@ -407,9 +407,6 @@ public sealed partial class MainWindow
             return;
         }
 
-        // ListView recycles its item visuals. Do not capture an extension ID
-        // in Tag here: a recycled ToggleSwitch can display a new DataContext
-        // while retaining a previous local Tag value.
         toggle.DataContextChanged -= ExtensionToggle_DataContextChanged;
         toggle.DataContextChanged += ExtensionToggle_DataContextChanged;
 
@@ -547,8 +544,6 @@ public sealed partial class MainWindow
             if (webView.CoreWebView2 is not { } core)
                 return;
 
-            // Start as early as possible; the navigation paths below await
-            // the same (idempotent) call before the first navigation.
             _ = _fingerprintingProtection.AttachAsync(core);
 
             ApplyDownloadSettings(core.Profile);
@@ -792,7 +787,6 @@ public sealed partial class MainWindow
 
         if (webView.CoreWebView2 is { } core)
         {
-            // Must complete before the first navigation.
             await _fingerprintingProtection.AttachAsync(core);
 
             await ConfigureWebMessageHandlingAsync(webView, core);
@@ -1507,9 +1501,6 @@ public sealed partial class MainWindow
                 : Visibility.Collapsed
         };
 
-        // The first navigation initializes a new WebView2 rather than adding
-        // a new logical entry.  The URL-only history snapshot already owns
-        // this entry.
         tab.WebHistoryIndex = targetIndex;
         tab.PendingHistoryRestoreUri = target.AbsoluteUri;
         tab.PendingWebHistoryMove = 0;

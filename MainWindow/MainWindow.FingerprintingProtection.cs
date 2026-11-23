@@ -12,15 +12,6 @@ public sealed partial class MainWindow
     private readonly FingerprintingProtectionService
         _fingerprintingProtection = new();
 
-    /// <summary>
-    /// Applies the persisted FingerprintingProtection setting to every
-    /// existing website WebView. Future WebViews pick the setting up when
-    /// they are attached, before their first navigation.
-    ///
-    /// Pages that are already loaded are not reloaded here: that would
-    /// discard form input and playback in tabs the user is not looking at.
-    /// They are reloaded lazily, once, when the tab is next selected.
-    /// </summary>
     public async Task ApplyFingerprintingProtectionAsync()
     {
         try
@@ -46,11 +37,6 @@ public sealed partial class MainWindow
         }
     }
 
-    /// <summary>
-    /// Called when a tab is selected. Re-synchronizes its WebView (it may
-    /// have been suspended while the setting changed) and reloads the page
-    /// once if it was loaded under a different setting.
-    /// </summary>
     private async Task RefreshFingerprintingProtectionAsync(BrowserTab tab)
     {
         try
@@ -81,8 +67,6 @@ public sealed partial class MainWindow
                 return;
             }
 
-            // Do not interrupt playback; the page keeps its old protection
-            // state until the next navigation or a manual reload.
             if (IsTabPlayingAudio(core))
                 return;
 

@@ -347,12 +347,9 @@ public sealed partial class MainWindow
             BitmapImage? favicon16 = await favicon16Task;
             BitmapImage? favicon32 = await favicon32Task;
 
-            // Keep the original favicon for the browser chrome favorites bar.
             if (favicon16 is not null)
                 favorite.Favicon = favicon16;
 
-            // The Start page uses the larger image, falling back to the original
-            // favicon when the size-specific request is unavailable.
             favorite.Favicon32 = favicon32 ?? favicon16;
         }
         catch (Exception ex)
