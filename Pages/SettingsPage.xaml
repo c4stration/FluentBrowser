@@ -439,15 +439,67 @@
                         l:Uids.Uid="PrivacySection"
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                    <controls:SettingsCard l:Uids.Uid="FingerprintingProtection">
-                        <controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsExpander l:Uids.Uid="FingerprintingProtection">
+                        <controls:SettingsExpander.HeaderIcon>
                             <PathIcon
                                 Data="{StaticResource FingerprintingProtection}"
                                 FlowDirection="LeftToRight"
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
-                        </controls:SettingsCard.HeaderIcon>
+                        </controls:SettingsExpander.HeaderIcon>
+
                         <ToggleSwitch x:Name="FingerprintingProtectionToggleSwitch" l:Uids.Uid="General_ToggleSwitch" />
-                    </controls:SettingsCard>
+
+                        <controls:SettingsExpander.Items>
+                            <controls:SettingsCard l:Uids.Uid="TimezoneSpoofing">
+                                <ComboBox
+                                    x:Name="TimezoneComboBox"
+                                    IsEditable="True"
+                                    SelectionChanged="TimezoneComboBox_SelectionChanged"
+                                    TextSubmitted="TimezoneComboBox_TextSubmitted" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="CanvasProtection">
+                                <ToggleSwitch
+                                    x:Name="CanvasProtectionToggle"
+                                    l:Uids.Uid="General_ToggleSwitch"
+                                    Toggled="CanvasProtectionToggle_Toggled" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="AudioProtection">
+                                <ToggleSwitch
+                                    x:Name="AudioProtectionToggle"
+                                    l:Uids.Uid="General_ToggleSwitch"
+                                    Toggled="AudioProtectionToggle_Toggled" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="HardwareConcurrencyProtection">
+                                <ToggleSwitch
+                                    x:Name="HardwareConcurrencyProtectionToggle"
+                                    l:Uids.Uid="General_ToggleSwitch"
+                                    Toggled="HardwareConcurrencyProtectionToggle_Toggled" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="GeometryProtection">
+                                <ToggleSwitch
+                                    x:Name="GeometryProtectionToggle"
+                                    l:Uids.Uid="General_ToggleSwitch"
+                                    Toggled="GeometryProtectionToggle_Toggled" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard l:Uids.Uid="BrowserIdentity">
+                                <ComboBox x:Name="BrowserIdentityComboBox" SelectionChanged="BrowserIdentityComboBox_SelectionChanged">
+                                    <ComboBoxItem>
+                                        <ComboBoxItem.Content>
+                                            <TextBlock>
+                                                <Run Text="Edge" /><Run l:Uids.Uid="DefaultOption" />
+                                            </TextBlock>
+                                        </ComboBoxItem.Content>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Content="Chrome" />
+                                </ComboBox>
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander.Items>
+                    </controls:SettingsExpander>
 
                     <TextBlock
                         Margin="0,29,0,8"

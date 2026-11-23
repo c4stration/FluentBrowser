@@ -1111,6 +1111,11 @@ public sealed partial class MainWindow
 
                         if (newWebView.CoreWebView2 is { } newCore)
                         {
+                            // The popup starts loading once it is bound, so
+                            // protection must be in place before that.
+                            await _fingerprintingProtection.AttachAsync(
+                                newCore);
+
                             args.NewWindow = newCore;
 
                             Debug.WriteLine(

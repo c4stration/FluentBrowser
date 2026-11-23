@@ -104,6 +104,23 @@ public sealed partial class MainWindow
                 "No active WebView2 profile is available");
     }
 
+    public async Task<IReadOnlyList<string>> GetSupportedTimezonesAsync()
+    {
+        await _browserProfileReady.Task;
+
+        CoreWebView2 core = _profileBootstrapWebView?.CoreWebView2
+            ?? throw new InvalidOperationException(
+                "bootstrap control is not initialized");
+
+        string result = await core.ExecuteScriptAsync("Intl.supportedValuesOf('timeZone')");
+
+        return (JsonSerializer.Deserialize<string[]>(result) ?? [])
+            .Append("UTC")
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(timezone => timezone, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private async Task InitializeBrowserProfileAsync()
     {
         if (_profileBootstrapWebView is not null)
@@ -530,6 +547,10 @@ public sealed partial class MainWindow
             if (webView.CoreWebView2 is not { } core)
                 return;
 
+            // Start as early as possible; the navigation paths below await
+            // the same (idempotent) call before the first navigation.
+            _ = _fingerprintingProtection.AttachAsync(core);
+
             ApplyDownloadSettings(core.Profile);
 
             _browserProfile = core.Profile;
@@ -770,7 +791,12 @@ public sealed partial class MainWindow
             App.WebViewEnvironment);
 
         if (webView.CoreWebView2 is { } core)
+        {
+            // Must complete before the first navigation.
+            await _fingerprintingProtection.AttachAsync(core);
+
             await ConfigureWebMessageHandlingAsync(webView, core);
+        }
 
         await EnableLoadProgressTrackingAsync(webView);
 

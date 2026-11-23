@@ -662,6 +662,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>По умолчанию</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (По умолчанию)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>Сведения об изображении</value>
   </data>
@@ -723,9 +726,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} из {1} ({2}/с) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>осталось {0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# секунда осталась} few {# секунды остались} many {# секунд осталось} other {# секунды осталось}}</value>
   </data>
@@ -752,5 +752,41 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Не позволяйте веб-сайтам однозначно идентифицировать ваше устройство, ограничивая сбор информации о браузере и системе</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Подмена часового пояса</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>Этот показатель можно использовать для определения вашего примерного местоположения, особенно если вы живёте в часовом поясе, которым пользуется мало других людей</value>
+  </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Защита Canvas</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Добавляет небольшие изменения в данные, возвращаемые API HTML5 Canvas, чтобы снизить точность снятия цифрового отпечатка на основе Canvas</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>Защита аудио</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>Добавляйте незначительный шум в аудиоданные, чтобы снизить надежность аудиоотпечатков</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>Рандомизировать количество логических процессоров</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>Рандомизируйте количество логических процессоров, сообщаемое сайтам, чтобы снизить надежность аппаратного отпечатка</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>Защита геометрии</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>Незначительно изменяйте размеры элементов и измерения текста, чтобы снизить надежность геометрического отпечатка</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>Идентификатор браузера</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>Выберите, будут ли сайты определять ваш браузер как Microsoft Edge или Google Chrome</value>
   </data>
 </root>

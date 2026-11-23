@@ -745,6 +745,8 @@ public sealed partial class MainWindow
 
                 if (newWebView.CoreWebView2 is { } newCore)
                 {
+                    await _fingerprintingProtection.AttachAsync(newCore);
+
                     args.NewWindow = newCore;
                 }
                 else

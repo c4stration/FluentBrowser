@@ -661,6 +661,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>Default</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value> (Default)</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>Image info</value>
   </data>
@@ -721,9 +724,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>{0} of {1} ({2}/s) – {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>{0} left</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, one {# second left} other {# seconds left}}</value>
   </data>
@@ -750,5 +750,41 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>Prevent websites from uniquely identifying your device by limiting the information they can collect about your browser and system</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>Time zone spoofing</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>This metric can be used to figure out your general location, especially if you live in a time zone without many other users</value>
+  </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas protection</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>Add small variations to data returned by the HTML5 canvas API to make canvas-based fingerprinting less reliable</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>Audio protection</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>Add subtle noise to audio data to make audio-based fingerprinting less reliable</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>Randomise hardware concurrency</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>Randomise the number of logical processors reported to websites to make hardware fingerprinting less reliable</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>Geometry protection</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>Modify element dimensions and text measurements slightly to make geometry-based fingerprinting less reliable</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>Browser identity</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>Choose whether websites identify your browser as Microsoft Edge or Google Chrome</value>
   </data>
 </root>

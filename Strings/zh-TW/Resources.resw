@@ -648,6 +648,9 @@
   <data name="DefaultOption.Content" xml:space="preserve">
     <value>預設</value>
   </data>
+  <data name="DefaultOption.Text" xml:space="preserve">
+    <value>（預設）</value>
+  </data>
   <data name="ImageInfoHeader.Text" xml:space="preserve">
     <value>圖片資訊</value>
   </data>
@@ -708,9 +711,6 @@
   <data name="DownloadStatusFormat" xml:space="preserve">
     <value>已下載 {0}，共 {1}（{2}/秒）– {3}</value>
   </data>
-  <data name="TimeRemaining" xml:space="preserve">
-    <value>剩餘{0}</value>
-  </data>
   <data name="SecondsLeftFormat" xml:space="preserve">
     <value>{count, plural, other {還剩 # 秒}}</value>
   </data>
@@ -737,5 +737,41 @@
   </data>
   <data name="FingerprintingProtection.Description" xml:space="preserve">
     <value>限制網站收集有關瀏覽器和系統的資訊，防止網站識別出您的裝置</value>
+  </data>
+  <data name="TimezoneSpoofing.Header" xml:space="preserve">
+    <value>時區偽裝</value>
+  </data>
+  <data name="TimezoneSpoofing.Description" xml:space="preserve">
+    <value>此指標可用於推測您的大致地理位置，尤其是當您居住在使用人數較少的時區時</value>
+  </data>
+  <data name="CanvasProtection.Header" xml:space="preserve">
+    <value>Canvas 保護</value>
+  </data>
+  <data name="CanvasProtection.Description" xml:space="preserve">
+    <value>對 HTML5 Canvas API 回傳的資料進行細微調整，以降低基於 Canvas 的瀏覽器指紋辨識的可靠性</value>
+  </data>
+  <data name="AudioProtection.Header" xml:space="preserve">
+    <value>音訊保護</value>
+  </data>
+  <data name="AudioProtection.Description" xml:space="preserve">
+    <value>在音訊資料中加入細微雜訊，降低音訊指紋識別的可靠性</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Header" xml:space="preserve">
+    <value>隨機化邏輯處理器數量</value>
+  </data>
+  <data name="HardwareConcurrencyProtection.Description" xml:space="preserve">
+    <value>隨機化回報給網站的邏輯處理器數量，降低硬體指紋識別的可靠性</value>
+  </data>
+  <data name="GeometryProtection.Header" xml:space="preserve">
+    <value>幾何資訊保護</value>
+  </data>
+  <data name="GeometryProtection.Description" xml:space="preserve">
+    <value>略微修改元素尺寸和文字測量值，降低基於幾何資訊的指紋識別可靠性</value>
+  </data>
+  <data name="BrowserIdentity.Header" xml:space="preserve">
+    <value>瀏覽器識別資訊</value>
+  </data>
+  <data name="BrowserIdentity.Description" xml:space="preserve">
+    <value>選擇讓網站將你的瀏覽器識別為 Microsoft Edge 還是 Google Chrome</value>
   </data>
 </root>

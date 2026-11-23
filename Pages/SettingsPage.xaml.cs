@@ -72,6 +72,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     public event EventHandler? FullWebAddressChanged;
     public event EventHandler? SearchSuggestionsChanged;
     public event EventHandler? SearchEngineChanged;
+    public event EventHandler? FingerprintingProtectionChanged;
     private readonly SemaphoreSlim _extensionLoadLock = new(1, 1);
     private int _extensionLoadVersion;
 
@@ -104,6 +105,8 @@ public sealed partial class SettingsPage : Page, IDisposable
         _loadingSettings = true;
 
         AddExtensionButton.Click += AddExtensionButton_Click;
+        FingerprintingProtectionToggleSwitch.Toggled +=
+            FingerprintingProtectionToggleSwitch_Toggled;
 
         LoadTheme();
         LoadWebTheme();
@@ -115,6 +118,12 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadAddressBarAlignment();
         LoadNewTabPosition();
         LoadFullWebAddress();
+        LoadFingerprintingProtection();
+        LoadCanvasProtection();
+        LoadAudioProtection();
+        LoadHardwareConcurrencyProtection();
+        LoadGeometryProtection();
+        LoadBrowserIdentity();
         LoadCustomSites();
         LoadStartupBehavior();
         LoadSearchSuggestions();
@@ -135,6 +144,8 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         UpdateSystemLanguageInfoBar();
         LoadFaviconCacheDescription();
+
+        _ = LoadTimezonesAsync();
 
         MathFontPreviewControl.MathML = """
             <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
@@ -309,6 +320,7 @@ public sealed partial class SettingsPage : Page, IDisposable
         FullWebAddressChanged = null;
         SearchSuggestionsChanged = null;
         SearchEngineChanged = null;
+        FingerprintingProtectionChanged = null;
     }
 
     private void OnLanguageChanged(
@@ -398,6 +410,115 @@ public sealed partial class SettingsPage : Page, IDisposable
 
             break;
         }
+    }
+
+    private async Task LoadTimezonesAsync()
+    {
+        // Show the saved value immediately; the list loads asynchronously.
+        TimezoneComboBox.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+
+        if (_mainWindow is null)
+            return;
+
+        try
+        {
+            List<string> timezones =
+                (await _mainWindow.GetSupportedTimezonesAsync()).ToList();
+
+            if (_isDisposed)
+                return;
+
+            string selected = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+
+            // Keep a saved id that is not in the list (e.g. an alias of a
+            // listed zone) selectable instead of silently resetting it.
+            string? match = timezones.FirstOrDefault(timezone =>
+                string.Equals(
+                    timezone,
+                    selected,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (match is null)
+            {
+                timezones.Insert(0, selected);
+                match = selected;
+            }
+
+            bool wasLoading = _loadingSettings;
+            _loadingSettings = true;
+
+            try
+            {
+                TimezoneComboBox.ItemsSource = timezones;
+                TimezoneComboBox.SelectedItem = match;
+            }
+            finally
+            {
+                _loadingSettings = wasLoading;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load timezones: {ex}");
+        }
+    }
+
+    private void TimezoneComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings ||
+            TimezoneComboBox.SelectedItem is not string timezone)
+        {
+            return;
+        }
+
+        SaveTimezone(timezone);
+    }
+
+    private void TimezoneComboBox_TextSubmitted(
+        ComboBox sender,
+        ComboBoxTextSubmittedEventArgs e)
+    {
+        e.Handled = true;
+
+        if (_loadingSettings)
+            return;
+
+        string typed = e.Text.Trim();
+        string? match =
+            (sender.ItemsSource as IEnumerable<string>)?.FirstOrDefault(
+                candidate => string.Equals(
+                    candidate,
+                    typed,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (match is null)
+        {
+            // Not a known timezone: revert to what is saved.
+            sender.Text = _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId;
+            return;
+        }
+
+        sender.SelectedItem = match;
+        sender.Text = match;
+        SaveTimezone(match);
+    }
+
+    private void SaveTimezone(string timezone)
+    {
+        timezone = timezone.Trim();
+
+        if (string.Equals(
+                _settings.Values[FingerprintingProtectionService.TimezoneSettingName] as string ?? FingerprintingProtectionService.DefaultTimezoneId,
+                timezone,
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _settings.Values[FingerprintingProtectionService.TimezoneSettingName] = timezone;
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void LoadTabWidth()
@@ -799,6 +920,125 @@ public sealed partial class SettingsPage : Page, IDisposable
         FullWebAddressChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    private void LoadFingerprintingProtection()
+    {
+        FingerprintingProtectionToggleSwitch.IsOn =
+            FingerprintingProtectionService.GetEnabled();
+    }
+
+    private void FingerprintingProtectionToggleSwitch_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.SettingName] =
+            FingerprintingProtectionToggleSwitch.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadCanvasProtection()
+    {
+        CanvasProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetCanvasProtectionEnabled();
+    }
+
+    private void CanvasProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.CanvasProtectionSettingName] =
+            CanvasProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadAudioProtection()
+    {
+        AudioProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetAudioProtectionEnabled();
+    }
+
+    private void AudioProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.AudioProtectionSettingName] =
+            AudioProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadHardwareConcurrencyProtection()
+    {
+        HardwareConcurrencyProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetHardwareConcurrencyProtectionEnabled();
+    }
+
+    private void HardwareConcurrencyProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.HardwareConcurrencyProtectionSettingName] =
+            HardwareConcurrencyProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadGeometryProtection()
+    {
+        GeometryProtectionToggle.IsOn =
+            FingerprintingProtectionService.GetGeometryProtectionEnabled();
+    }
+
+    private void GeometryProtectionToggle_Toggled(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_loadingSettings)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.GeometryProtectionSettingName] =
+            GeometryProtectionToggle.IsOn;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadBrowserIdentity()
+    {
+        BrowserIdentityComboBox.SelectedIndex =
+            FingerprintingProtectionService.GetBrowserIdentity() ==
+                FingerprintingProtectionService.ChromeBrowserIdentity
+                    ? 1
+                    : 0;
+    }
+
+    private void BrowserIdentityComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (_loadingSettings || BrowserIdentityComboBox.SelectedIndex < 0)
+            return;
+
+        _settings.Values[FingerprintingProtectionService.BrowserIdentitySettingName] =
+            BrowserIdentityComboBox.SelectedIndex == 1
+                ? FingerprintingProtectionService.ChromeBrowserIdentity
+                : FingerprintingProtectionService.EdgeBrowserIdentity;
+
+        FingerprintingProtectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     private void LoadSearchSuggestions()
     {
         SearchSuggestionsToggle.IsOn =
@@ -806,8 +1046,8 @@ public sealed partial class SettingsPage : Page, IDisposable
     }
 
     private void SearchSuggestionsToggle_Toggled(
-    object sender,
-    RoutedEventArgs e)
+        object sender,
+        RoutedEventArgs e)
     {
         if (_loadingSettings)
             return;
