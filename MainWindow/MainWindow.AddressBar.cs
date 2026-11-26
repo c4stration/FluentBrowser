@@ -6,10 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Numerics;
@@ -41,9 +39,6 @@ public sealed partial class MainWindow
     private bool _addressBarContextFlyoutOpen;
     private CancellationTokenSource? _addressBarBlurCancellation;
     private Popup? _addressSuggestionPopup;
-    private FrameworkElement? _addressSuggestionContainer;
-    private ListView? _addressSuggestionList;
-    private Storyboard? _addressSuggestionHeightStoryboard;
     private Uri? _pendingAddressBarUri;
     private bool _addressBarSuppressLostFocus;
     private int _addressBarProgrammaticTextUpdates;
@@ -64,10 +59,8 @@ public sealed partial class MainWindow
     private CancellationTokenSource? _suggestionCancellation;
     private bool _suggestionWasChosen;
 
-    private sealed class AddressBarSuggestion : INotifyPropertyChanged
+    private sealed class AddressBarSuggestion
     {
-        private ImageSource? _favicon;
-
         public AddressBarSuggestion(
             string display,
             Uri target,
@@ -84,23 +77,6 @@ public sealed partial class MainWindow
         public Uri Target { get; }
         public string IconGlyph { get; }
         public bool IsHistory { get; }
-
-        public ImageSource? Favicon
-        {
-            get => _favicon;
-            set
-            {
-                if (ReferenceEquals(_favicon, value))
-                    return;
-
-                _favicon = value;
-                PropertyChanged?.Invoke(
-                    this,
-                    new PropertyChangedEventArgs(nameof(Favicon)));
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 
     private bool AreSearchSuggestionsEnabled() =>
@@ -112,7 +88,7 @@ public sealed partial class MainWindow
         AddressBar.LosingFocus += AddressBar_LosingFocus;
 
         FindAddressBarTextHost();
-        InitializeSuggestionPopupAnimation();
+        InitializeSuggestionPopup();
 
         if (_addressTextBox is null)
             return;
@@ -147,7 +123,7 @@ public sealed partial class MainWindow
             tab.AddressBarDraft = sender.Text;
             tab.AddressBarFocused = true;
             _addressBarFocusTab = tab;
-            SaveAddressBarSelection(tab);
+            QueueAddressBarSelectionSave(tab, sender.Text);
         }
 
         if (!AreSearchSuggestionsEnabled())
@@ -299,105 +275,23 @@ public sealed partial class MainWindow
         }
     }
 
-    private void InitializeSuggestionPopupAnimation()
+    private void InitializeSuggestionPopup()
     {
         if (_addressSuggestionPopup is not null)
             return;
 
         if (VisualTreeHelper.GetChild(AddressBar, 0) is not Grid templateRoot ||
-            templateRoot.Children.OfType<Popup>().FirstOrDefault() is not { } popup ||
-            popup.Child is not FrameworkElement container)
+            templateRoot.Children.OfType<Popup>().FirstOrDefault() is not { } popup)
         {
             return;
         }
 
         _addressSuggestionPopup = popup;
-        _addressSuggestionContainer = container;
-        _addressSuggestionList = container.FindDescendant<ListView>();
-
-        popup.Opened += AddressSuggestionPopup_Opened;
         popup.Closed += AddressSuggestionPopup_Closed;
-
-        if (_addressSuggestionList is not null)
-        {
-            _addressSuggestionList.ContainerContentChanging +=
-                AddressSuggestionList_ContainerContentChanging;
-        }
-    }
-
-    private void AddressSuggestionPopup_Opened(object? sender, object e)
-    {
-        if (_addressSuggestionContainer is not { } container ||
-            container.ActualHeight <= 0)
-        {
-            return;
-        }
-
-        _addressSuggestionHeightStoryboard?.Stop();
-        _addressSuggestionHeightStoryboard = null;
-
-        double targetHeight = container.ActualHeight;
-        double startHeight = targetHeight * 0.9;
-
-        container.Height = startHeight;
-
-        var animation = new DoubleAnimation
-        {
-            From = startHeight,
-            To = targetHeight,
-            Duration = new Duration(TimeSpan.FromMilliseconds(300)),
-            EnableDependentAnimation = true,
-            EasingFunction = new SineEase
-            {
-                EasingMode = EasingMode.EaseOut
-            }
-        };
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(animation);
-
-        Storyboard.SetTarget(animation, container);
-        Storyboard.SetTargetProperty(animation, "Height");
-
-        _addressSuggestionHeightStoryboard = storyboard;
-
-        storyboard.Completed += (_, _) =>
-        {
-            if (!ReferenceEquals(_addressSuggestionHeightStoryboard, storyboard))
-                return;
-
-            container.Height = targetHeight;
-            _addressSuggestionHeightStoryboard = null;
-        };
-
-        storyboard.Begin();
-
-        if (_addressSuggestionList is { } list)
-        {
-            list.DispatcherQueue.TryEnqueue(() =>
-            {
-                if (_addressSuggestionPopup?.IsOpen != true)
-                    return;
-
-                list.UpdateLayout();
-
-                for (int i = 0; i < list.Items.Count; i++)
-                {
-                    if (list.ContainerFromIndex(i) is ListViewItem item)
-                        AnimateSuggestionItem(item, i);
-                }
-            });
-        }
     }
 
     private void AddressSuggestionPopup_Closed(object? sender, object e)
     {
-        _addressSuggestionHeightStoryboard?.Stop();
-        _addressSuggestionHeightStoryboard = null;
-
-        if (_addressSuggestionContainer is { } container)
-            container.Height = double.NaN;
-
         if (_pendingAddressBarFocusWebView is { } webView)
         {
             _pendingAddressBarFocusWebView = null;
@@ -426,69 +320,6 @@ public sealed partial class MainWindow
         });
     }
 
-    private void AddressSuggestionList_ContainerContentChanging(
-        ListViewBase sender,
-        ContainerContentChangingEventArgs args)
-    {
-        if (args.InRecycleQueue ||
-            args.Phase != 0 ||
-            args.ItemContainer is not ListViewItem item)
-        {
-            return;
-        }
-
-        var visual = ElementCompositionPreview.GetElementVisual(item);
-
-        visual.StopAnimation("Opacity");
-        visual.Opacity = 0;
-
-        if (_addressSuggestionPopup?.IsOpen != true ||
-            _addressSuggestionList is not { } list)
-        {
-            return;
-        }
-
-        int index = args.ItemIndex;
-
-        list.DispatcherQueue.TryEnqueue(() =>
-        {
-            if (_addressSuggestionPopup?.IsOpen != true ||
-                !ReferenceEquals(list.ContainerFromIndex(index), item))
-            {
-                return;
-            }
-
-            AnimateSuggestionItem(item, index);
-        });
-    }
-
-    private static void AnimateSuggestionItem(ListViewItem item, int index)
-    {
-        var visual = ElementCompositionPreview.GetElementVisual(item);
-        var compositor = visual.Compositor;
-
-        visual.StopAnimation("Opacity");
-        visual.Opacity = 0;
-
-        var animation = compositor.CreateScalarKeyFrameAnimation();
-
-        animation.InsertKeyFrame(0f, 0f);
-
-        animation.InsertKeyFrame(
-            1f,
-            1f,
-            compositor.CreateCubicBezierEasingFunction(
-                new Vector2(0.16f, 1f),
-                new Vector2(0.3f, 1f)));
-
-        animation.DelayTime =
-            TimeSpan.FromMilliseconds(Math.Min(index * 18, 90));
-
-        animation.Duration = TimeSpan.FromMilliseconds(220);
-
-        visual.StartAnimation("Opacity", animation);
-    }
-
     private async Task ApplyRankedSuggestionsAsync(
         AutoSuggestBox sender,
         string query,
@@ -506,7 +337,13 @@ public sealed partial class MainWindow
             .Select(t => t!.WebView!.Source!)
             .ToList();
 
-        var ranked = _suggestionRanker.Rank(candidates, query, openUris);
+        // ML.NET can do one-time initialization on its first prediction. Keep it
+        // off the UI queue so opening the first suggestion list cannot stall input.
+        IReadOnlyList<SuggestionRanker.RankedSuggestion> ranked = await Task.Run(
+            () => _suggestionRanker.Rank(candidates, query, openUris));
+
+        if (!IsCurrentSuggestionRequest(sender, query, requestVersion, cancellation))
+            return;
 
         if (ranked.Count == 1 &&
             SelectedWebView?.Source is Uri currentUri &&
@@ -591,27 +428,24 @@ public sealed partial class MainWindow
                 r.IsHistory))
             .ToArray();
 
+        string textAtUpdate = sender.Text;
+        (int Start, int Length)? selection = CaptureAddressBarSelection();
+
         sender.ItemsSource = items;
 
         sender.IsSuggestionListOpen = items.Length > 0;
 
-        foreach (AddressBarSuggestion item in items.Where(
-                     item => LooksLikeWebsiteSuggestion(item.Display)))
-        {
-            ImageSource? favicon = await GetSuggestionFaviconAsync(
-                item.Target);
+        RestoreAddressBarSelectionAfterSuggestionUpdate(
+            sender,
+            textAtUpdate,
+            selection,
+            query,
+            requestVersion,
+            cancellation);
 
-            if (!IsCurrentSuggestionRequest(
-                    sender,
-                    query,
-                    requestVersion,
-                    cancellation))
-            {
-                return;
-            }
-
-            item.Favicon = favicon;
-        }
+        // Suggestion rows deliberately use their lightweight glyphs. Decoding
+        // favicons while the user types runs bitmap work on the UI thread and
+        // causes the input stall this list is meant to avoid.
     }
 
     private static bool LooksLikeWebsiteSuggestion(string display) =>
@@ -1100,6 +934,89 @@ public sealed partial class MainWindow
         tab.AddressBarSelectionStart = selectionStart;
         tab.AddressBarSelectionLength = selectionLength;
         tab.AddressBarSelectionSaved = true;
+    }
+
+    private void QueueAddressBarSelectionSave(BrowserTab tab, string textAtInput)
+    {
+        AddressBar.DispatcherQueue.TryEnqueue(
+            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () =>
+            {
+                // AutoSuggestBox raises TextChanged before its inner TextBox has
+                // consistently published the new caret position. Saving on the
+                // next UI turn avoids restoring a position from before the key.
+                if (ReferenceEquals(SelectedTab, tab) &&
+                    ReferenceEquals(_addressBarFocusTab, tab) &&
+                    string.Equals(AddressBar.Text, textAtInput, StringComparison.Ordinal) &&
+                    IsAddressBarTextBoxFocused())
+                {
+                    SaveAddressBarSelection(tab);
+                }
+            });
+    }
+
+    private (int Start, int Length)? CaptureAddressBarSelection()
+    {
+        FindAddressBarTextHost();
+
+        if (_addressTextBox is null ||
+            _addressTextBox.FocusState == FocusState.Unfocused)
+        {
+            return null;
+        }
+
+        return (_addressTextBox.SelectionStart, _addressTextBox.SelectionLength);
+    }
+
+    private void RestoreAddressBarSelectionAfterSuggestionUpdate(
+        AutoSuggestBox sender,
+        string textAtUpdate,
+        (int Start, int Length)? selection,
+        string query,
+        int requestVersion,
+        CancellationTokenSource cancellation)
+    {
+        if (selection is not { } savedSelection)
+            return;
+
+        sender.DispatcherQueue.TryEnqueue(
+            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () =>
+            {
+                // Only restore an untouched edit. New input always wins over a
+                // deferred popup update, so this cannot move the caret backwards.
+                if (!IsCurrentSuggestionRequest(
+                        sender,
+                        query,
+                        requestVersion,
+                        cancellation) ||
+                    !string.Equals(
+                        sender.Text,
+                        textAtUpdate,
+                        StringComparison.Ordinal) ||
+                    _addressTextBox is null ||
+                    _addressTextBox.FocusState == FocusState.Unfocused)
+                {
+                    return;
+                }
+
+                int start = Math.Clamp(
+                    savedSelection.Start,
+                    0,
+                    _addressTextBox.Text.Length);
+                int length = Math.Clamp(
+                    savedSelection.Length,
+                    0,
+                    _addressTextBox.Text.Length - start);
+
+                _addressTextBox.Select(start, length);
+
+                if (SelectedTab is BrowserTab tab &&
+                    ReferenceEquals(_addressBarFocusTab, tab))
+                {
+                    SaveAddressBarSelection(tab);
+                }
+            });
     }
 
     private bool IsAddressBarTextBoxFocused()

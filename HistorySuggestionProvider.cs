@@ -121,10 +121,15 @@ internal sealed class HistorySuggestionProvider
             if (cancellationToken.IsCancellationRequested)
                 return Array.Empty<HistorySuggestion>();
 
-            return RankCandidates(
-                _cachedCandidates,
-                query,
-                maxResults,
+            // Ranking walks the complete cached history. Keep that CPU work off
+            // the input/UI thread for every query, not only while refreshing the
+            // history snapshot.
+            return await Task.Run(
+                () => RankCandidates(
+                    _cachedCandidates,
+                    query,
+                    maxResults,
+                    cancellationToken),
                 cancellationToken);
         }
         catch (OperationCanceledException)

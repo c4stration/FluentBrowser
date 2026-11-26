@@ -424,21 +424,6 @@
                     TextChanged="AddressBar_TextChanged"
                     UpdateTextOnSelect="False">
 
-                    <AutoSuggestBox.Resources>
-                        <Style TargetType="ListView">
-                            <Setter Property="ItemContainerTransitions">
-                                <Setter.Value>
-                                    <TransitionCollection>
-                                        <AddDeleteThemeTransition />
-                                        <ContentThemeTransition />
-                                        <ReorderThemeTransition />
-                                        <EntranceThemeTransition IsStaggeringEnabled="False" />
-                                    </TransitionCollection>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </AutoSuggestBox.Resources>
-
                     <AutoSuggestBox.TextBoxStyle>
                         <Style TargetType="TextBox">
                             <Setter Property="IsSpellCheckEnabled" Value="False" />
@@ -465,23 +450,13 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <Grid
+                                <FontIcon
                                     Width="20"
                                     Height="20"
                                     Margin="-16,0,0,0"
-                                    VerticalAlignment="Center">
-
-                                    <FontIcon
-                                        FontSize="16"
-                                        Glyph="{Binding IconGlyph}"
-                                        Visibility="{Binding Favicon, Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter=Invert}" />
-
-                                    <Image
-                                        Width="16"
-                                        Height="16"
-                                        Source="{Binding Favicon}"
-                                        Stretch="Uniform" />
-                                </Grid>
+                                    VerticalAlignment="Center"
+                                    FontSize="16"
+                                    Glyph="{Binding IconGlyph}" />
 
                                 <TextBlock
                                     Grid.Column="1"
@@ -550,7 +525,7 @@
                             Click="AudioToggleButton_Click"
                             Content="&#xE767;"
                             CornerRadius="{ThemeResource ControlCornerRadius}"
-                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                            Foreground="{ThemeResource AccentFillColorDefaultBrush}"
                             Style="{StaticResource AddressBarButtonStyle}" />
 
                         <Button

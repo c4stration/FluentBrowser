@@ -71,11 +71,9 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <Border
+                                        <!--<Border
                                             Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-                                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="{ThemeResource ControlCornerRadius}" />
+                                            CornerRadius="{ThemeResource ControlCornerRadius}" />-->
 
                                         <Button
                                             Width="84"
@@ -83,9 +81,9 @@
                                             Padding="0"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
+                                            Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
                                             Click="FavoriteButton_Click"
                                             CornerRadius="{ThemeResource ControlCornerRadius}"
-                                            Style="{ThemeResource AppBarButtonStyle}"
                                             ToolTipService.ToolTip="{Binding Name}">
                                             <Image
                                                 Width="32"

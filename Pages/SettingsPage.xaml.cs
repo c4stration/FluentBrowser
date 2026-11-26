@@ -67,6 +67,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     private readonly ApplicationDataContainer _settings;
     private MainWindow? _mainWindow;
     private bool _isDisposed;
+    private bool _deferredContentLoadStarted;
     public bool IsDisposed => _isDisposed;
     private bool _loadingSettings;
     public event EventHandler? FullWebAddressChanged;
@@ -76,11 +77,8 @@ public sealed partial class SettingsPage : Page, IDisposable
     private readonly SemaphoreSlim _extensionLoadLock = new(1, 1);
     private int _extensionLoadVersion;
 
-    private static readonly Lazy<string[]> InstalledFontFamilies = new(() =>
-        CanvasTextFormat.GetSystemFontFamilies(ApplicationLanguages.Languages)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
-            .ToArray());
+    private static readonly Lazy<Task<string[]>> InstalledFontFamiliesTask =
+        new(() => Task.Run(GetInstalledFontFamilies));
     private static readonly Lazy<Task<string[]>> InstalledMathFontFamiliesTask =
         new(() => Task.Run(GetInstalledMathFontFamilies));
     private const uint MathTableTag = 0x4854414D;
@@ -88,6 +86,7 @@ public sealed partial class SettingsPage : Page, IDisposable
     public SettingsPage()
     {
         InitializeComponent();
+        Loaded += SettingsPage_Loaded;
 
         if (App.MainWindow is MainWindow window)
         {
@@ -132,7 +131,6 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadDownloadLocation();
         LoadAskEveryDownload();
         LoadAllShortcuts();
-        LoadInstalledFonts();
         LoadVersion();
 
         CustomSitesListView.ItemsSource = _customSites;
@@ -143,8 +141,6 @@ public sealed partial class SettingsPage : Page, IDisposable
         _loadingSettings = false;
 
         UpdateSystemLanguageInfoBar();
-        LoadFaviconCacheDescription();
-
         _ = LoadTimezonesAsync();
 
         MathFontPreviewControl.MathML = """
@@ -262,6 +258,24 @@ public sealed partial class SettingsPage : Page, IDisposable
         Debug.WriteLine("Available languages: " + string.Join(", ", available));
     }
 
+    private async void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_deferredContentLoadStarted || _isDisposed)
+            return;
+
+        _deferredContentLoadStarted = true;
+
+        // Let the page render its basic controls before doing any optional,
+        // potentially expensive work.
+        await Task.Yield();
+
+        if (_isDisposed)
+            return;
+
+        _ = LoadInstalledFontsAsync();
+        _ = LoadFaviconCacheDescriptionAsync();
+    }
+
     public void Dispose()
     {
         if (_isDisposed)
@@ -269,6 +283,7 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         _isDisposed = true;
         _extensionLoadVersion++;
+        Loaded -= SettingsPage_Loaded;
 
         AddExtensionButton.Click -= AddExtensionButton_Click;
         CustomSitesListView.DragItemsCompleted -=
@@ -731,6 +746,60 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         LeftOrRightAlignment.Content =
             LocalizerExtensions.GetLocalizedString(key);
+
+        RefreshSelectedComboBoxContent(AddressBarAlignmentComboBox);
+    }
+
+    private static void RefreshSelectedComboBoxContent(ComboBox comboBox)
+    {
+        if (comboBox.SelectedIndex < 0)
+            return;
+
+        _ = comboBox.ApplyTemplate();
+
+        ContentPresenter? contentPresenter = FindDescendant<ContentPresenter>(
+            comboBox,
+            presenter => presenter.Name == "ContentPresenter");
+
+        if (contentPresenter is null ||
+            comboBox.ContainerFromIndex(comboBox.SelectedIndex)
+                is not ComboBoxItem selectedItem)
+        {
+            return;
+        }
+
+        // WinUI caches the closed ComboBox's content in this presenter. The
+        // Left/Right label is selected dynamically, after WinUI3Localizer has
+        // completed its own ComboBox refresh, so update that cache explicitly.
+        contentPresenter.Content = selectedItem.Content;
+        contentPresenter.ContentTemplate = selectedItem.ContentTemplate;
+        contentPresenter.ContentTemplateSelector =
+            selectedItem.ContentTemplateSelector;
+    }
+
+    private static T? FindDescendant<T>(
+        DependencyObject dependencyObject,
+        Func<T, bool> predicate)
+        where T : DependencyObject
+    {
+        int childCount = VisualTreeHelper.GetChildrenCount(dependencyObject);
+
+        for (int i = 0; i < childCount; i++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(
+                dependencyObject,
+                i);
+
+            if (child is T match && predicate(match))
+                return match;
+
+            T? descendant = FindDescendant(child, predicate);
+
+            if (descendant is not null)
+                return descendant;
+        }
+
+        return null;
     }
 
     private async void LanguageComboBox_SelectionChanged(
@@ -766,7 +835,7 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         await Localizer.Get().SetLanguage(resolvedLanguage);
 
-        LoadFaviconCacheDescription();
+        _ = LoadFaviconCacheDescriptionAsync();
         LoadTextDirection(resolvedLanguage);
 
         if (App.IsRtlLanguage(resolvedLanguage))
@@ -1706,7 +1775,7 @@ public sealed partial class SettingsPage : Page, IDisposable
 
         window.ClearFaviconCache();
 
-        UpdateFaviconCacheDescription();
+        _ = UpdateFaviconCacheDescriptionAsync();
 
         await Task.Delay(400); // for visual feedback
 
@@ -1808,19 +1877,32 @@ public sealed partial class SettingsPage : Page, IDisposable
         SearchEngineChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private void LoadFaviconCacheDescription()
+    private async Task LoadFaviconCacheDescriptionAsync()
     {
         _faviconCacheDescriptionTemplate =
             FaviconCacheCard.Description?.ToString();
 
-        UpdateFaviconCacheDescription();
+        await UpdateFaviconCacheDescriptionAsync();
     }
 
-    private void UpdateFaviconCacheDescription()
+    private async Task UpdateFaviconCacheDescriptionAsync()
     {
         if (string.IsNullOrEmpty(_faviconCacheDescriptionTemplate))
             return;
 
+        long totalBytes = await Task.Run(CalculateFaviconCacheSize);
+
+        if (_isDisposed)
+            return;
+
+        FaviconCacheCard.Description =
+            _faviconCacheDescriptionTemplate.Replace(
+                "{0}",
+                Helpers.FormatFileSize(totalBytes));
+    }
+
+    private static long CalculateFaviconCacheSize()
+    {
         long totalBytes = 0;
 
         if (Directory.Exists(Paths.FaviconCache))
@@ -1848,17 +1930,14 @@ public sealed partial class SettingsPage : Page, IDisposable
             }
         }
 
-        FaviconCacheCard.Description =
-            _faviconCacheDescriptionTemplate.Replace(
-                "{0}",
-                Helpers.FormatFileSize(totalBytes));
+        return totalBytes;
     }
 
     private void MainWindow_FaviconCacheChanged(
         object? sender,
         EventArgs e)
     {
-        UpdateFaviconCacheDescription();
+        _ = UpdateFaviconCacheDescriptionAsync();
     }
 
     private void LoadAllShortcuts()
@@ -2232,9 +2311,12 @@ public sealed partial class SettingsPage : Page, IDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(settingKey))
         };
 
-    private void LoadInstalledFonts()
+    private async Task LoadInstalledFontsAsync()
     {
-        string[] fonts = InstalledFontFamilies.Value;
+        string[] fonts = await InstalledFontFamiliesTask.Value;
+
+        if (_isDisposed)
+            return;
 
         StandardFontComboBox.ItemsSource = fonts;
         SerifFontComboBox.ItemsSource = fonts;
@@ -2261,6 +2343,12 @@ public sealed partial class SettingsPage : Page, IDisposable
         LoadMathFontSelection();
         _ = LoadInstalledMathFontsAsync();
     }
+
+    private static string[] GetInstalledFontFamilies() =>
+        CanvasTextFormat.GetSystemFontFamilies(ApplicationLanguages.Languages)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(font => font, StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
 
     private async Task LoadInstalledMathFontsAsync()
     {

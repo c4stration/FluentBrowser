@@ -82,7 +82,7 @@ namespace FluentBrowser
             var options = new CoreWebView2EnvironmentOptions
             {
                 AreBrowserExtensionsEnabled = true,
-                AdditionalBrowserArguments = "--disable-lcd-text", // kek
+                AdditionalBrowserArguments = "--disable-lcd-text --force-color-profile=srgb", // kek
                 ScrollBarStyle = CoreWebView2ScrollbarStyle.FluentOverlay
             };
 
