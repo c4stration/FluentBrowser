@@ -774,4 +774,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>웹사이트에서 브라우저를 Microsoft Edge 또는 Google Chrome으로 식별하도록 선택하세요</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>{0} 붙여넣고 이동</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>"{0}" 붙여넣고 검색</value>
+  </data>
 </root>

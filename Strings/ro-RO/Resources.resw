@@ -774,4 +774,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>Alege dacă site-urile web îți identifică browserul ca Microsoft Edge sau Google Chrome</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>Lipește și accesează {0}</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>Lipește și caută „{0}”</value>
+  </data>
 </root>

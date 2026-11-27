@@ -133,7 +133,7 @@ public sealed partial class MainWindow
         if (IsTabPlayingAudio(currentCore) || currentCore.IsMuted)
             currentCore.IsMuted = !currentCore.IsMuted;
         else
-            MuteAllPlayingTabs();
+            ToggleOtherTabAudio();
 
         UpdateAudioButton();
     }
@@ -289,6 +289,21 @@ public sealed partial class MainWindow
         }
     }
 
+    private void ToggleOtherTabAudio()
+    {
+        var audioTabs = GetTabCores()
+            .Where(x => IsTabPlayingAudio(x.Core) || x.Core.IsMuted)
+            .ToList();
+
+        if (audioTabs.Count == 0)
+            return;
+
+        bool unmute = audioTabs.All(x => x.Core.IsMuted);
+
+        foreach (var (_, core) in audioTabs)
+            core.IsMuted = !unmute;
+    }
+
     private void MuteOtherPlayingTabs(CoreWebView2 currentCore)
     {
         foreach (var (_, core) in GetTabCores())
@@ -324,11 +339,18 @@ public sealed partial class MainWindow
             return;
         }
 
-        bool anyPlaying = GetTabCores()
-            .Any(x => IsTabPlayingAudio(x.Core));
+        var audioTabs = GetTabCores()
+            .Where(x => IsTabPlayingAudio(x.Core) || x.Core.IsMuted)
+            .ToList();
 
-        bool muted = currentCore.IsMuted;
-        bool show = anyPlaying || muted;
+        bool currentTabPlaying = IsTabPlayingAudio(currentCore);
+        bool allOtherAudioMuted =
+            audioTabs.Count > 0 &&
+            audioTabs.All(x => x.Core.IsMuted);
+
+        bool muted = currentCore.IsMuted ||
+            (!currentTabPlaying && allOtherAudioMuted);
+        bool show = audioTabs.Count > 0 || currentCore.IsMuted;
 
         SetAddressBarTrailingButtonVisible(AudioToggleButton, show);
 

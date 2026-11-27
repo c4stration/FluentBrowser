@@ -188,6 +188,45 @@ public static class Helpers
                formattedDate[firstTextElement.Length..];
     }
 
+    public static string ShortenUrl(string url, int maxLength = 50)
+    {
+        if (url.Length <= maxLength ||
+            !Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            return url;
+
+        string host = uri.Host;
+        if (host.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
+            host = host[4..];
+
+        string[] segments = uri.AbsolutePath
+            .Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        int length = host.Length + 1;
+        for (int i = 0; i < segments.Length; i++)
+            length += segments[i].Length + (i > 0 ? 1 : 0);
+
+        int[] order = Enumerable.Range(0, segments.Length)
+            .OrderByDescending(i => segments[i].Length)
+            .ToArray();
+
+        foreach (int i in order)
+        {
+            if (length <= maxLength) break;
+
+            int len = segments[i].Length;
+            if (len <= 3) break;
+
+            length -= len - 3;
+            segments[i] = "...";
+        }
+
+        string result = host + "/" + string.Join('/', segments);
+
+        return result.Length <= maxLength
+            ? result
+            : result[..(maxLength - 3)] + "...";
+    }
+
     public static bool IsFileUri(Uri? uri) =>
         uri?.IsFile == true;
 

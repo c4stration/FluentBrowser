@@ -778,4 +778,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>ウェブサイトにブラウザーを Microsoft Edge として識別させるか、Google Chrome として識別させるかを選択します</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>{0} に貼り付けて移動</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>「{0}」を貼り付けて検索</value>
+  </data>
 </root>

@@ -774,4 +774,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>選擇讓網站將你的瀏覽器識別為 Microsoft Edge 還是 Google Chrome</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>貼上並前往 {0}</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>貼上並搜尋「{0}」</value>
+  </data>
 </root>

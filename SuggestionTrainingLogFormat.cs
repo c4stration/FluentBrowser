@@ -103,7 +103,6 @@ internal static class SuggestionTrainingLogFormat
             }
             catch (Exception)
             {
-                // Keep all complete records before an invalid or truncated tail.
                 break;
             }
 

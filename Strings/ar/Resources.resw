@@ -786,4 +786,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>اختر ما إذا كنت تريد أن تتعرّف المواقع على متصفحك باعتباره Microsoft Edge أو Google Chrome</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>الصق وانتقل إلى {0}</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>الصق وابحث عن «{0}»</value>
+  </data>
 </root>

@@ -15,9 +15,6 @@ public static class SuggestionTrainingLogger
     private static string GetPath(string fileName) =>
         AppDataPaths.SuggestionsFile(fileName);
 
-    // Each append validates and may compact the whole training log. These calls
-    // originate from UI events, so never let their synchronous setup or later
-    // continuations run on the UI synchronization context.
     public static Task LogImpressionAsync(SuggestionImpression impression) =>
         Task.Run(
             () => AppendAsync(

@@ -8,7 +8,6 @@ using Windows.Storage;
 
 namespace FluentBrowser;
 
-// Shared record – used by both MainWindow and the ranker
 internal sealed record SuggestionCandidate(
     string Display,
     Uri Target,
@@ -68,7 +67,6 @@ internal sealed class SuggestionRanker
             }
             else
             {
-                // Fallback to the heuristic you already have
                 scored = list.Select(c =>
                 {
                     bool isOpen = openSet.Contains(c.Target);
@@ -169,8 +167,6 @@ internal sealed class SuggestionRanker
     }
 
     private void OnModelTrained(object? sender, EventArgs e) => TryLoadModel();
-
-    // ---------- ML.NET types ----------
 
     public sealed class SuggestionFeatures
     {

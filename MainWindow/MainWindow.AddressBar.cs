@@ -1,5 +1,6 @@
 using CommunityToolkit.WinUI;
 using FluentBrowser.Pages;
+using FluentBrowser.Shared;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -13,10 +14,10 @@ using System.Net.Http;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.System;
 using WinUI3Localizer;
-using FluentBrowser.Shared;
 
 namespace FluentBrowser;
 
@@ -442,10 +443,6 @@ public sealed partial class MainWindow
             query,
             requestVersion,
             cancellation);
-
-        // Suggestion rows deliberately use their lightweight glyphs. Decoding
-        // favicons while the user types runs bitmap work on the UI thread and
-        // causes the input stall this list is meant to avoid.
     }
 
     private static bool LooksLikeWebsiteSuggestion(string display) =>
@@ -596,6 +593,29 @@ public sealed partial class MainWindow
                 });
         }
 
+        SubmitAddressBarTarget(target);
+    }
+
+    private void SubmitAddressBarText(string text)
+    {
+        text = text.Trim();
+
+        if (text.Length == 0)
+            return;
+
+        Uri target =
+            TryCreateAddressUri(text, out Uri? addressUri) &&
+            addressUri is not null
+                ? addressUri
+                : _searchSuggestionProvider.CreateSearchUri(
+                    text,
+                    GetSearchEngine());
+
+        SubmitAddressBarTarget(target);
+    }
+
+    private void SubmitAddressBarTarget(Uri target)
+    {
         ++_addressBarFocusVersion;
         ++_addressBarSubmissionFocusVersion;
 
@@ -606,8 +626,7 @@ public sealed partial class MainWindow
         _suggestionWasChosen = false;
         _selectedSuggestionTarget = null;
 
-        WebView2? webViewToFocus =
-            (SelectedTab)?.WebView;
+        WebView2? webViewToFocus = SelectedTab?.WebView;
 
         bool isOnInternalPage = SelectedTab is BrowserTab selectedTab &&
             ReferenceEquals(selectedTab.Content, selectedTab.HistoryPage);
@@ -623,7 +642,7 @@ public sealed partial class MainWindow
         _pendingAddressBarFocusWebView =
             waitForSuggestionPopupClose ? webViewToFocus : null;
 
-        ClearSuggestionResults(sender);
+        ClearSuggestionResults(AddressBar);
 
         if (SelectedTab is not BrowserTab tab)
         {
@@ -942,9 +961,6 @@ public sealed partial class MainWindow
             Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
             () =>
             {
-                // AutoSuggestBox raises TextChanged before its inner TextBox has
-                // consistently published the new caret position. Saving on the
-                // next UI turn avoids restoring a position from before the key.
                 if (ReferenceEquals(SelectedTab, tab) &&
                     ReferenceEquals(_addressBarFocusTab, tab) &&
                     string.Equals(AddressBar.Text, textAtInput, StringComparison.Ordinal) &&
@@ -983,8 +999,6 @@ public sealed partial class MainWindow
             Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
             () =>
             {
-                // Only restore an untouched edit. New input always wins over a
-                // deferred popup update, so this cannot move the caret backwards.
                 if (!IsCurrentSuggestionRequest(
                         sender,
                         query,
@@ -1119,6 +1133,19 @@ public sealed partial class MainWindow
             },
             "Ctrl+V");
 
+        string? pasteAndGoText = null;
+
+        var pasteAndGoItem = Helpers.CreateContextMenuItem(
+            string.Format(
+                LocalizerExtensions.GetLocalizedString("PasteAndGo"),
+                string.Empty),
+            (string)Application.Current.Resources["PasteAndGo"],
+            (_, _) =>
+            {
+                if (pasteAndGoText is { Length: > 0 } text)
+                    SubmitAddressBarText(text);
+            });
+
         var selectAllItem = Helpers.CreateContextMenuItem(
             LocalizerExtensions.GetLocalizedString("SelectAll"),
             "",
@@ -1128,10 +1155,11 @@ public sealed partial class MainWindow
         menu.Items.Add(cutItem);
         menu.Items.Add(copyItem);
         menu.Items.Add(pasteItem);
+        menu.Items.Add(pasteAndGoItem);
         menu.Items.Add(new MenuFlyoutSeparator());
         menu.Items.Add(selectAllItem);
 
-        menu.Opening += (_, _) =>
+        menu.Opening += async (_, _) =>
         {
             cutItem.Text = LocalizerExtensions.GetLocalizedString("Cut");
             copyItem.Text = LocalizerExtensions.GetLocalizedString("Copy");
@@ -1142,7 +1170,44 @@ public sealed partial class MainWindow
             copyItem.IsEnabled = textBox.SelectionLength > 0;
             selectAllItem.IsEnabled = textBox.Text.Length > 0;
 
+            pasteAndGoText = null;
+            pasteAndGoItem.IsEnabled = false;
+
             _addressBarContextFlyoutOpen = true;
+
+            try
+            {
+                var clipboard = Clipboard.GetContent();
+
+                var clipboardText = clipboard.Contains(StandardDataFormats.Text)
+                    ? GetFirstLine(await clipboard.GetTextAsync())
+                    : string.Empty;
+
+                var isUrl =
+                    TryCreateAddressUri(clipboardText, out Uri? uri) &&
+                    uri is not null;
+
+                pasteAndGoText = clipboardText.Length > 0
+                    ? clipboardText
+                    : null;
+
+                pasteAndGoItem.IsEnabled = pasteAndGoText is not null;
+
+                pasteAndGoItem.Text = string.Format(
+                    LocalizerExtensions.GetLocalizedString(
+                        isUrl ? "PasteAndGo" : "PasteAndSearch"),
+                    TruncateWithEllipsis(
+                        isUrl
+                            ? Helpers.ShortenUrl(clipboardText)
+                            : clipboardText,
+                        MaxPasteAndGoLabelLength));
+            }
+            catch
+            {
+                pasteAndGoItem.Text = string.Format(
+                    LocalizerExtensions.GetLocalizedString("PasteAndSearch"),
+                    string.Empty);
+            }
         };
 
         menu.Closed += (_, _) =>
@@ -1594,6 +1659,33 @@ public sealed partial class MainWindow
             : host;
     }
 
+    private const int MaxPasteAndGoLabelLength = 50;
+
+    private static string GetFirstLine(string text)
+    {
+        text = text.Trim();
+
+        int lineEnd = text.IndexOfAny(new[] { '\r', '\n' });
+
+        return lineEnd < 0
+            ? text
+            : text[..lineEnd].TrimEnd();
+    }
+
+    private static string TruncateWithEllipsis(string text, int maxLength)
+    {
+        if (text.Length <= maxLength)
+            return text;
+
+        int length = maxLength;
+
+        // Don't cut a surrogate pair in half.
+        if (char.IsHighSurrogate(text[length - 1]))
+            length--;
+
+        return text[..length] + "...";
+    }
+
     private static bool IsHttpUri(Uri uri) =>
         uri.Scheme == Uri.UriSchemeHttp ||
         uri.Scheme == Uri.UriSchemeHttps;
@@ -1632,7 +1724,7 @@ public sealed partial class MainWindow
         }
 
         if (!Uri.TryCreate(
-                $"https://{hostPart}",
+                $"https://{text}",
                 UriKind.Absolute,
                 out Uri? domainUri) ||
             domainUri is null ||

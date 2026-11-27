@@ -789,4 +789,10 @@
   <data name="BrowserIdentity.Description" xml:space="preserve">
     <value>Lege fest, ob Websites deinen Browser als Microsoft Edge oder Google Chrome erkennen</value>
   </data>
+  <data name="PasteAndGo" xml:space="preserve">
+    <value>Einfügen und zu {0} wechseln</value>
+  </data>
+  <data name="PasteAndSearch" xml:space="preserve">
+    <value>Einfügen und nach „{0“ suchen</value>
+  </data>
 </root>
